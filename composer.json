@@ -1,0 +1,17 @@
+{
+    "name": "makis_ssd2/neto-web-diplom",
+    "description": "Дипломный проект по профессии <Веб-разработчик>",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "MakisSsd2\\NetoWebDiplom\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Maksim Chalyh",
+            "email": "nazgulius@yandex.ru"
+        }
+    ],
+    "require": {}
+}
