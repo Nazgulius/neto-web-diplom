@@ -1,4 +1,8 @@
+import '../css/admin/css/normalize.css';
+// import '../css/admin/css/styles.css';
 import '../css/app.css';
+// import '../css/client/css/normalize.css';
+// import '../css/client/css/styles.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
