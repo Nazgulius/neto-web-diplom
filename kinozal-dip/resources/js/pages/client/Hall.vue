@@ -4,13 +4,45 @@ export default {
 
   data() {
     return { // тут состояние 
+      seats: [], // данные о местах
+      selectedSeats: [] // список выбранных мест
     }
   },
   methods: {
     // методы для бронирования 
+    toggleSeat(seat) {
+      // Проверяем, свободно ли место, меняем состояние
+      if (seat.taken) return; // нельзя выбрать занятое
+      seat.selected = !seat.selected;
+      if (seat.selected) {
+        this.selectedSeats.push(seat);
+      } else {
+        this.selectedSeats = this.selectedSeats.filter(s => s.id !== seat.id);
+      }
+    },
+
+    reserveSeats() {
+      // Отправка выбранных мест на сервер, например:
+      axios.post('/api/reserve', {
+        seats: this.selectedSeats.map(s => s.id)
+      }).then(response => {
+        alert('Бронирование успешно!');
+      }).catch(error => {
+        alert('Ошибка бронирования');
+      });
+    },
+
+    fetchSeats() {
+      // Загрузить состояние кресел с сервера (или заглушку)
+      axios.get('/api/seats')
+        .then(response => {
+          this.seats = response.data;
+        });
+    }
   },
   mounted() {
     // fetch данных о зале 
+    this.fetchSeats();
   }
 }
 
@@ -42,9 +74,12 @@ export default {
             <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
               class="buying-scheme__chair buying-scheme__chair_disabled"></span>
             <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
+              class="buying-scheme__chair buying-scheme__chair_standart" v-for="seat in seats" :key="seat.id"
+              :class="['seat', { 'selected': seat.selected, 'taken': seat.taken }]" @click="toggleSeat(seat)">
+              {{ seat.number }}></span>
+            <span class="buying-scheme__chair buying-scheme__chair_standart" v-for="seat in seats" :key="seat.id"
+              :class="['seat', { 'selected': seat.selected, 'taken': seat.taken }]" @click="toggleSeat(seat)">
+              {{ seat.number }}></span><span class="buying-scheme__chair buying-scheme__chair_disabled"></span>
             <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
               class="buying-scheme__chair buying-scheme__chair_disabled"></span>
             <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
@@ -202,7 +237,7 @@ export default {
           </div>
         </div>
       </div>
-      <button class="acceptin-button" onclick="location.href='payment.html'">Забронировать</button>
+      <button class="acceptin-button" onclick="location.href='payment.html'" @click="reserveSeats">Забронировать</button>
     </section>
   </main>
 </template>
@@ -693,4 +728,5 @@ body {
   .buying__info-hint {
     display: none;
   }
-}</style>
+}
+</style>

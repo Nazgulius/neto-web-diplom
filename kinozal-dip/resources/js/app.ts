@@ -11,6 +11,8 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 
+import router from './router'; // добавил
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
@@ -18,6 +20,7 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
+            .use(router) // добавил для новых машрутов кинотеатра
             .use(plugin)
             .use(ZiggyVue)
             .mount(el);
