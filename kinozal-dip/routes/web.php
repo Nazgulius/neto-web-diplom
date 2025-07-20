@@ -3,52 +3,48 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-import { createRouter, createWebHistory } from 'vue-router' ;
-import Index from '@/views/Index.vue' ;
-import Hall from '@/views/Hall.vue' ;
-import Payment from '@/views/Payment.vue' ;
-import Ticket from '@/views/Ticket.vue' ;
-import AdminIndex from '@/views/admin/AdminIndex.vue' ;
-import AdminLogin from '@/views/admin/AdminLogin.vue' ;
+// эти импорты скорее всего не нужны. по окончанию настройки роутов удалить.
+// import { createRouter, createWebHistory } from 'vue-router' ;
+// import Index from '@/views/Index.vue' ;
+// import Hall from '@/views/Hall.vue' ;
+// import Payment from '@/views/Payment.vue' ;
+// import Ticket from '@/views/Ticket.vue' ;
+// import AdminIndex from '@/views/admin/AdminIndex.vue' ;
+// import AdminLogin from '@/views/admin/AdminLogin.vue' ;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+// Route::get('/', function () {
+//     return Inertia::render('Welcome');
+// })->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-// добавил
-// Route::get('/{any}', function () {
-//   return inertia('Welcome'); 
-// })->where('any', '.*');
+// Route::get('dashboard', function () {
+//     return Inertia::render('Dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 // маршруты для клиента:
 Route::get('/hall', function () {
-    return Inertia::render('Hall');
-});
+    return Inertia::render('client/Hall');
+})->name('hall');
 
-Route::get('/index', function () {
-    return Inertia::render('Index');
-});
+Route::get('/', function () {
+    return Inertia::render('client/Index');
+})->name('home');
 
 Route::get('/payment', function () {
-    return Inertia::render('Payment');
-});
+    return Inertia::render('client/Payment');
+})->name('payment');
 
 Route::get('/ticket', function () {
-    return Inertia::render('Ticket');
-});
+    return Inertia::render('client/Ticket');
+})->name('ticket');
 
 // маршруты для администрации:
-Route::get('dashboard/index', function () {
-    return Inertia::render('Index');
-})->middleware(['auth', 'verified'])->name('index');
+Route::get('dashboard', function () {
+    return Inertia::render('admin/Index');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('dashboard/login', function () {
-    return Inertia::render('Login');
-})->middleware(['auth', 'verified'])->name('login');
+    return Inertia::render('admin/Login');
+})->middleware(['auth', 'verified'])->name('loginAdmin');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
