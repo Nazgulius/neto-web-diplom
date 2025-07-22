@@ -10,6 +10,7 @@ export default {
       },
       mounted() {
         // fetch данных о зале 
+        document.body.classList.add('page-admin');
       }
     }
 
@@ -85,7 +86,7 @@ html {
   font-size: 62.5%;
 }
 
-body {
+body.page-admin {
   background-image: url("../src/admin/background.jpg");
   background-color: rgba(0, 0, 0, 0.5);
   background-blend-mode: multiply;

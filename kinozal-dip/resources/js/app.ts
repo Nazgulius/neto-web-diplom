@@ -1,6 +1,6 @@
-import '../css/admin/css/normalize.css';
+// import '../css/admin/css/normalize.css';
 // import '../css/admin/css/styles.css';
-import '../css/app.css';
+// import '../css/app.css';
 // import '../css/client/css/normalize.css';
 // import '../css/client/css/styles.css';
 

@@ -18,6 +18,7 @@ export default {
   },
   mounted() {
     // fetch данных о зале 
+    document.body.classList.add('page-client');
   }
 }
 
@@ -208,7 +209,7 @@ html {
   font-size: 62.5%;
 }
 
-body {
+body.page-client {
   background-image: url("../src/client/background.jpg");
   background-size: cover;
   background-attachment: fixed;
