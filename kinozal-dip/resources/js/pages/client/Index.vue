@@ -106,20 +106,20 @@ export default {
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:20</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall">14:10</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall">18:40</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall">22:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:10</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:40</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>
         </ul>
       </div>
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 2</h3>
         <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">11:15</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">14:40</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">16:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">18:30</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">21:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">23:30</a></li>     
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">11:15</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:40</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">16:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:30</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">21:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>     
         </ul>
       </div>      
     </section>
@@ -141,21 +141,21 @@ export default {
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">10:20</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">14:10</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">18:40</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">22:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:20</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:10</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:40</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>
         </ul>
       </div>
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 2</h3>
         <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">11:15</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">14:40</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">16:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">18:30</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">21:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">23:30</a></li>     
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">11:15</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:40</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">16:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:30</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">21:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>     
         </ul>
       </div>      
     </section>   
@@ -177,17 +177,17 @@ export default {
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall">09:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall">10:10</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall">12:55</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall">14:15</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">14:50</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">16:30</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">18:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">18:50</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">19:50</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">20:55</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" href="hall.html">22:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">09:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:10</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">12:55</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:15</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:50</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">16:30</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:50</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">19:50</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">20:55</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>
         </ul>
       </div>     
     </section>     
@@ -397,265 +397,6 @@ body {
   font-size: 1.5rem;
 }
 
-/* ~~~~~~~~~~~~ Кинозал ~~~~~~~~~~~~ */
-.acceptin-button {
-  display: block;
-  margin: 3rem auto 0;
-  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.24), 0px 0px 3px rgba(0, 0, 0, 0.12);
-  border-radius: 3px;
-  border: none;
-  padding: 12px 57px;
-  text-transform: uppercase;
-  font-weight: 500;
-  font-size: 1.4rem;
-  background-color: #16A6AF;
-  color: #FFFFFF;
-}
-
-.buying {
-  background-color: rgba(241, 235, 230, 0.95);
-  padding-bottom: 3rem;
-}
-
-.buying__info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-}
-
-.buying__info .buying__info-description {
-  padding-right: 1.5rem;
-}
-
-.buying__info .buying__info-title,
-.buying__info .buying__info-hall {
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-
-.buying__info .buying__info-start {
-  font-size: 1.4rem;
-  font-weight: 300;
-  margin: 0.7rem 0;
-}
-
-.buying__info .buying__info-hint {
-  position: relative;
-  font-weight: 300;
-  font-size: 1.4rem;
-  text-align: center;
-}
-
-.buying__info .buying__info-hint p {
-  position: relative;
-  width: 10rem;
-}
-
-.buying__info .buying__info-hint p::before {
-  content: '';
-  position: absolute;
-  left: -1rem;
-  top: calc(50% - 1.6rem);
-  display: block;
-  width: 2.4rem;
-  height: 3.2rem;
-  background-image: url(../src/client/hint.png);
-  background-size: 2.4rem 3.2rem;
-}
-
-.buying-scheme {
-  text-align: center;
-  background-color: #171D24;
-  padding: 1.5rem 3rem 1.5rem;
-}
-
-.buying-scheme__wrapper {
-  font-size: 0;
-  display: inline-block;
-  background-image: url(../src/client/screen.png);
-  background-position: top;
-  background-repeat: no-repeat;
-  background-size: 100%;
-  padding-top: 3rem;
-}
-
-.buying-scheme__wrapper::before {
-  content: '';
-}
-
-.buying-scheme__row+.buying-scheme__row {
-  margin-top: 4px;
-}
-
-.buying-scheme__chair {
-  display: inline-block;
-  vertical-align: middle;
-  width: 2rem;
-  height: 2rem;
-  border: 1px solid #525252;
-  box-sizing: border-box;
-  border-radius: 4px;
-}
-
-.buying-scheme__chair:not(:first-of-type) {
-  margin-left: 4px;
-}
-
-.buying-scheme__chair_disabled {
-  opacity: 0;
-}
-
-.buying-scheme__chair_standart {
-  background-color: #FFFFFF;
-}
-
-.buying-scheme__chair_taken {
-  background-color: transparent;
-}
-
-.buying-scheme__chair_vip {
-  background-color: #F9953A;
-}
-
-.buying-scheme__chair_selected {
-  background-color: #25C4CE;
-  box-shadow: 0px 0px 4px #16A6AF;
-  transform: scale(1.2);
-}
-
-.buying-scheme__legend {
-  padding-top: 3rem;
-  font-size: 1.4rem;
-  font-weight: 300;
-  color: #FFFFFF;
-  display: flex;
-  flex-wrap: nowrap;
-  text-align: left;
-}
-
-.buying-scheme__legend .col {
-  max-width: 25rem;
-}
-
-.buying-scheme__legend .col:first-of-type {
-  padding-right: 1.5rem;
-  margin-left: auto;
-}
-
-.buying-scheme__legend .col:last-of-type {
-  margin-right: auto;
-}
-
-.buying-scheme__legend .buying-scheme__legend-price+.buying-scheme__legend-price {
-  margin-top: 1rem;
-}
-
-/* ~~~~~~~~~~~~ Билет ~~~~~~~~~~~~ */
-.tichet__check,
-.ticket__info-wrapper {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  background-color: rgba(241, 235, 230, 0.95);
-}
-
-.tichet__check {
-  position: relative;
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
-
-.tichet__check::before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: -3px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-image: url(../src/client/border-top.png);
-  background-size: 10px 3px;
-}
-
-.tichet__check::after {
-  content: '';
-  display: block;
-  position: absolute;
-  bottom: -3px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-image: url(../src/client/border-bottom.png);
-  background-size: 10px 3px;
-}
-
-.ticket__info-wrapper {
-  position: relative;
-  margin-top: 6px;
-  padding-top: 2rem;
-  padding-bottom: 3rem;
-}
-
-.ticket__info-wrapper::before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: -3px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-image: url(../src/client/border-top.png);
-  background-size: 10px 3px;
-}
-
-.ticket__info-wrapper::after {
-  content: '';
-  display: block;
-  position: absolute;
-  bottom: -3px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-image: url(../src/client/border-bottom.png);
-  background-size: 10px 3px;
-}
-
-.ticket__check-title {
-  font-weight: 700;
-  font-size: 2.2rem;
-  text-transform: uppercase;
-  color: #C76F00;
-}
-
-.ticket__info {
-  font-size: 1.6rem;
-  color: #000000;
-}
-
-.ticket__info+.ticket__info {
-  margin-top: 1rem;
-}
-
-.ticket__details {
-  font-weight: 700;
-}
-
-.ticket__hint {
-  font-weight: 300;
-  font-size: 1.4rem;
-  margin-top: 3rem;
-}
-
-.ticket__hint+.ticket__hint {
-  margin-top: 1rem;
-}
-
-.ticket__info-qr {
-  display: block;
-  margin: 3rem auto 0;
-  width: 20rem;
-  height: 20rem;
-}
 
 @media screen and (min-width: 479px) {
   .page-nav .page-nav__day {
