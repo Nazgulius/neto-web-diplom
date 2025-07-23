@@ -1,6 +1,7 @@
 <script>
 import { Head, Link } from '@inertiajs/vue3';
 // import { Link } from '@inertiajs/inertia-vue3';
+import axios from 'axios';
 
 export default {
   name: 'Index',
@@ -15,10 +16,18 @@ export default {
   },
   methods: {
     // методы для бронирования 
+    
   },
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-client');
+    axios.get('/movies')
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 }
 
