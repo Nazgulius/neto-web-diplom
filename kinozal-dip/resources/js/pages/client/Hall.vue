@@ -46,6 +46,13 @@ export default {
     // fetch данных о зале 
     this.fetchSeats();
     document.body.classList.add('page-client');
+    axios.get('/movies')
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 }
 

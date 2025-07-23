@@ -13,6 +13,13 @@ export default {
       mounted() {
         // fetch данных о зале 
         document.body.classList.add('page-admin');
+        axios.get('/movies')
+          .then(response => {
+            console.log(response.data);
+          })
+          .catch(error => {
+            console.error(error);
+          });
       }
     }
 

@@ -17,7 +17,7 @@ import router from './router'; // добавил
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 // Общие настройки
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://api.example.com';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://127.0.0.1:8000';
 
 axios.interceptors.request.use(config => {
   // Например, добавлять токен авторизации из хранилища
