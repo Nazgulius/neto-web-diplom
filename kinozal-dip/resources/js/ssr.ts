@@ -4,25 +4,9 @@ import { renderToString } from '@vue/server-renderer';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createSSRApp, DefineComponent, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
-import axios from 'axios';
+
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-
-
-// Общие настройки
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://api.example.com';
-
-axios.interceptors.request.use(config => {
-  // Например, добавлять токен авторизации из хранилища
-  const token = localStorage.getItem('token'); // или через Vuex/Pinia
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, error => {
-  return Promise.reject(error);
-});
-
 
 createServer((page) =>
     createInertiaApp({

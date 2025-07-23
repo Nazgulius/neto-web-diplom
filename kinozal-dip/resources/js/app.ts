@@ -10,10 +10,25 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
+import axios from 'axios';
 
 import router from './router'; // добавил
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+// Общие настройки
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://api.example.com';
+
+axios.interceptors.request.use(config => {
+  // Например, добавлять токен авторизации из хранилища
+  const token = localStorage.getItem('token'); // или через Vuex/Pinia
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
