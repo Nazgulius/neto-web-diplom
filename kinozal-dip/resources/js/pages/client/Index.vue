@@ -21,7 +21,7 @@ export default {
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-client');
-    axios.get('/movies')
+    axios.get('http://127.0.0.1:8000/movies')
       .then(response => {
         console.log(response.data);
       })
@@ -30,8 +30,6 @@ export default {
       });
   }
 }
-
-
 </script>
 
 <template>

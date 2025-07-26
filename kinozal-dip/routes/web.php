@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\MovieController;
+
 // эти импорты скорее всего не нужны. по окончанию настройки роутов удалить.
 // import { createRouter, createWebHistory } from 'vue-router' ;
 // import Index from '@/views/Index.vue' ;
@@ -45,6 +47,9 @@ Route::get('dashboard', function () {
 Route::get('dashboard/login', function () {
     return Inertia::render('admin/Login');
 })->middleware(['auth', 'verified'])->name('loginAdmin');
+
+
+Route::get('/movies', [MovieController::class, 'index']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
