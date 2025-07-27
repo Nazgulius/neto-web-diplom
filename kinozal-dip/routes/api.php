@@ -25,6 +25,7 @@ Route::apiResources([
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Route::get('/movies', [MovieController::class, 'index']);
 
 // Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {

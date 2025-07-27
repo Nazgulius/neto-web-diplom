@@ -25,10 +25,11 @@ export default {
 
     reserveSeats() {
       // Отправка выбранных мест на сервер, например:
-      axios.post('/api/reserve', {
+      axios.post('http://127.0.0.1:8000/seats/reserve', {
         seats: this.selectedSeats.map(s => s.id)
       }).then(response => {
         alert('Бронирование успешно!');
+        this.fetchSeats(); // обновим статусы сидений
       }).catch(error => {
         alert('Ошибка бронирования');
       });
@@ -36,7 +37,7 @@ export default {
 
     fetchSeats() {
       // Загрузить состояние кресел с сервера (или заглушку)
-      axios.get('/api/seats')
+      axios.get('http://127.0.0.1:8000/seats')
         .then(response => {
           this.seats = response.data;
         });
@@ -46,7 +47,7 @@ export default {
     // fetch данных о зале 
     this.fetchSeats();
     document.body.classList.add('page-client');
-    axios.get('/movies')
+    axios.get('http://127.0.0.1:8000/movies')
       .then(response => {
         console.log(response.data);
       })

@@ -11,6 +11,7 @@ import AdminLogin from '@/pages/admin/Login.vue';
 const routes = [
   { path: '/', component: IndexPage },
   { path: '/hall/:id', component: HallPage },
+  { path: '/hall', component: HallPage },
   { path: '/payment', component: PaymentPage },
   { path: '/ticket', component: TicketPage },
   // admin

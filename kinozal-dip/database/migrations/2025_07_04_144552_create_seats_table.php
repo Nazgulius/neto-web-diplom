@@ -18,6 +18,7 @@ return new class extends Migration
       $table->integer('number');
       $table->string('type')->default('Обычное'); // VIP или Обычное
       $table->timestamps();
+      $table->boolean('taken')->default(false);
 
       $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
     });

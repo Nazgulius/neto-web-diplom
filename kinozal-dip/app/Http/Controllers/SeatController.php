@@ -50,4 +50,23 @@ class SeatController extends Controller
       Seat::destroy($id);
       return response()->json(null, 204);
     }
+
+    public function reserve(Request $request)
+    {
+        $seatIds = $request->input('seats'); // массив id
+
+        // Обновим статус выбранных сидений
+        // Предположим, есть поле 'taken' или 'status'
+        // Например: 0 - свободно, 1 - забронировано
+        // Или используется логика с массивом занятых, в этом случае:
+        // обновим их статус
+        try {
+            // Обновление статуса для выбранных сидений
+            Seat::whereIn('id', $seatIds)->update(['taken' => true]);
+
+            return response()->json(['message' => 'Seats reserved successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to reserve seats'], 500);
+        }
+    }
 }
