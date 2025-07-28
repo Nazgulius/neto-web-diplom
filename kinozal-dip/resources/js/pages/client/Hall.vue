@@ -1,15 +1,23 @@
 <script>
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'Hall',
-
+  props: ['hallId', 'seanceId'],
   data() {
     return { // тут состояние 
       seats: [], // данные о местах
       selectedSeats: [] // список выбранных мест
     }
   },
+  computed: {  
+    rows() {  
+      // Получим уникальные номера рядов  
+      const uniqueRows = new Set(this.seats.map(seat => seat.row));  
+      return Array.from(uniqueRows).sort((a, b) => a - b);  
+    },
+  }, 
   methods: {
     // методы для бронирования 
     toggleSeat(seat) {
@@ -40,30 +48,57 @@ export default {
       axios.get('http://127.0.0.1:8000/seats')
         .then(response => {
           this.seats = response.data;
+          console.log('седячие места: ' + this.seats);
         });
-    }
+    },
+
+    seatsByRow(row) {  
+      return this.seats.filter(seat => seat.row === row);  
+    },  
+    isSelected(seat) {  
+      return this.selectedSeats.includes(seat.id);  
+    },  
+    selectSeat(seat) {  
+      if (seat.is_booked) return; // не выбираем занятые  
+      if (this.isSelected(seat)) {  
+        this.selectedSeats = this.selectedSeats.filter(id => id !== seat.id);  
+      } else {  
+        this.selectedSeats.push(seat.id);
+      }
+    },
   },
   mounted() {
     // fetch данных о зале 
     this.fetchSeats();
     document.body.classList.add('page-client');
-    axios.get('http://127.0.0.1:8000/movies')
+    axios.get('http://127.0.0.1:8000/seats')
       .then(response => {
         console.log(response.data);
       })
       .catch(error => {
         console.error(error);
       });
-  }
-}
-
-
+  },
+} 
 </script>
 
 <template>
   <header class="page-header">
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
+
+  <div class="hall-room">  
+    <div v-for="row in rows" :key="row" class="row">  
+      <div  
+        v-for="seat in seatsByRow(row)"  
+        :key="seat.id"  
+        :class="['seat', { 'occupied': seat.is_booked, 'selected': isSelected(seat) }]"  
+        @click="selectSeat(seat)"  
+      >  
+        {{ seat.seat_number }}  
+      </div>  
+    </div>  
+  </div>  
 
   <main>
     <section class="buying">
@@ -248,9 +283,14 @@ export default {
           </div>
         </div>
       </div>
-      <button class="acceptin-button" onclick="location.href='payment.html'" @click="reserveSeats">Забронировать</button>
+      <!-- <button class="acceptin-button" @click="$router.push('/payment')">Забронировать</button> -->
+      <button class="acceptin-button"><a :href="route('payment')">Забронировать</a></button>
+      <!-- <router-link to="/payment" class="acceptin-button">Забронировать</router-link> -->
+
     </section>
   </main>
+ 
+
 </template>
 
 <style>

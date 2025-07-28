@@ -14,7 +14,7 @@ export default {
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-client');
-    axios.get('/movies')
+    axios.get('http://127.0.0.1:8000/movies')
       .then(response => {
         console.log(response.data);
       })
@@ -46,7 +46,8 @@ export default {
         <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">18:30</span></p>
         <p class="ticket__info">Стоимость: <span class="ticket__details ticket__cost">600</span> рублей</p>
 
-        <button class="acceptin-button" onclick="location.href='ticket.html'" >Получить код бронирования</button>
+        <!-- <button class="acceptin-button" onclick="location.href='ticket.html'" >Получить код бронирования</button> -->
+        <button class="acceptin-button"><a :href="route('ticket')">Получить код бронирования</a></button>
 
         <p class="ticket__hint">После оплаты билет будет доступен в этом окне, а также придёт вам на почту. Покажите QR-код нашему контроллёру у входа в зал.</p>
         <p class="ticket__hint">Приятного просмотра!</p>

@@ -12,8 +12,9 @@ return new class extends Migration
   public function up(): void
   {
     Schema::create('rooms', function (Blueprint $table) {
-      $table->unsignedBigInteger('hall_id');
+      $table->id();
       $table->string('name');
+      $table->unsignedBigInteger('hall_id');
       $table->json('layout')->nullable(); // структура комнаты, например, расположение мест
       $table->timestamps();
 

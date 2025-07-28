@@ -42,3 +42,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('prices', PriceController::class);
     Route::apiResource('users', UserController::class);
 });
+
+Route::get('/halls/{hall}/seances/{seance}/seats', [HallController::class, 'getSeatsStatus']);

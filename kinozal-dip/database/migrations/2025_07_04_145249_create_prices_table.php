@@ -13,7 +13,7 @@ return new class extends Migration
   {
     Schema::create('prices', function (Blueprint $table) {
       $table->id();
-      $table->unsignedBigInteger('hall_id');
+      $table->unsignedBigInteger(column: 'hall_id');
       $table->string('seat_type'); // VIP или Обычное
       $table->decimal('amount', 8, 2);
       $table->timestamps();

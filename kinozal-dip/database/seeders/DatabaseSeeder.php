@@ -14,10 +14,39 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
+        if (!User::where('email', 'test@example.com')->exists()) {
+          User::factory()->create([
+              'name' => 'Test User',
+              'email' => 'test@example.com',
+              'password' => bcrypt('test'),
+              'created_at' => now(),
+              'updated_at' => now(),
+          ]);
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        /*
+        User::updateOrCreate(
+          ['email' => 'test@example.com'], // условие поиска
+          [
+              'name' => 'Test User',
+              'password' => bcrypt('password'),
+              'email_verified_at' => now(),
+          ]
+        );
+        */
+
+      \App\Models\Hall::create([
+        'name' => 'Main Hall',
+        'rows' => 10,
+        'seats_per_row' => 10,
+        'active' => true,
+      ]);
+
+      $this->call(RoomsTableSeeder::class);
+      $this->call(SeatsTableSeeder::class);
+
+      $this->call([
+        MoviesTableSeeder::class,
+      ]);
     }
 }
