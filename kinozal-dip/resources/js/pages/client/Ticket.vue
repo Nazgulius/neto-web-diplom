@@ -1,9 +1,31 @@
 <script>
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   name: 'Ticket',
+  
+  setup() {
+    const ticket = ref(null);
+    const qrCodeUrl = ref('');
 
+    // Получить uuid из маршрута
+    const route = useRoute();  // получаем текущий маршрут
+    const uuid = route.params.uuid; // предполагаем, что в маршруте /ticket/:uuid
+
+    onMounted(async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/tickets/${uuid}`);
+        ticket.value = response.data.ticket;
+        qrCodeUrl.value = response.data.qr_code_url;
+      } catch (error) {
+        console.error('Ошибка при загрузке билета:', error);
+      }
+    });
+
+    return { ticket, qrCodeUrl };
+  },
   data() {
     return { // тут состояние 
     }
@@ -21,10 +43,8 @@ export default {
       .catch(error => {
         console.error(error);
       });
-  }
+  },
 }
-
-
 </script>
 
 <template>
@@ -47,11 +67,21 @@ export default {
 
         <img class="ticket__info-qr" src="/src/client/qr-code.png">
 
+        <div v-if="ticket">
+          <h2>Ваш билет</h2>
+          <p>Номер билета: {{ ticket.id }}</p>
+          <img :src="qrCodeUrl" alt="QR-код" />
+        </div>
+        <div v-else>
+          <p>Загрузка билета...</p>
+        </div>
+
         <p class="ticket__hint">Покажите QR-код нашему контроллеру для подтверждения бронирования.</p>
         <p class="ticket__hint">Приятного просмотра!</p>
       </div>
     </section>     
   </main>
+
 </template>
 
 <style>

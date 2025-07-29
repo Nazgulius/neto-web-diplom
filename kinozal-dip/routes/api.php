@@ -27,6 +27,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/check-seat', [SeatController::class, 'checkAvailability']);
 Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']);
 Route::get('/seats', [SeatController::class, 'getSeats']);
+Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book');
 
 // Route::get('/movies', [MovieController::class, 'index']);
 

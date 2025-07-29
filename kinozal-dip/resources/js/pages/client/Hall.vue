@@ -8,26 +8,26 @@ export default {
   props: {
     hallId: Number,
     seanceId: Number,
-    // sessionId: {
-    //   type: String,
-    //   required: false,
-    //   default() { return null; }
-    // }
+    sessionId: {
+      type: String,
+      required: false,
+      default() { return null; }
+    }
   },
   data() {
     return { // тут состояние 
       seats: [], // данные о местах
       selectedSeats: [], // список выбранных мест
-      sessionId: 'мой id' // динамическая генерация сессии
+      // sessionId: 'мой id' // динамическая генерация сессии
     }
   },
-  computed: {  
-    rows() {  
+  computed: {
+    rows() {
       // Получим уникальные номера рядов  
-      const uniqueRows = new Set(this.seats.map(seat => seat.row));  
-      return Array.from(uniqueRows).sort((a, b) => a - b);  
+      const uniqueRows = new Set(this.seats.map(seat => seat.row));
+      return Array.from(uniqueRows).sort((a, b) => a - b);
     },
-  }, 
+  },
   methods: {
     // методы для бронирования 
     toggleSeat(seat) {
@@ -62,43 +62,44 @@ export default {
         });
     },
 
-    seatsByRow(row) {  
-      return this.seats.filter(seat => seat.row === row);  
-    },  
-    isSelected(seat) {  
-      return this.selectedSeats.includes(seat.id);  
-    },  
+    seatsByRow(row) {
+      return this.seats.filter(seat => seat.row === row);
+    },
+    isSelected(seat) {
+      return this.selectedSeats.includes(seat.id);
+    },
     async selectSeat(seat) {
-    if (seat.status !== 'available') {
-      alert('Место недоступно '); // если место занято, blocked
-      return;
-    }
-    if (!this.sessionId) {
-      alert('Нет sessionId'); // проверка на наличие сессии
-      return;
-    }
-    try {
-      const response = await axios.post('http://127.0.0.1:8000/check-seat', {
+      if (seat.status !== 'available') {
+        alert('Место недоступно '); // если место занято, blocked
+        return;
+      }
+      if (!this.sessionId) {
+        alert('Нет sessionId'); // проверка на наличие сессии
+        return;
+      }
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/check-seat', {
           seat_id: seat.id,
           session_id: this.sessionId, // идентификатор
         });
-          if (response.data.available) {
-            // Заблокировать место — например, установить статус
-            seat.status = 'blocked';
-          } else {
-            alert('Место уже занято или заблокировано другим пользователем');
-          }
-    } catch (err) {
-      if (err.response) {
-        console.error('Ошибка сервера:', err.response.data);
-      } else {
-        console.error('Ошибка:', err.message);
-      }
+        if (response.data.available) {
+          // Заблокировать место — например, установить статус
+          seat.status = 'blocked';
+        } else {
+          alert('Место уже занято или заблокировано другим пользователем');
+        }
+      } catch (err) {
+        if (err.response) {
+          console.error('Ошибка сервера:', err.response.data);
+        } else {
+          console.error('Ошибка:', err.message);
+        }
       }
     }
   },
   mounted() {
-    // fetch данных о зале 
+    // данные о зале 
+    console.log('sessionId=', this.sessionId);
     this.fetchSeats();
     document.body.classList.add('page-client');
     axios.get('http://127.0.0.1:8000/seats')
@@ -117,7 +118,6 @@ export default {
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
 
-  
   <main>
     <section class="buying">
       <div class="buying__info">
@@ -133,184 +133,37 @@ export default {
       <div class="buying-scheme">
         <div class="buying-scheme__wrapper">
 
-          <div class="hall-room">  
-            <div v-for="row in rows" :key="row" class="row">  
-              <div 
-                v-for="seat in seatsByRow(row)"  
-                :key="seat.id"  
-                :class="[ {'occupied': seat.is_booked, 'selected': isSelected(seat) },
-                  'buying-scheme__chair', 
-                  'buying-scheme__chair_standart']" 
-                @click="selectSeat(seat)"  
-              >  <!-- тут был класс 'seat' -->
-                {{ seat.seat_number }}  
-              </div>  
-            </div>  
+          <div class="hall-room">
+            <div v-for="row in rows" :key="row" class="row">
+              <div v-for="seat in seatsByRow(row)" :key="seat.id" :class="[{ 'occupied': seat.is_booked, 
+                'selected': isSelected(seat) },
+                'buying-scheme__chair',
+                'buying-scheme__chair_standart']" @click="selectSeat(seat)"> 
+                {{ seat.seat_number }}
+
+                <!-- <router-link class="acceptin-button"
+                  :to="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">
+                  Забронировать
+                </router-link> -->
+              </div>
+
+            </div>
+
             <div v-for="seat in seats" :key="seat.id" class="seat"
               :class="{ 'blocked': seat.status === 'blocked', 'occupied': seat.status === 'booked' }"
-              @click="selectSeat(seat)"
-              :disabled="seat.status !== 'available'">
-            {{ seat.number }}
-          </div>
-          </div>  
-          
-          
+              @click="selectSeat(seat)" :disabled="seat.status !== 'available'">
+              {{ seat.number }},
 
+              <!-- <router-link class="acceptin-button"
+                :to="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">
+                Забронировать
+              </router-link> -->
+            </div>
 
-
-
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart" v-for="seat in seats" :key="seat.id"
-              :class="['seat', { 'selected': seat.selected, 'taken': seat.taken }]" @click="toggleSeat(seat)">
-              {{ seat.number }}></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart" v-for="seat in seats" :key="seat.id"
-              :class="['seat', { 'selected': seat.selected, 'taken': seat.taken }]" @click="toggleSeat(seat)">
-              {{ seat.number }}></span><span class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
+           
           </div>
 
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_taken"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-          </div>
 
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-          </div>
-
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_vip"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_vip"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-          </div>
-
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_vip"></span><span
-              class="buying-scheme__chair buying-scheme__chair_vip"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_vip"></span><span
-              class="buying-scheme__chair buying-scheme__chair_vip"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-          </div>
-
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_vip"></span><span
-              class="buying-scheme__chair buying-scheme__chair_taken"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_taken"></span><span
-              class="buying-scheme__chair buying-scheme__chair_taken"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-          </div>
-
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_vip"></span><span
-              class="buying-scheme__chair buying-scheme__chair_taken"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_taken"></span><span
-              class="buying-scheme__chair buying-scheme__chair_vip"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-          </div>
-
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_selected"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_selected"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
-              class="buying-scheme__chair buying-scheme__chair_disabled"></span>
-          </div>
-
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_taken"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_taken"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_taken"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-          </div>
-
-          <div class="buying-scheme__row">
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_taken"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_taken"></span><span
-              class="buying-scheme__chair buying-scheme__chair_taken"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-            <span class="buying-scheme__chair buying-scheme__chair_standart"></span><span
-              class="buying-scheme__chair buying-scheme__chair_standart"></span>
-          </div>
         </div>
         <div class="buying-scheme__legend">
           <div class="col">
@@ -330,12 +183,12 @@ export default {
       </div>
       <!-- <button class="acceptin-button" @click="$router.push('/payment')">Забронировать</button> -->
       <button class="acceptin-button"><a :href="route('payment')">Забронировать</a></button>
+      <!-- <button class="acceptin-button"><a :href="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">Забронировать</a></button> -->
       <!-- <router-link to="/payment" class="acceptin-button">Забронировать</router-link> -->
+
 
     </section>
   </main>
- 
-
 </template>
 
 <style>
@@ -531,10 +384,11 @@ body.page-client {
 
 .hall-room {
   /* display: inline-grid; */
-  
+
   /* количество колонок */
-  grid-template-columns: repeat(10, 1fr); 
-  gap: 5px; /* промежутки между креслами */
+  grid-template-columns: repeat(10, 1fr);
+  gap: 5px;
+  /* промежутки между креслами */
   padding: 5px;
 }
 
@@ -555,14 +409,17 @@ body.page-client {
   background-color: #eee;
   cursor: pointer;
 }
+
 .seat.blocked {
   background-color: orange;
 }
+
 .seat.occupied {
   background-color: red;
   /* background-color: #ccc; */
   cursor: not-allowed;
 }
+
 .seat.selected {
   background-color: #2c8;
 }

@@ -113,7 +113,11 @@ export default {
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:20</a></li>
-          <li class="movie-seances__time-block "><router-link class="movie-seances__time" :to="'/hall/'">10:20</router-link></li>
+          <li class="movie-seances__time-block ">
+            <router-link :to="{ name: 'Hall', params: { hallId: 5, sessionId: 'abc123' } }" class="movie-seances__time">
+              Перейти в зал
+            </router-link>
+          </li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:10</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:40</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>

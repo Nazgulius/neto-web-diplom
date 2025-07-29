@@ -12,6 +12,12 @@ const routes = [
   { path: '/', component: IndexPage },
   { path: '/hall/:id', component: HallPage },
   { path: '/hall', component: HallPage },
+  {
+    path: '/hall/:hallId/session/:sessionId',
+    name: 'Hall',
+    component: HallPage,
+    props: true,
+  },
   { path: '/payment', component: PaymentPage },
   { path: '/ticket', component: TicketPage },
   // admin

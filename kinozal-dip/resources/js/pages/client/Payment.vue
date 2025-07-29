@@ -12,7 +12,17 @@ export default {
     // методы для бронирования 
   },
   mounted() {
-    // fetch данных о зале 
+    // данных о зале 
+    async function confirmBooking() {
+      const response = await axios.post('/api/book', {
+        seat_id: seatId,
+        session_id: sessionId,
+        client_id: userId, // клиент из авторизации
+      });
+      // сохраняем полученный билет или uuid
+      // и переходим на Ticket.vue, передавая его через маршруты или глобальное состояние
+      this.$router.push({ name: 'ticket', params: { ticketUuid: response.data.ticket.uuid } });
+    }
     document.body.classList.add('page-client');
     axios.get('http://127.0.0.1:8000/movies')
       .then(response => {

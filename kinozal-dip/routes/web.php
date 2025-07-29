@@ -45,6 +45,9 @@ use App\Http\Controllers\AuthController;
 Route::get('/hall', function () {
     return Inertia::render('client/Hall');
 })->name('hall');
+// Route::get('/hall/{hallId}/session/{sessionId}', function () {
+//     return Inertia::render('client/Hall');
+// })->name('hall');
 
 Route::get('/', function () {
     return Inertia::render('client/Index');
@@ -75,6 +78,8 @@ Route::post('/seats/reserve', [SeatController::class, 'reserve']);
 Route::post('/check-seat', [SeatController::class, 'checkAvailability']);
 Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']);
 Route::get('/seats', [SeatController::class, 'getSeats']);
+Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book');
+Route::get('/ticket/{uuid}', [TicketController::class, 'show'])->name('ticket.show');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
