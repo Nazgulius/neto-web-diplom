@@ -5,10 +5,20 @@ import { useRouter } from 'vue-router';
 export default {
   name: 'Hall',
   props: ['hallId', 'seanceId'],
+  props: {
+    hallId: Number,
+    seanceId: Number,
+    // sessionId: {
+    //   type: String,
+    //   required: false,
+    //   default() { return null; }
+    // }
+  },
   data() {
     return { // тут состояние 
       seats: [], // данные о местах
-      selectedSeats: [] // список выбранных мест
+      selectedSeats: [], // список выбранных мест
+      sessionId: 'мой id' // динамическая генерация сессии
     }
   },
   computed: {  
@@ -59,14 +69,18 @@ export default {
       return this.selectedSeats.includes(seat.id);  
     },  
     async selectSeat(seat) {
-  if (seat.status !== 'available') {
-    alert('Место недоступно');
-    return;
-  }
+    if (seat.status !== 'available') {
+      alert('Место недоступно '); // если место занято, blocked
+      return;
+    }
+    if (!this.sessionId) {
+      alert('Нет sessionId'); // проверка на наличие сессии
+      return;
+    }
     try {
       const response = await axios.post('http://127.0.0.1:8000/check-seat', {
           seat_id: seat.id,
-          session_id: this.sessionId, // или иной идентификатор
+          session_id: this.sessionId, // идентификатор
         });
           if (response.data.available) {
             // Заблокировать место — например, установить статус
@@ -74,10 +88,13 @@ export default {
           } else {
             alert('Место уже занято или заблокировано другим пользователем');
           }
-    } catch (error) {
-      console.error(error);
-      alert('Ошибка при проверке');
-    }
+    } catch (err) {
+      if (err.response) {
+        console.error('Ошибка сервера:', err.response.data);
+      } else {
+        console.error('Ошибка:', err.message);
+      }
+      }
     }
   },
   mounted() {

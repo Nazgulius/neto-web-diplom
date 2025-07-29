@@ -25,6 +25,8 @@ Route::apiResources([
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/check-seat', [SeatController::class, 'checkAvailability']);
+Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']);
+Route::get('/seats', [SeatController::class, 'getSeats']);
 
 // Route::get('/movies', [MovieController::class, 'index']);
 

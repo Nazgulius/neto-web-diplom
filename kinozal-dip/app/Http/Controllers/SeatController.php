@@ -72,32 +72,48 @@ class SeatController extends Controller
 
     public function checkAvailability(Request $request)
     {
-        $request->validate([
-            'seat_id' => 'required|integer|exists:seats,id',
-            'session_id' => 'required|string', 
-        ]);
-        
-        $seatId = $request->input('seat_id');
+      // Предположим, что статус:
+      // 'available' - свободно
+      // 'blocked' - заблокировано на время бронирования
+      // 'booked' - окончательно забронировано
+      $request->validate([
+        'seat_id' => 'required|integer|exists:seats,id',
+        'session_id' => 'required|string',
+      ]);
 
-        // Предположим, что статус:
-        // 'available' - свободно
-        // 'blocked' - заблокировано на время бронирования
-        // 'booked' - окончательно забронировано
+      $seat = Seat::find($request->seat_id);
 
-        $seat = Seat::find($seatId);
-        if (!$seat) {
-            return response()->json(['available' => false, 'message' => 'Место не найдено'], 404);
+      if (!$seat) {
+          return response()->json(['available' => false]);
+      }
+
+      if ($seat->status === 'available') {
+          $seat->status = 'blocked';
+          $seat->save();
+
+          return response()->json(['available' => true]);
+      } else {
+          return response()->json(['available' => false]);
+      }
+    }
+
+    public function reserveSeats(Request $request)
+    {
+        $seats = $request->input('seats'); // массив сидений
+
+        foreach ($seats as $seatId) {
+            $seat = Seat::find($seatId);
+            if ($seat && $seat->status === 'blocked') {
+                $seat->status = 'booked';
+                $seat->save();
+            }
         }
 
-        if ($seat->status === 'available') {
-            // Заблокировать место временно
-            $seat->status = 'blocked';
-            $seat->save();
+        return response()->json(['success' => true]);
+    }
 
-            // Не забывайте очищать блокировки при завершении/отмене бронирования
-            return response()->json(['available' => true]);
-        } else {
-            return response()->json(['available' => false]);
-        }
+    public function getSeats()
+    {
+        return Seat::all(); // или нужные параметры
     }
 }

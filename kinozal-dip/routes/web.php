@@ -73,6 +73,8 @@ Route::get('/movies', [MovieController::class, 'index']);
 Route::get('/seats', [SeatController::class, 'index']);
 Route::post('/seats/reserve', [SeatController::class, 'reserve']);
 Route::post('/check-seat', [SeatController::class, 'checkAvailability']);
+Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']);
+Route::get('/seats', [SeatController::class, 'getSeats']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
