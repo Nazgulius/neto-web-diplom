@@ -69,4 +69,35 @@ class SeatController extends Controller
             return response()->json(['error' => 'Failed to reserve seats'], 500);
         }
     }
+
+    public function checkAvailability(Request $request)
+    {
+        $request->validate([
+            'seat_id' => 'required|integer|exists:seats,id',
+            'session_id' => 'required|string', 
+        ]);
+        
+        $seatId = $request->input('seat_id');
+
+        // Предположим, что статус:
+        // 'available' - свободно
+        // 'blocked' - заблокировано на время бронирования
+        // 'booked' - окончательно забронировано
+
+        $seat = Seat::find($seatId);
+        if (!$seat) {
+            return response()->json(['available' => false, 'message' => 'Место не найдено'], 404);
+        }
+
+        if ($seat->status === 'available') {
+            // Заблокировать место временно
+            $seat->status = 'blocked';
+            $seat->save();
+
+            // Не забывайте очищать блокировки при завершении/отмене бронирования
+            return response()->json(['available' => true]);
+        } else {
+            return response()->json(['available' => false]);
+        }
+    }
 }

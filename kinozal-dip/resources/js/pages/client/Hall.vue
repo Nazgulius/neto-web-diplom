@@ -58,14 +58,27 @@ export default {
     isSelected(seat) {  
       return this.selectedSeats.includes(seat.id);  
     },  
-    selectSeat(seat) {  
-      if (seat.is_booked) return; // не выбираем занятые  
-      if (this.isSelected(seat)) {  
-        this.selectedSeats = this.selectedSeats.filter(id => id !== seat.id);  
-      } else {  
-        this.selectedSeats.push(seat.id);
-      }
-    },
+    async selectSeat(seat) {
+  if (seat.status !== 'available') {
+    alert('Место недоступно');
+    return;
+  }
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/check-seat', {
+          seat_id: seat.id,
+          session_id: this.sessionId, // или иной идентификатор
+        });
+          if (response.data.available) {
+            // Заблокировать место — например, установить статус
+            seat.status = 'blocked';
+          } else {
+            alert('Место уже занято или заблокировано другим пользователем');
+          }
+    } catch (error) {
+      console.error(error);
+      alert('Ошибка при проверке');
+    }
+    }
   },
   mounted() {
     // fetch данных о зале 
@@ -87,19 +100,7 @@ export default {
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
 
-  <div class="hall-room">  
-    <div v-for="row in rows" :key="row" class="row">  
-      <div  
-        v-for="seat in seatsByRow(row)"  
-        :key="seat.id"  
-        :class="['seat', { 'occupied': seat.is_booked, 'selected': isSelected(seat) }]"  
-        @click="selectSeat(seat)"  
-      >  
-        {{ seat.seat_number }}  
-      </div>  
-    </div>  
-  </div>  
-
+  
   <main>
     <section class="buying">
       <div class="buying__info">
@@ -114,6 +115,33 @@ export default {
       </div>
       <div class="buying-scheme">
         <div class="buying-scheme__wrapper">
+
+          <div class="hall-room">  
+            <div v-for="row in rows" :key="row" class="row">  
+              <div 
+                v-for="seat in seatsByRow(row)"  
+                :key="seat.id"  
+                :class="[ {'occupied': seat.is_booked, 'selected': isSelected(seat) },
+                  'buying-scheme__chair', 
+                  'buying-scheme__chair_standart']" 
+                @click="selectSeat(seat)"  
+              >  <!-- тут был класс 'seat' -->
+                {{ seat.seat_number }}  
+              </div>  
+            </div>  
+            <div v-for="seat in seats" :key="seat.id" class="seat"
+              :class="{ 'blocked': seat.status === 'blocked', 'occupied': seat.status === 'booked' }"
+              @click="selectSeat(seat)"
+              :disabled="seat.status !== 'available'">
+            {{ seat.number }}
+          </div>
+          </div>  
+          
+          
+
+
+
+
           <div class="buying-scheme__row">
             <span class="buying-scheme__chair buying-scheme__chair_disabled"></span><span
               class="buying-scheme__chair buying-scheme__chair_disabled"></span>
@@ -484,6 +512,43 @@ body.page-client {
   margin-top: 1rem;
 }
 
+.hall-room {
+  /* display: inline-grid; */
+  
+  /* количество колонок */
+  grid-template-columns: repeat(10, 1fr); 
+  gap: 5px; /* промежутки между креслами */
+  padding: 5px;
+}
+
+/* .seat {
+  width: 2rem;
+  height: 2rem;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #eee;
+} */
+.seat {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  margin: 3px;
+  background-color: #eee;
+  cursor: pointer;
+}
+.seat.blocked {
+  background-color: orange;
+}
+.seat.occupied {
+  background-color: red;
+  /* background-color: #ccc; */
+  cursor: not-allowed;
+}
+.seat.selected {
+  background-color: #2c8;
+}
 
 
 @media screen and (min-width: 479px) {
