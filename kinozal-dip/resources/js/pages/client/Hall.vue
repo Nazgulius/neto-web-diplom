@@ -18,7 +18,7 @@ export default {
     return { // тут состояние 
       seats: [], // данные о местах
       selectedSeats: [], // список выбранных мест
-      // sessionId: 'мой id' // динамическая генерация сессии
+      //sessionId: this.sessionId // динамическая генерация сессии
     }
   },
   computed: {
@@ -29,11 +29,15 @@ export default {
     },
   },
   methods: {
-    // методы для бронирования 
+    // Переключает выбор места
     toggleSeat(seat) {
-      // Проверяем, свободно ли место, меняем состояние
-      if (seat.taken) return; // нельзя выбрать занятое
+      if (seat.taken) return;
       seat.selected = !seat.selected;
+      this.updateSelectedSeats(seat);
+    },
+
+    // Обновляет список выбранных мест
+    updateSelectedSeats(seat) {
       if (seat.selected) {
         this.selectedSeats.push(seat);
       } else {
@@ -41,62 +45,70 @@ export default {
       }
     },
 
+    // Отправка выбранных мест на сервер
     reserveSeats() {
-      // Отправка выбранных мест на сервер, например:
       axios.post('http://127.0.0.1:8000/seats/reserve', {
         seats: this.selectedSeats.map(s => s.id)
-      }).then(response => {
+      }).then(() => {
         alert('Бронирование успешно!');
-        this.fetchSeats(); // обновим статусы сидений
-      }).catch(error => {
+        this.fetchSeats();
+      }).catch(() => {
         alert('Ошибка бронирования');
       });
     },
 
+    // Загрузка состояния кресел
     fetchSeats() {
-      // Загрузить состояние кресел с сервера (или заглушку)
       axios.get('http://127.0.0.1:8000/seats')
         .then(response => {
           this.seats = response.data;
-          console.log('седячие места: ' + this.seats);
+          console.log('седячие места:', this.seats);
         });
     },
 
+    // Группировка сидений по рядам (можно оставить как есть)
     seatsByRow(row) {
       return this.seats.filter(seat => seat.row === row);
     },
+
+    // Проверка, выбран лиSeat
     isSelected(seat) {
-      return this.selectedSeats.includes(seat.id);
+      return this.selectedSeats.some(s => s.id === seat.id);
     },
+
+    // Обработка выбора места с проверками
     async selectSeat(seat) {
-      if (seat.status !== 'available') {
-        alert('Место недоступно '); // если место занято, blocked
+      if (!this.isSeatAvailable(seat)) {
+        alert('Место недоступно');
         return;
       }
+
       if (!this.sessionId) {
-        alert('Нет sessionId'); // проверка на наличие сессии
+        alert('Нет sessionId');
         return;
       }
+
       try {
         const response = await axios.post('http://127.0.0.1:8000/check-seat', {
           seat_id: seat.id,
-          session_id: this.sessionId, // идентификатор
+          session_id: this.sessionId,
         });
         if (response.data.available) {
-          // Заблокировать место — например, установить статус
           seat.status = 'blocked';
         } else {
           alert('Место уже занято или заблокировано другим пользователем');
         }
       } catch (err) {
-        if (err.response) {
-          console.error('Ошибка сервера:', err.response.data);
-        } else {
-          console.error('Ошибка:', err.message);
-        }
+        console.error('Ошибка сервера:', err.response?.data || err.message);
       }
+    },
+
+    // Проверка доступности места
+    isSeatAvailable(seat) {
+      return seat.status === 'available' || seat.status === 'blocked';
     }
   },
+
   mounted() {
     // данные о зале 
     console.log('sessionId=', this.sessionId);
@@ -135,10 +147,12 @@ export default {
 
           <div class="hall-room">
             <div v-for="row in rows" :key="row" class="row">
-              <div v-for="seat in seatsByRow(row)" :key="seat.id" :class="[{ 'occupied': seat.is_booked, 
-                'selected': isSelected(seat) },
+              <div v-for="seat in seatsByRow(row)" :key="seat.id" :class="[{
+                'occupied': seat.is_booked,
+                'selected': isSelected(seat)
+              },
                 'buying-scheme__chair',
-                'buying-scheme__chair_standart']" @click="selectSeat(seat)"> 
+                'buying-scheme__chair_standart']" @click="selectSeat(seat)">
                 {{ seat.seat_number }}
 
                 <!-- <router-link class="acceptin-button"
@@ -155,12 +169,12 @@ export default {
               {{ seat.number }},
 
               <!-- <router-link class="acceptin-button"
-                :to="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">
+                :to="{ name: 'Payment', params: { seatId: seat.id, sessionId: this.sessionId } }">
                 Забронировать
               </router-link> -->
             </div>
 
-           
+
           </div>
 
 

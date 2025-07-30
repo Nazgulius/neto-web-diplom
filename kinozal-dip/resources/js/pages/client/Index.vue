@@ -4,6 +4,10 @@ import axios from 'axios';
 
 export default {
   name: 'Index',
+  props: {
+    hallId: Number, 
+    sessionId: String
+  },
   components: {
     Head,
     Link,
@@ -11,6 +15,8 @@ export default {
 
   data() {
     return { // тут состояние 
+      hallId: 5, 
+      sessionId: 'abc123'
     }
   },
   methods: {
@@ -19,6 +25,9 @@ export default {
   },
   mounted() {
     // fetch данных о зале 
+    console.log('Hall ID:', this.hallId);
+    console.log('Seance ID:', this.sessionId);
+  
     document.body.classList.add('page-client');
     axios.get('http://127.0.0.1:8000/movies')
       .then(response => {

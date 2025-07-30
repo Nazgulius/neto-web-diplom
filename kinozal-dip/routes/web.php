@@ -45,9 +45,9 @@ use App\Http\Controllers\AuthController;
 Route::get('/hall', function () {
     return Inertia::render('client/Hall');
 })->name('hall');
-// Route::get('/hall/{hallId}/session/{sessionId}', function () {
-//     return Inertia::render('client/Hall');
-// })->name('hall');
+Route::get('/hall/{hallId}/session/{sessionId}', function () {
+    return Inertia::render('client/Hall');
+})->name('hall.id');
 
 Route::get('/', function () {
     return Inertia::render('client/Index');
