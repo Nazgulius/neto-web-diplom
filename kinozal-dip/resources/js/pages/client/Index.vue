@@ -144,6 +144,9 @@ export default {
         </ul>
       </div>      
     </section>
+
+    <!-- добавил. тут отбразится то, что должно открыться по нажатию на кнопку линк router-link -->
+    <router-view></router-view>
     
     <section class="movie">
       <div class="movie__info">      

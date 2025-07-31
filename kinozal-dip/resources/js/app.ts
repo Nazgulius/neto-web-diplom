@@ -1,9 +1,3 @@
-// import '../css/admin/css/normalize.css';
-// import '../css/admin/css/styles.css';
-// import '../css/app.css';
-// import '../css/client/css/normalize.css';
-// import '../css/client/css/styles.css';
-
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
@@ -12,7 +6,7 @@ import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 import axios from 'axios';
 
-import router from './router'; // добавил
+import router from './router/index'; // добавил, и обновил /index
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

@@ -9,7 +9,7 @@ import AdminIndex from '@/pages/admin/Index.vue';
 import AdminLogin from '@/pages/admin/Login.vue';
 
 const routes = [
-  { path: '/', component: IndexPage },
+  { path: '/', component: IndexPage, name: Index },
   { path: '/hall/:id', component: HallPage },
   { path: '/hall', component: HallPage },
   {
@@ -26,8 +26,9 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
   routes,
+  history: createWebHistory(process.env.BASE_URL), // обновлено
+  // history: createWebHistory(),
 })
 
 export default router;

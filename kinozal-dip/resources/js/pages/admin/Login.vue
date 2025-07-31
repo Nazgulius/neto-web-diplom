@@ -9,6 +9,20 @@ export default {
     }  }, 
       methods: {
         // методы для бронирования 
+        login() { 
+          axios.post('/api/login', { 
+            email: this.email, 
+            password: this.password 
+          }) 
+          .then(response => { 
+            // сохраняем токен 
+            localStorage.setItem('token', response.data.token) 
+            // перенаправление или иные действия 
+          }) 
+          .catch(error => { 
+            console.error('Ошибка входа:', error) 
+          }) 
+        } 
       },
       mounted() {
         // fetch данных о зале 
