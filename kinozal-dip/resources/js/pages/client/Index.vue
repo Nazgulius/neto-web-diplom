@@ -5,7 +5,7 @@ import axios from 'axios';
 export default {
   name: 'Index',
   props: {
-    hallId: Number, 
+    hallId: Number,
     sessionId: String
   },
   components: {
@@ -15,20 +15,20 @@ export default {
 
   data() {
     return { // тут состояние 
-      hallId: 5, 
+      hallId: 5,
       sessionId: 'abc123'
     }
   },
   methods: {
     // методы для бронирования 
-    
+
   },
   mounted() {
+    document.body.classList.add('page-client');
     // fetch данных о зале 
     console.log('Hall ID:', this.hallId);
     console.log('Seance ID:', this.sessionId);
-  
-    document.body.classList.add('page-client');
+
     axios.get('http://127.0.0.1:8000/movies')
       .then(response => {
         console.log(response.data);
@@ -44,41 +44,35 @@ export default {
   <header class="page-header">
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
+
   <Head title="Welcome">
-        <link rel="preconnect" href="https://rsms.me/" />
-        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-    </Head>
-    
-      
-          <header class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
-            <nav class="flex items-center justify-end gap-4">
-                <Link
-                    v-if="$page.props.auth.user"
-                    :href="route('dashboard')"
-                    class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                >
-                    Dashboard
-                </Link>
-                <template v-else>
-                    <Link
-                        :href="route('login')"
-                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
-                    >
-                        Log in
-                    </Link>
-                    <Link
-                        :href="route('register')"
-                        class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                    >
-                        Register
-                    </Link>
-                </template>
-            </nav>
-        </header>
-      
-  
-  
-  
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+  </Head>
+
+
+  <header class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
+    <nav class="flex items-center justify-end gap-4">
+      <Link v-if="$page.props.auth.user" :href="route('dashboard')"
+        class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
+      Dashboard
+      </Link>
+      <template v-else>
+        <Link :href="route('login')"
+          class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]">
+        Log in
+        </Link>
+        <Link :href="route('register')"
+          class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
+        Register
+        </Link>
+      </template>
+    </nav>
+  </header>
+
+
+
+
   <nav class="page-nav">
     <a class="page-nav__day page-nav__day_today" href="#">
       <span class="page-nav__day-week">Пн</span><span class="page-nav__day-number">31</span>
@@ -101,7 +95,7 @@ export default {
     <a class="page-nav__day page-nav__day_next" href="#">
     </a>
   </nav>
-  
+
   <main>
     <section class="movie">
       <div class="movie__info">
@@ -110,14 +104,15 @@ export default {
         </div>
         <div class="movie__description">
           <h2 class="movie__title">Звёздные войны XXIII: Атака клонированных клонов</h2>
-          <p class="movie__synopsis">Две сотни лет назад малороссийские хутора разоряла шайка нехристей-ляхов во главе с могущественным колдуном.</p>
+          <p class="movie__synopsis">Две сотни лет назад малороссийские хутора разоряла шайка нехристей-ляхов во главе с
+            могущественным колдуном.</p>
           <p class="movie__data">
             <span class="movie__data-duration">130 минут</span>
             <span class="movie__data-origin">США</span>
           </p>
         </div>
-      </div>  
-      
+      </div>
+
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
@@ -126,7 +121,7 @@ export default {
             <router-link :to="{ name: 'Hall', params: { hallId: 5, sessionId: 'abc123' } }" class="movie-seances__time">
               Перейти в зал
             </router-link>
-          </li>
+          </li>          
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:10</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:40</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>
@@ -140,28 +135,29 @@ export default {
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">16:00</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:30</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">21:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>     
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>
         </ul>
-      </div>      
+      </div>
     </section>
 
     <!-- добавил. тут отбразится то, что должно открыться по нажатию на кнопку линк router-link -->
     <router-view></router-view>
-    
+
     <section class="movie">
-      <div class="movie__info">      
+      <div class="movie__info">
         <div class="movie__poster">
           <img class="movie__poster-image" alt="Альфа постер" src="/src/client/poster2.jpg">
         </div>
-        <div class="movie__description">        
+        <div class="movie__description">
           <h2 class="movie__title">Альфа</h2>
-          <p class="movie__synopsis">20 тысяч лет назад Земля была холодным и неуютным местом, в котором смерть подстерегала человека на каждом шагу.</p>
+          <p class="movie__synopsis">20 тысяч лет назад Земля была холодным и неуютным местом, в котором смерть
+            подстерегала человека на каждом шагу.</p>
           <p class="movie__data">
             <span class="movie__data-duration">96 минут</span>
             <span class="movie__data-origin">Франция</span>
           </p>
-        </div>    
-      </div>  
+        </div>
+      </div>
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
@@ -179,25 +175,27 @@ export default {
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">16:00</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:30</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">21:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>     
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>
         </ul>
-      </div>      
-    </section>   
-    
+      </div>
+    </section>
+
     <section class="movie">
-      <div class="movie__info">      
+      <div class="movie__info">
         <div class="movie__poster">
           <img class="movie__poster-image" alt="Хищник постер" src="/src/client/poster2.jpg">
         </div>
-        <div class="movie__description">        
+        <div class="movie__description">
           <h2 class="movie__title">Хищник</h2>
-          <p class="movie__synopsis">Самые опасные хищники Вселенной, прибыв из глубин космоса, высаживаются на улицах маленького городка, чтобы начать свою кровавую охоту. Генетически модернизировав себя с помощью ДНК других видов, охотники стали ещё сильнее, умнее и беспощаднее.</p>
+          <p class="movie__synopsis">Самые опасные хищники Вселенной, прибыв из глубин космоса, высаживаются на улицах
+            маленького городка, чтобы начать свою кровавую охоту. Генетически модернизировав себя с помощью ДНК других
+            видов, охотники стали ещё сильнее, умнее и беспощаднее.</p>
           <p class="movie__data">
             <span class="movie__data-duration">101 минута</span>
             <span class="movie__data-origin">Канада, США</span>
           </p>
-        </div>    
-      </div>  
+        </div>
+      </div>
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
@@ -213,8 +211,8 @@ export default {
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">20:55</a></li>
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>
         </ul>
-      </div>     
-    </section>     
+      </div>
+    </section>
   </main>
 </template>
 
@@ -445,4 +443,5 @@ body.page-client {
   .buying__info-hint {
     display: none;
   }
-}</style>
+}
+</style>
