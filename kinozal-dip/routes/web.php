@@ -41,17 +41,22 @@ use App\Http\Controllers\AuthController;
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
+
+Route::get('/', function () {
+    return Inertia::render('App');
+})->name('app'); // обновлён переход. Начало в App vue, и в нём уже будут открываться другие страницы приложения.
+
 // маршруты для клиента:
+Route::get('/index', function () { // поменял с / на / index 
+    return Inertia::render('client/Index');
+})->name('home');
+
 Route::get('/hall', function () {
     return Inertia::render('client/Hall');
 })->name('hall');
 // Route::get('/hall/{hallId}/session/{sessionId}', function () {
 //     return Inertia::render('client/Hall');
 // })->name('hall');
-
-Route::get('/', function () {
-    return Inertia::render('client/Index');
-})->name('home');
 
 Route::get('/payment', function () {
     return Inertia::render('client/Payment');

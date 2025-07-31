@@ -4,10 +4,10 @@ import { useRouter } from 'vue-router';
 
 export default {
   name: 'Hall',
-  props: ['hallId', 'seanceId'],
+  // props: ['hallId', 'seanceId'], // проверить загрузку страницы
   props: {
     hallId: Number,
-    seanceId: Number,
+    seanceId: String,
     sessionId: {
       type: String,
       required: false,
