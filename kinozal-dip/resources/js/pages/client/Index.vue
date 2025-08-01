@@ -15,8 +15,7 @@ export default {
 
   data() {
     return { // тут состояние 
-      hallId: 5,
-      sessionId: 'abc123'
+      
     }
   },
   methods: {
@@ -119,7 +118,7 @@ export default {
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:20</a></li>
           <li class="movie-seances__time-block ">
             <router-link :to="{ name: 'Hall', params: { hallId: 5, sessionId: 'abc123' } }" class="movie-seances__time">
-              Перейти в зал
+              Перейти в за
             </router-link>
           </li>          
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:10</a></li>

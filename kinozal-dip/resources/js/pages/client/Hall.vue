@@ -4,9 +4,8 @@ import { useRouter } from 'vue-router';
 
 export default {
   name: 'Hall',
-  // props: ['hallId', 'seanceId'], // проверить загрузку страницы
   props: {
-    hallId: Number,
+    hallId: [Number, String],
     seanceId: String,
     sessionId: {
       type: String,
@@ -18,7 +17,7 @@ export default {
     return { // тут состояние 
       seats: [], // данные о местах
       selectedSeats: [], // список выбранных мест
-      //sessionId: this.sessionId // динамическая генерация сессии
+      // sessionId: this.sessionId // динамическая генерация сессии
     }
   },
   computed: {
@@ -106,6 +105,18 @@ export default {
     // Проверка доступности места
     isSeatAvailable(seat) {
       return seat.status === 'available' || seat.status === 'blocked';
+    },
+    getSeatClass(seat) {
+      return {
+        // 'occupied': seat.is_booked,
+        'selected': this.isSelected(seat),
+        'buying-scheme__chair': true,
+        'buying-scheme__chair_standart': seat.type === 'Обычное',
+        'buying-scheme__chair_vip': seat.type === 'VIP',
+        'blocked': seat.status === 'blocked',
+        'buying-scheme__chair_selected': seat.taken === true,
+        'occupied': seat.status === 'booked'
+      };
     }
   },
 
@@ -147,12 +158,9 @@ export default {
 
           <div class="hall-room">
             <div v-for="row in rows" :key="row" class="row">
-              <div v-for="seat in seatsByRow(row)" :key="seat.id" :class="[{
-                'occupied': seat.is_booked,
-                'selected': isSelected(seat)
-              },
-                'buying-scheme__chair',
-                'buying-scheme__chair_standart']" @click="selectSeat(seat)">
+              <div v-for="seat in seatsByRow(row)" :key="seat.id" 
+              :class="getSeatClass(seat)"
+              @click="selectSeat(seat)">
                 {{ seat.seat_number }}
 
                 <!-- <router-link class="acceptin-button"
@@ -162,7 +170,7 @@ export default {
               </div>
 
             </div>
-
+            
             <div v-for="seat in seats" :key="seat.id" class="seat"
               :class="{ 'blocked': seat.status === 'blocked', 'occupied': seat.status === 'booked' }"
               @click="selectSeat(seat)" :disabled="seat.status !== 'available'">
@@ -333,7 +341,7 @@ body.page-client {
   margin-top: 4px;
 }
 
-.buying-scheme__chair {
+.buying-scheme__chair, .seat {
   display: inline-block;
   vertical-align: middle;
   width: 2rem;
@@ -341,7 +349,16 @@ body.page-client {
   border: 1px solid #525252;
   box-sizing: border-box;
   border-radius: 4px;
+  background-color: #FFFFFF;
 }
+/* .seat {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  margin: 3px;
+  background-color: #eee;
+  cursor: pointer;
+} */
 
 .buying-scheme__chair:not(:first-of-type) {
   margin-left: 4px;
@@ -367,6 +384,20 @@ body.page-client {
   background-color: #25C4CE;
   box-shadow: 0px 0px 4px #16A6AF;
   transform: scale(1.2);
+}
+
+.seat.blocked {
+  background-color: orange;
+}
+
+.seat.occupied {
+  background-color: rgb(0, 0, 0);
+  /* background-color: #ccc; */
+  cursor: not-allowed;
+}
+
+.seat.selected {
+  background-color: #2c8;
 }
 
 .buying-scheme__legend {
@@ -415,28 +446,7 @@ body.page-client {
   cursor: pointer;
   background-color: #eee;
 } */
-.seat {
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  margin: 3px;
-  background-color: #eee;
-  cursor: pointer;
-}
 
-.seat.blocked {
-  background-color: orange;
-}
-
-.seat.occupied {
-  background-color: red;
-  /* background-color: #ccc; */
-  cursor: not-allowed;
-}
-
-.seat.selected {
-  background-color: #2c8;
-}
 
 
 @media screen and (min-width: 479px) {
