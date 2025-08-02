@@ -99,7 +99,7 @@ html {
 }
 
 body.page-client {
-  background-image: url("../src/client/background.jpg");
+  background-image: url("/src/client/background.jpg");
   background-size: cover;
   background-attachment: fixed;
   background-position: right;
@@ -143,7 +143,7 @@ body.page-client {
   left: 0;
   right: 0;
   height: 3px;
-  background-image: url(../src/client/border-top.png);
+  background-image: url(/src/client/border-top.png);
   background-size: 10px 3px;
 }
 
@@ -155,7 +155,7 @@ body.page-client {
   left: 0;
   right: 0;
   height: 3px;
-  background-image: url(../src/client/border-bottom.png);
+  background-image: url(/src/client/border-bottom.png);
   background-size: 10px 3px;
 }
 
@@ -174,7 +174,7 @@ body.page-client {
   left: 0;
   right: 0;
   height: 3px;
-  background-image: url(../src/client/border-top.png);
+  background-image: url(/src/client/border-top.png);
   background-size: 10px 3px;
 }
 
@@ -186,7 +186,7 @@ body.page-client {
   left: 0;
   right: 0;
   height: 3px;
-  background-image: url(../src/client/border-bottom.png);
+  background-image: url(/src/client/border-bottom.png);
   background-size: 10px 3px;
 }
 

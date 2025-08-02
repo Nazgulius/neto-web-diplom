@@ -54,8 +54,11 @@ Route::get('/index', function () { // поменял с / на / index
 Route::get('/hall', function () {
     return Inertia::render('client/Hall');
 })->name('hall');
-Route::get('/hall/{hallId}/session/{sessionId}', function () {
-    return Inertia::render('client/Hall');
+Route::get('/hall/{hallId}/session/{sessionId}', function ($hallId, $sessionId) {
+    return Inertia::render('client/Hall',[
+        'hallId' => $hallId,
+        'sessionId' => $sessionId,
+    ]);
 })->name('hall.id');
 
 Route::get('/payment', function () {

@@ -17,6 +17,7 @@ export default {
     return { // тут состояние 
       seats: [], // данные о местах
       selectedSeats: [], // список выбранных мест
+      
       // sessionId: this.sessionId // динамическая генерация сессии
     }
   },
@@ -117,12 +118,16 @@ export default {
         'buying-scheme__chair_selected': seat.taken === true,
         'occupied': seat.status === 'booked'
       };
-    }
+    },
+    
   },
 
   mounted() {
     // данные о зале 
     console.log('sessionId=', this.sessionId);
+    console.log('Hall ID:', this.hallId);
+    console.log('Seance ID:', this.sessionId);
+
     this.fetchSeats();
     document.body.classList.add('page-client');
     axios.get('http://127.0.0.1:8000/seats')
@@ -228,7 +233,7 @@ html {
 }
 
 body.page-client {
-  background-image: url("../src/client/background.jpg");
+  background-image: url("/src/client/background.jpg");
   background-size: cover;
   background-attachment: fixed;
   background-position: right;
@@ -313,7 +318,7 @@ body.page-client {
   display: block;
   width: 2.4rem;
   height: 3.2rem;
-  background-image: url(../src/client/hint.png);
+  background-image: url(/src/client/hint.png);
   background-size: 2.4rem 3.2rem;
 }
 
@@ -326,7 +331,7 @@ body.page-client {
 .buying-scheme__wrapper {
   font-size: 0;
   display: inline-block;
-  background-image: url(../src/client/screen.png);
+  background-image: url(/src/client/screen.png);
   background-position: top;
   background-repeat: no-repeat;
   background-size: 100%;

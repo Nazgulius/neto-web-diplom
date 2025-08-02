@@ -14,20 +14,26 @@ export default {
   },
 
   data() {
-    return { // тут состояние 
-      
+    return {       
+      movies: [],
     }
   },
+  
   methods: {
     // методы для бронирования 
-
+    getMovies() {
+      axios.get('http://127.0.0.1:8000/movies')
+        .then(response => {
+          this.movies = response.data;
+          console.log('kino:', this.movies);
+        });
+    }
   },
   mounted() {
     document.body.classList.add('page-client');
     // fetch данных о зале 
-    console.log('Hall ID:', this.hallId);
-    console.log('Seance ID:', this.sessionId);
 
+    this.getMovies();
     axios.get('http://127.0.0.1:8000/movies')
       .then(response => {
         console.log(response.data);
@@ -99,15 +105,14 @@ export default {
     <section class="movie">
       <div class="movie__info">
         <div class="movie__poster">
-          <img class="movie__poster-image" alt="Звёздные войны постер" src="/src/client/poster1.jpg">
+          <img class="movie__poster-image" alt="Звёздные войны постер" :src=movies[0]?.image_url>
         </div>
         <div class="movie__description">
-          <h2 class="movie__title">Звёздные войны XXIII: Атака клонированных клонов</h2>
-          <p class="movie__synopsis">Две сотни лет назад малороссийские хутора разоряла шайка нехристей-ляхов во главе с
-            могущественным колдуном.</p>
+          <h2 class="movie__title">{{ movies[0]?.title }}</h2>
+          <p class="movie__synopsis">{{ movies[0]?.description }}</p>
           <p class="movie__data">
-            <span class="movie__data-duration">130 минут</span>
-            <span class="movie__data-origin">США</span>
+            <span class="movie__data-duration">{{ movies[0]?.duration }} минут </span>
+            <span class="movie__data-origin">{{ movies[0]?.country }}</span>
           </p>
         </div>
       </div>
@@ -118,7 +123,7 @@ export default {
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:20</a></li>
           <li class="movie-seances__time-block ">
             <router-link :to="{ name: 'Hall', params: { hallId: 5, sessionId: 'abc123' } }" class="movie-seances__time">
-              Перейти в за
+              Перейти в зал
             </router-link>
           </li>          
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:10</a></li>
@@ -138,22 +143,21 @@ export default {
         </ul>
       </div>
     </section>
-
+    
     <!-- добавил. тут отбразится то, что должно открыться по нажатию на кнопку линк router-link -->
     <router-view></router-view>
 
     <section class="movie">
       <div class="movie__info">
         <div class="movie__poster">
-          <img class="movie__poster-image" alt="Альфа постер" src="/src/client/poster2.jpg">
+          <img class="movie__poster-image" alt="Альфа постер" :src=movies[1]?.image_url>
         </div>
         <div class="movie__description">
-          <h2 class="movie__title">Альфа</h2>
-          <p class="movie__synopsis">20 тысяч лет назад Земля была холодным и неуютным местом, в котором смерть
-            подстерегала человека на каждом шагу.</p>
+          <h2 class="movie__title">{{ movies[1]?.title }}</h2>
+          <p class="movie__synopsis">{{ movies[1]?.description }}</p>
           <p class="movie__data">
-            <span class="movie__data-duration">96 минут</span>
-            <span class="movie__data-origin">Франция</span>
+            <span class="movie__data-duration">{{ movies[1]?.duration }} минут </span>
+            <span class="movie__data-origin">{{ movies[1]?.country }}</span>
           </p>
         </div>
       </div>
@@ -182,16 +186,14 @@ export default {
     <section class="movie">
       <div class="movie__info">
         <div class="movie__poster">
-          <img class="movie__poster-image" alt="Хищник постер" src="/src/client/poster2.jpg">
+          <img class="movie__poster-image" alt="Хищник постер" :src=movies[1]?.image_url>
         </div>
         <div class="movie__description">
-          <h2 class="movie__title">Хищник</h2>
-          <p class="movie__synopsis">Самые опасные хищники Вселенной, прибыв из глубин космоса, высаживаются на улицах
-            маленького городка, чтобы начать свою кровавую охоту. Генетически модернизировав себя с помощью ДНК других
-            видов, охотники стали ещё сильнее, умнее и беспощаднее.</p>
+          <h2 class="movie__title">{{ movies[2]?.title }}</h2>
+          <p class="movie__synopsis">{{ movies[2]?.description }}</p>
           <p class="movie__data">
-            <span class="movie__data-duration">101 минута</span>
-            <span class="movie__data-origin">Канада, США</span>
+            <span class="movie__data-duration">{{ movies[2]?.duration }} минут </span>
+            <span class="movie__data-origin">{{ movies[2]?.country }}</span>
           </p>
         </div>
       </div>
@@ -230,7 +232,7 @@ html {
 }
 
 body.page-client {
-  background-image: url("../src/client/background.jpg");
+  background-image: url("/src/client/background.jpg");
   background-size: cover;
   background-attachment: fixed;
   background-position: right;

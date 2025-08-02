@@ -17,8 +17,8 @@ class KinoSessionsTableSeeder extends Seeder
         'movie_id' => 1,
         'hall_id' => 1,
         'start_time' => now(),
-        'end_time' => now() + 60,
-        'price' => 2,
+        'end_time' => now() + 130,
+        'price' => 200,
       ]);
     }
 }
