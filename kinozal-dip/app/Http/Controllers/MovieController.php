@@ -12,8 +12,8 @@ class MovieController extends Controller
      */
     public function index()
     {
-      // return Movie::all();
-       return response()->json(Movie::all()); // альтернативный вариант
+      return Movie::all();
+      //  return response()->json(Movie::all()); // альтернативный вариант
     }
 
     /**

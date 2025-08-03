@@ -13,11 +13,11 @@ return new class extends Migration
   {
     Schema::create('kino_sessions', function (Blueprint $table) {
       $table->id();
-      $table->unsignedBigInteger('movie_id');
-      $table->unsignedBigInteger('hall_id');
-      $table->dateTime('start_time');
-      $table->dateTime('end_time');
-      $table->decimal('price', 8, 2);
+      $table->integer('movie_id');
+      $table->integer('hall_id');
+      $table->time('start_time');
+      // $table->time('end_time'); // времяокончания пока не нужно
+      $table->decimal('price');
       $table->timestamps();
 
       $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');

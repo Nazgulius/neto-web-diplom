@@ -82,6 +82,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/movies', [MovieController::class, 'index']);
 Route::get('/seats', [SeatController::class, 'index']);
+Route::get('/sessions', [KinoSessionController::class, 'index']);
 Route::post('/seats/reserve', [SeatController::class, 'reserve']);
 Route::post('/check-seat', [SeatController::class, 'checkAvailability']);
 Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']);

@@ -17,7 +17,7 @@ return new class extends Migration
       $table->integer('rows');
       $table->integer('seats_per_row');
       $table->boolean('active')->default(true);
-      $table->timestamps();      
+      $table->timestamps();
     });
   }
 

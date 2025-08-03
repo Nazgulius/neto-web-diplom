@@ -45,8 +45,7 @@ class DatabaseSeeder extends Seeder
       $this->call(RoomsTableSeeder::class);
       $this->call(SeatsTableSeeder::class);
 
-      $this->call([
-        MoviesTableSeeder::class,
-      ]);
+      $this->call([MoviesTableSeeder::class]);
+      $this->call(KinoSessionsTableSeeder::class);
     }
 }

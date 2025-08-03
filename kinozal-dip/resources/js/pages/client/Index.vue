@@ -16,6 +16,7 @@ export default {
   data() {
     return {       
       movies: [],
+      sessions: [],
     }
   },
   
@@ -25,7 +26,14 @@ export default {
       axios.get('http://127.0.0.1:8000/movies')
         .then(response => {
           this.movies = response.data;
-          console.log('kino:', this.movies);
+          console.log('kino: ', this.movies);
+        });
+    },
+    getSessions() {
+      axios.get('http://127.0.0.1:8000/sessions')
+        .then(response => {
+          this.sessions = response.data;
+          console.log('sessions: ', this.sessions);
         });
     }
   },
@@ -34,9 +42,10 @@ export default {
     // fetch данных о зале 
 
     this.getMovies();
+    this.getSessions();
     axios.get('http://127.0.0.1:8000/movies')
       .then(response => {
-        console.log(response.data);
+        console.log('movies: ', response.data);
       })
       .catch(error => {
         console.error(error);
@@ -120,15 +129,15 @@ export default {
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:20</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">{{ sessions[0]?.start_time }}</a></li>
           <li class="movie-seances__time-block ">
             <router-link :to="{ name: 'Hall', params: { hallId: 5, sessionId: 'abc123' } }" class="movie-seances__time">
-              Перейти в зал
+              {{ sessions[1]?.start_time }}
             </router-link>
           </li>          
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:10</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:40</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">{{ sessions[2]?.start_time }}</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">{{ sessions[3]?.start_time }}</a></li>
+          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">{{ sessions[4]?.start_time }}</a></li>
         </ul>
       </div>
       <div class="movie-seances__hall">
