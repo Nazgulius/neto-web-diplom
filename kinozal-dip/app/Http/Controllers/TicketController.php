@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\Seat;
 use Illuminate\Support\Str;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\LabelAlignment;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
@@ -100,4 +105,23 @@ class TicketController extends Controller
       'qr_code_url' => asset($ticket->qr_code_path),
     ]);
   }
+
+  public function getQrCode()
+    {
+        // $qrCode = QrCode::create('Привет! Это qr-код! ура!'); // старый вариант с ошибкой
+      try {
+        $qrCode = new QrCode('Привет! Это qr-код! ура!'); // текст или ссылка
+        // Получим изображение в base64
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+        $base64 = base64_encode($result->getString());
+
+        // Передадим в представление или API
+        return response()->json(['qr_code' => 'data:image/png;base64,' . $base64]);
+      } catch (\Exception $e) {
+        // Логируем ошибку
+        \Log::error('QR code generation failed: ' . $e->getMessage());
+        return response()->json(['error' => 'Failed to generate QR code'], 500);
+      }
+    }
 }

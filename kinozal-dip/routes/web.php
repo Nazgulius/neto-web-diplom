@@ -89,6 +89,8 @@ Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']);
 Route::get('/seats', [SeatController::class, 'getSeats']);
 Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book');
 Route::get('/ticket/{uuid}', [TicketController::class, 'show'])->name('ticket.show');
+// Route::get('/ticket', [TicketController::class, 'show']);
+Route::get('/get-qr-code', [TicketController::class, 'getQrCode']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

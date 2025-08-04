@@ -17,6 +17,7 @@ export default {
     return {       
       movies: [],
       sessions: [],
+      qrCodeData: '',
     }
   },
   
@@ -48,6 +49,16 @@ export default {
         console.log('movies: ', response.data);
       })
       .catch(error => {
+        console.error(error);
+      });
+
+    // Получаем QR-код с сервера  
+    fetch('http://127.0.0.1:8000/get-qr-code')
+    .then(res => res.json())
+    .then(data => {
+      this.qrCodeData = data.qr_code; 
+    })
+    .catch(error => {
         console.error(error);
       });
   }
@@ -151,7 +162,12 @@ export default {
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>
         </ul>
       </div>
+      <div>
+          <h1>QR Code: </h1>
+          <img :src="qrCodeData" alt="QR Code" />
+        </div>
     </section>
+
     
     <!-- добавил. тут отбразится то, что должно открыться по нажатию на кнопку линк router-link -->
     <router-view></router-view>

@@ -28,6 +28,7 @@ export default {
   },
   data() {
     return { // тут состояние 
+      qrCodeData: ''
     }
   },
   methods: {
@@ -43,6 +44,13 @@ export default {
       .catch(error => {
         console.error(error);
       });
+
+    // Получаем QR-код с сервера  
+    fetch('/get-qr-code')
+    .then(res => res.json())
+    .then(data => {
+      this.qrCodeData = data.qr_code; 
+    });
   },
 }
 </script>
@@ -66,6 +74,10 @@ export default {
         <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">18:30</span></p>
 
         <img class="ticket__info-qr" src="/src/client/qr-code.png">
+        <div>
+          <h1>QR Code: </h1>
+          <img :src="qrCodeData" alt="QR Code" />
+        </div>
 
         <div v-if="ticket">
           <h2>Ваш билет</h2>
