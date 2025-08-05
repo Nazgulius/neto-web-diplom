@@ -1,10 +1,11 @@
 # Дипломный проект по профессии «Веб-разработчик»
 
-файл ReadMe. В нём должна быть инструкция, как запустить ваш проект, технические особенности: версия php, процедура миграции базы данных и другое.  
+файл ReadMe. В нём должна быть технические особенности: версия php, и другое.  
   
 В проекте используется:
 - Laravel + Vue Starter Kit: Vue 3 and the Composition API, TypeScript, Tailwind, and the shadcn-vue component library. [https://github.com/laravel/vue-starter-kit] [https://laravel.com/docs/12.x/starter-kits]
 - Для qr-code: endroid/qr-code  
+- PHP 8.4.8 (cli) (built: Jun  3 2025 17:34:25) (NTS Visual C++ 2022 x64)
 
 ### Запуск проекта
 Для запуска нужно выполнить следующие команды:  

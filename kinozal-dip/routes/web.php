@@ -13,26 +13,6 @@ use App\Http\Controllers\PriceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 
-// Route::apiResources([
-//     'halls' => HallController::class,
-//     'rooms' => RoomController::class,
-//     'seats' => SeatController::class,
-//     'movies' => MovieController::class,
-//     'sessions' => KinoSessionController::class,
-//     'tickets' => TicketController::class,
-//     'prices' => PriceController::class,
-//     'users' => UserController::class,
-// ]);
-
-// эти импорты скорее всего не нужны. по окончанию настройки роутов удалить.
-// import { createRouter, createWebHistory } from 'vue-router' ;
-// import Index from '@/views/Index.vue' ;
-// import Hall from '@/views/Hall.vue' ;
-// import Payment from '@/views/Payment.vue' ;
-// import Ticket from '@/views/Ticket.vue' ;
-// import AdminIndex from '@/views/admin/AdminIndex.vue' ;
-// import AdminLogin from '@/views/admin/AdminLogin.vue' ;
-
 // Route::get('/', function () {
 //     return Inertia::render('Welcome');
 // })->name('home');
@@ -40,7 +20,6 @@ use App\Http\Controllers\AuthController;
 // Route::get('dashboard', function () {
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
-
 
 Route::get('/', function () {
     return Inertia::render('App');
