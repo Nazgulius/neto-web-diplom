@@ -26,18 +26,23 @@ axios.interceptors.request.use(config => {
 });
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
-    setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
-            .use(router) // добавил для новых машрутов кинотеатра
-            .use(plugin)
-            .use(ZiggyVue)
-            .mount(el);
-    },
-    progress: {
-        color: '#4B5563',
-    },
+  title: (title) => (title ? `${title} - ${appName}` : appName),
+  resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
+  setup({ el, App, props, plugin }) {
+    try {
+      createApp({ render: () => h(App, props) })
+        .use(router) // добавил для новых машрутов кинотеатра
+        .use(plugin)
+        .use(ZiggyVue)
+        .mount(el);
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  progress: {
+      color: '#4B5563',
+  },
+
 });
 
 // This will set light / dark mode on page load...

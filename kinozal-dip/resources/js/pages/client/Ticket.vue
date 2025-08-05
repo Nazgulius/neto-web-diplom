@@ -14,43 +14,48 @@ export default {
     const route = useRoute();  // получаем текущий маршрут
     const uuid = route.params.uuid; // предполагаем, что в маршруте /ticket/:uuid
 
-    onMounted(async () => {
-      try {
-        const response = await axios.get(`http://127.0.0.1:8000/tickets/${uuid}`);
-        ticket.value = response.data.ticket;
-        qrCodeUrl.value = response.data.qr_code_url;
-      } catch (error) {
-        console.error('Ошибка при загрузке билета:', error);
-      }
-    });
+    // onMounted(async () => {
+    //   try {
+    //     const response = await axios.get(`http://127.0.0.1:8000/tickets/${uuid}`);
+    //     ticket.value = response.data.ticket;
+    //     qrCodeUrl.value = response.data.qr_code_url;
+    //   } catch (error) {
+    //     console.error('Ошибка при загрузке билета:', error);
+    //   }
+    // });
 
     return { ticket, qrCodeUrl };
   },
   data() {
     return { // тут состояние 
-      qrCodeData: ''
+      qrCodeData: '',
+      seats: [],
     }
   },
   methods: {
-    // методы для бронирования 
+    async  blockedSeats() {
+      await axios.get('http://127.0.0.1:8000/seats')
+        .then(response => {
+          this.seats = response.data.filter((el) => el.status ===  "blocked" );
+          console.log('забронированные места:', this.seats);
+        });
+    },
+    async generateQrWithSeats() {
+      try {
+        await this.blockedSeats();
+        console.log('seats перед сериализацией:', this.seats);
+        const seatsData = JSON.stringify(this.seats);
+        console.log('сериализованные seats:', seatsData);
+        const response = await axios.post('http://127.0.0.1:8000/get-qr-code', { seats: seatsData });
+        this.qrCodeData = response.data.qr_code;
+      } catch (error) {
+        console.error('Ошибка при генерации QR:', error);
+      }
+    },
   },
   mounted() {
-    // fetch данных о зале 
-    document.body.classList.add('page-client');
-    axios.get('http://127.0.0.1:8000/movies')
-      .then(response => {
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-
-    // Получаем QR-код с сервера  
-    fetch('/get-qr-code')
-    .then(res => res.json())
-    .then(data => {
-      this.qrCodeData = data.qr_code; 
-    });
+    // this.blockedSeats(); // получаем список забранированных сидений
+    this.generateQrWithSeats();
   },
 }
 </script>
@@ -73,20 +78,20 @@ export default {
         <p class="ticket__info">В зале: <span class="ticket__details ticket__hall">1</span></p>
         <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">18:30</span></p>
 
-        <img class="ticket__info-qr" src="/src/client/qr-code.png">
+        <!-- <img class="ticket__info-qr" src="/src/client/qr-code.png"> -->
         <div>
           <h1>QR Code: </h1>
           <img :src="qrCodeData" alt="QR Code" />
         </div>
 
-        <div v-if="ticket">
+        <!-- <div v-if="ticket">
           <h2>Ваш билет</h2>
           <p>Номер билета: {{ ticket.id }}</p>
           <img :src="qrCodeUrl" alt="QR-код" />
         </div>
         <div v-else>
           <p>Загрузка билета...</p>
-        </div>
+        </div> -->
 
         <p class="ticket__hint">Покажите QR-код нашему контроллеру для подтверждения бронирования.</p>
         <p class="ticket__hint">Приятного просмотра!</p>

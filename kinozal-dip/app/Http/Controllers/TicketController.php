@@ -108,9 +108,14 @@ class TicketController extends Controller
 
   public function getQrCode()
     {
-        // $qrCode = QrCode::create('Привет! Это qr-код! ура!'); // старый вариант с ошибкой
       try {
-        $qrCode = new QrCode('Привет! Это qr-код! ура!'); // текст или ссылка
+        $seatsJson = request('seats'); // строка JSON
+        if ($seatsJson) {
+          $qrCode = new QrCode($seatsJson); 
+        } else {
+          $qrCode = new QrCode('Привет! Это qr-код! ура!'); 
+        } 
+        // $qrCode = new QrCode('Привет! Это qr-код! ура!'); // текст или ссылка 
         // Получим изображение в base64
         $writer = new PngWriter();
         $result = $writer->write($qrCode);
@@ -120,8 +125,9 @@ class TicketController extends Controller
         return response()->json(['qr_code' => 'data:image/png;base64,' . $base64]);
       } catch (\Exception $e) {
         // Логируем ошибку
-        \Log::error('QR code generation failed: ' . $e->getMessage());
+        Log::error('QR code generation failed: ' . $e->getMessage());
         return response()->json(['error' => 'Failed to generate QR code'], 500);
       }
     }
 }
+

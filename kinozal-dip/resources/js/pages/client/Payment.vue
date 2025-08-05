@@ -3,18 +3,38 @@ import axios from 'axios';
 
 export default {
   name: 'Payment',
+  
 
   data() {
     return { // тут состояние 
+      seats: [], // данные о местах
     }
   },
-  methods: {
-    // методы для бронирования 
+  methods: {    
+    // Загрузка состояния кресел
+    blockedSeats() {
+      axios.get('http://127.0.0.1:8000/seats')
+        .then(response => {
+          this.seats = response.data.filter((el) => el.status ===  "blocked" );
+          console.log('забронированные места:', this.seats);
+        });
+    },
   },
   mounted() {
+    this.blockedSeats();
+    // это про принятие параметров по ссылке перехода (<router-link ...)
+    // const seatsParam = this.$route.query.seats;
+    // if (seatsParam) {
+    //   try {
+    //     this.seats = JSON.parse(seatsParam);
+    //   } catch(e) {
+    //     console.error('Ошибка парсинга seats', e);
+    //   }
+    // }
+
     // данных о зале 
     async function confirmBooking() {
-      const response = await axios.post('/api/book', {
+      const response = await axios.post('http://127.0.0.1:8000/api/book', {
         seat_id: seatId,
         session_id: sessionId,
         client_id: userId, // клиент из авторизации
@@ -24,13 +44,7 @@ export default {
       this.$router.push({ name: 'ticket', params: { ticketUuid: response.data.ticket.uuid } });
     }
     document.body.classList.add('page-client');
-    axios.get('http://127.0.0.1:8000/movies')
-      .then(response => {
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    
   }
 }
 

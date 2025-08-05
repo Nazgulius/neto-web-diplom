@@ -17,7 +17,7 @@ export default {
     return {       
       movies: [],
       sessions: [],
-      qrCodeData: '',
+      qrCodeData: 'тест qr кода',
     }
   },
   
@@ -163,9 +163,9 @@ export default {
         </ul>
       </div>
       <div>
-          <h1>QR Code: </h1>
-          <img :src="qrCodeData" alt="QR Code" />
-        </div>
+        <h1>QR Code: </h1>
+        <img :src="qrCodeData" alt="QR Code" />
+      </div>
     </section>
 
     

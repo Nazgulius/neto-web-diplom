@@ -18,7 +18,7 @@ const routes = [
     component: HallPage,
     props: true,
   },
-  { path: '/payment', component: PaymentPage },
+  { path: '/payment', name: 'payment', component: PaymentPage },
   { path: '/ticket', component: TicketPage },
   // admin
   { path: '/admin', component: AdminIndex, meta: { requiresAuth: true } },

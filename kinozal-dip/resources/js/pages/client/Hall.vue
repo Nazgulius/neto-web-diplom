@@ -211,11 +211,13 @@ export default {
       <!-- <button class="acceptin-button" @click="$router.push('/payment')">Забронировать</button> -->
       <button class="acceptin-button"><a :href="route('payment')">Забронировать</a></button>
       <!-- <button class="acceptin-button"><a :href="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">Забронировать</a></button> -->
-      <router-link :to="{ name: 'Payment', params: { seats } }" class="acceptin-button">Забронировать</router-link>
+      <router-link :to="{ name: 'payment' }" class="acceptin-button">Забронировать</router-link>
+      <!-- <router-link :to="{ name: 'payment', query: { seats: JSON.stringify(seats) } }" class="acceptin-button">Забронировать</router-link> -->
 
 
     </section>
   </main>
+  <router-view></router-view>
 </template>
 
 <style>
