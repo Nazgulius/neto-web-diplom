@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Seat extends Model
 {
-  public function room()
+  public function hall()
   {
-    return $this->belongsTo(Room::class);
+    return $this->belongsTo(Hall::class);
   }
 
   public function tickets()
@@ -17,7 +17,7 @@ class Seat extends Model
   }
 
   protected $fillable = [
-    'room_id',
+    'hall_id',
     'row',
     'number',
     'type',

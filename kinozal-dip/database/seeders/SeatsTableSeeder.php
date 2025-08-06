@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Seat;
-use App\Models\Room;
+use App\Models\Hall;
 
 
 class SeatsTableSeeder extends Seeder
@@ -15,7 +15,7 @@ class SeatsTableSeeder extends Seeder
      */
     public function run(): void
     {
-      $room = Room::where('name', 'Room 1')->first();
+      $room = Hall::where('name', 'main')->first();
 
       for ($i = 1; $i <= 50; $i++) {
         if ($room) {
