@@ -5,8 +5,16 @@ import axios from 'axios';
 export default {
   name: 'Index',
   props: {
-    hallId: Number,
-    sessionId: String
+    hallId: {
+      type: Number,
+      required: false,
+      default() { return 5; }
+    },
+    sessionId: {
+      type: String,
+      required: false,
+      default() { return 'abc123'; }
+    }
   },
   components: {
     Head,
@@ -18,6 +26,7 @@ export default {
       movies: [],
       sessions: [],
       qrCodeData: 'тест qr кода',
+      
     }
   },
   
@@ -142,7 +151,7 @@ export default {
         <ul class="movie-seances__list">
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">{{ sessions[0]?.start_time }}</a></li>
           <li class="movie-seances__time-block ">
-            <router-link :to="{ name: 'Hall', params: { hallId: 5, sessionId: 'abc123' } }" class="movie-seances__time">
+            <router-link :to="{ name: 'Hall', params: { hallId: hallId, sessionId: sessionId } }" class="movie-seances__time">
               {{ sessions[1]?.start_time }}
             </router-link>
           </li>          
@@ -162,10 +171,7 @@ export default {
           <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>
         </ul>
       </div>
-      <div>
-        <h1>QR Code: </h1>
-        <img :src="qrCodeData" alt="QR Code" />
-      </div>
+      
     </section>
 
     

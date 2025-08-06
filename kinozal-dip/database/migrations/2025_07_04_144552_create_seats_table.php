@@ -13,7 +13,7 @@ return new class extends Migration
   {
     Schema::create('seats', function (Blueprint $table) {
       $table->id();
-      $table->unsignedBigInteger('room_id');
+      $table->unsignedBigInteger('hall_id');
       $table->integer('row');
       $table->integer('number');
       $table->string('type')->default('Обычное'); // VIP или Обычное
@@ -21,7 +21,7 @@ return new class extends Migration
       $table->string('status')->default('available');
       $table->timestamps();
 
-      $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+      $table->foreign('hall_id')->references('id')->on('halls')->onDelete('cascade');
     });
   }
 

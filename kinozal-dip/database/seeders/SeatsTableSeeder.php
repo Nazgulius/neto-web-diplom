@@ -15,17 +15,22 @@ class SeatsTableSeeder extends Seeder
      */
     public function run(): void
     {
-      $room = Hall::where('name', 'main')->first();
+      $hall = Hall::where('name', 'main')->first();
 
       for ($i = 1; $i <= 50; $i++) {
-        if ($room) {
-          Seat::create([
-              'room_id' => $room->id,
-              'row' => ceil($i / 10),
-              'number' => $i % 10 + 1,
-              'type' => 'Обычное',
-          ]);
+        if ($hall) {
+          for ($i = 1; $i <= 50; $i++) {
+            Seat::create([
+                'hall_id' => $hall->id,
+                'row' => ceil($i / 10),
+                'number' => $i % 10 == 0 ? 10 : $i % 10,
+                'type' => 'Обычное',
+            ]);
+
+          }
         }
       }
+
+      
     }
 }

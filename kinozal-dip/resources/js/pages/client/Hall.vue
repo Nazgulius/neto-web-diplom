@@ -24,7 +24,9 @@ export default {
   computed: {
     rows() {
       // Получим уникальные номера рядов  
+      console.log('получаем уникальные места до');
       const uniqueRows = new Set(this.seats.map(seat => seat.row));
+      console.log('получаем уникальные места после', uniqueRows);
       return Array.from(uniqueRows).sort((a, b) => a - b);
     },
   },
@@ -93,6 +95,7 @@ export default {
           seat_id: seat.id,
           session_id: this.sessionId,
         });
+        console.log('response поосле check-seat ', response);
         if (response.data.available) {
           seat.status = 'blocked';
         } else {
@@ -132,7 +135,7 @@ export default {
     document.body.classList.add('page-client');
     axios.get('http://127.0.0.1:8000/seats')
       .then(response => {
-        console.log(response.data);
+        console.log('seats ', response.data);
       })
       .catch(error => {
         console.error(error);

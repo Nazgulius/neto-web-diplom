@@ -72,6 +72,7 @@ export default {
 
         <!-- <button class="acceptin-button" onclick="location.href='ticket.html'" >Получить код бронирования</button> -->
         <button class="acceptin-button"><a :href="route('ticket')">Получить код бронирования</a></button>
+        <button class="acceptin-button"><router-link :to="{ name: 'ticket' }">Забронировать</router-link></button>
 
         <p class="ticket__hint">После оплаты билет будет доступен в этом окне, а также придёт вам на почту. Покажите QR-код нашему контроллёру у входа в зал.</p>
         <p class="ticket__hint">Приятного просмотра!</p>

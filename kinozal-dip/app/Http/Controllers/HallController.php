@@ -40,9 +40,9 @@ class HallController extends Controller
      */
     public function update(Request $request, string $id)
     {
-      $movie = Hall::findOrFail($id);
-      $movie->update($request->all());
-      return response()->json($movie);
+      $hall = Hall::findOrFail($id);
+      $hall->update($request->all());
+      return response()->json($hall);
     }
 
     /**
