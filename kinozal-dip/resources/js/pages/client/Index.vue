@@ -149,7 +149,11 @@ export default {
       <div class="movie-seances__hall">
         <h3 class="movie-seances__hall-title">Зал 1</h3>
         <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">{{ sessions[0]?.start_time }}</a></li>
+          <li class="movie-seances__time-block">
+            <router-link :to="{ name: 'Hall', params: { hallId: hallId, sessionId: sessionId } }" class="movie-seances__time">
+              {{ sessions[0]?.start_time }}
+            </router-link>
+          </li>
           <li class="movie-seances__time-block ">
             <router-link :to="{ name: 'Hall', params: { hallId: hallId, sessionId: sessionId } }" class="movie-seances__time">
               {{ sessions[1]?.start_time }}
