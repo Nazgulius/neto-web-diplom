@@ -54,6 +54,7 @@ export default {
     },
   },
   mounted() {
+    document.body.classList.add('page-client');
     // this.blockedSeats(); // получаем список забранированных сидений
     this.generateQrWithSeats();
   },

@@ -19,7 +19,7 @@ return new class extends Migration
       $table->string('status'); // бронирован, продан, отменен
       $table->timestamps();
 
-      $table->foreign('session_id')->references('id')->on('sessions')->onDelete('cascade');
+      $table->foreign('session_id')->references('id')->on('kino_sessions')->onDelete('cascade');
       $table->foreign('seat_id')->references('id')->on('seats')->onDelete('cascade');
     });
   }

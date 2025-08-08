@@ -17,7 +17,7 @@ class TicketsTableSeeder extends Seeder
         'session_id' => 1,
         'seat_id' => 1,
         'code' => 111,
-        'status' => 'продан',
+        'status' => 'booked',
       ]);
     }
 }

@@ -50,9 +50,10 @@ class DatabaseSeeder extends Seeder
           'amountVip'=> 50,
       ]);
 
-      $this->call(SeatsTableSeeder::class);
-
-      $this->call([MoviesTableSeeder::class]);
+      $this->call(HallsTableSeeder::class);
+      $this->call(MoviesTableSeeder::class);
       $this->call(KinoSessionsTableSeeder::class);
+      $this->call(SeatsTableSeeder::class);
+      $this->call(TicketsTableSeeder::class);
     }
 }
