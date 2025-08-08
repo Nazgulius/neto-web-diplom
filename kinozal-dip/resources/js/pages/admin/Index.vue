@@ -6,22 +6,21 @@ export default {
 
   data() {
     return { // тут состояние 
-    }  }, 
-      methods: {
-        // методы для бронирования 
-      },
-      mounted() {
-        // fetch данных о зале 
-        document.body.classList.add('page-admin');
-        axios.get('http://127.0.0.1:8000/movies')
-          .then(response => {
-            console.log(response.data);
-          })
-          .catch(error => {
-            console.error(error);
-          });
-      }
-    }
+    }   
+  },
+  methods: {
+    
+  },
+  mounted() {
+    // fetch данных о зале 
+    document.body.classList.add('page-admin');
+    axios.get('http://127.0.0.1:8000/movies')
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.error(error);
+    });
 
     // из файла js/accordeon.js
     const headers = Array.from(document.querySelectorAll('.conf-step__header'));
@@ -29,6 +28,8 @@ export default {
       header.classList.toggle('conf-step__header_closed');
       header.classList.toggle('conf-step__header_opened');
     }));
+  }
+}
 </script>
 
 <template>
