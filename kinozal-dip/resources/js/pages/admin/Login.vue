@@ -3,7 +3,18 @@ import axios from 'axios';
 
 export default {
   name: 'Login',
-
+  props: {
+    hallId: {
+      type: Number,
+      required: false,
+      default() { return 5; }
+    },
+    sessionId: {
+      type: String,
+      required: false,
+      default() { return 'abc123'; }
+    }
+  },
   data() {
     return { // тут состояние 
     }  
@@ -27,14 +38,7 @@ export default {
   },
   mounted() {
     // fetch данных о зале 
-    document.body.classList.add('page-admin');
-    axios.get('http://127.0.0.1:8000/movies')
-      .then(response => {
-        console.log(response.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    document.body.classList.add('page-admin');   
   }
 }
 </script>

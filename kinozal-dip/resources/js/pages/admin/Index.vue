@@ -1,15 +1,34 @@
 <script>
+import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
 
 export default {
-  name: 'Index',
-
+  name: 'IndexAdmin',
+  props: {
+    hallId: {
+      type: Number,
+      required: false,
+      default() { return 5; }
+    },
+    sessionId: {
+      type: String,
+      required: false,
+      default() { return 'abc123'; }
+    }
+  },
   data() {
     return { // тут состояние 
     }   
   },
+  
   methods: {
-    
+    createHall() {
+      axios.get('http://127.0.0.1:8000/hall/create')
+        .then(response => {
+          this.movies = response.data;
+          console.log('kino: ', this.movies);
+        });
+    }
   },
   mounted() {
     // fetch данных о зале 
@@ -38,6 +57,8 @@ export default {
     <span class="page-header__subtitle">Администраторррская</span>
   </header>
 
+  <router-link :to="{ name: 'Logout' }" class="link_exit">Exit</router-link>
+
   <main class="conf-steps">
     <section class="conf-step">
       <header class="conf-step__header conf-step__header_opened">
@@ -53,7 +74,7 @@ export default {
             <button class="conf-step__button conf-step__button-trash"></button>
           </li>
         </ul>
-        <button class="conf-step__button conf-step__button-accent">Создать зал</button>
+        <button class="conf-step__button conf-step__button-accent" :onclick="createHall">Создать зал</button>
       </div>
     </section>
 
@@ -1136,5 +1157,20 @@ textarea.conf-step__input {
   font-weight: 600;
 }
 
+.link_exit {  
+
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
+  background-color: #FFFFFF;
+  color: #000000;
+  text-decoration: none;
+  font-size: 1.3rem;
+  padding: 5px;
+}
+
+.link_exit:hover, .link_exit:active {
+  background-color: #000000;
+  color: #FFFFFF;
+}
 
 </style>

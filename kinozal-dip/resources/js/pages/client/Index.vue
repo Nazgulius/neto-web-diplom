@@ -25,8 +25,7 @@ export default {
     return {       
       movies: [],
       sessions: [],
-      qrCodeData: 'тест qr кода',
-      
+      qrCodeData: 'тест qr кода',      
     }
   },
   
@@ -62,14 +61,14 @@ export default {
       });
 
     // Получаем QR-код с сервера  
-    fetch('http://127.0.0.1:8000/get-qr-code')
-    .then(res => res.json())
-    .then(data => {
-      this.qrCodeData = data.qr_code; 
-    })
-    .catch(error => {
-        console.error(error);
-      });
+    // fetch('http://127.0.0.1:8000/get-qr-code')
+    // .then(res => res.json())
+    // .then(data => {
+    //   this.qrCodeData = data.qr_code; 
+    // })
+    // .catch(error => {
+    //     console.error(error);
+    //   });
   }
 }
 </script>
@@ -85,26 +84,42 @@ export default {
   </Head>
 
 
-  <header class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
-    <nav class="flex items-center justify-end gap-4">
+  <!-- <header class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
+    <nav class="flex items-center justify-end gap-4 movie-seances__time">
       <Link v-if="$page.props.auth.user" :href="route('dashboard')"
-        class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
+        class="movie-seances__time inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
       Dashboard
       </Link>
       <template v-else>
         <Link :href="route('login')"
-          class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]">
+          class="movie-seances__time inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]">
         Log in
         </Link>
         <Link :href="route('register')"
-          class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
+          class="movie-seances__time inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
         Register
         </Link>
       </template>
     </nav>
-  </header>
+  </header> -->
 
-
+  <Link :href="route('login')"
+    class="movie-seances__time link_color">
+  Log in login
+  </Link>
+  <Link :href="route('register')"
+    class="movie-seances__time link_color">
+  Register
+  </Link>
+  <router-link :to="{ name: 'Admin' }" class="link_color">
+    Log in Admin
+  </router-link>
+  <router-link :to="{ name: 'Login' }" class="link_color">
+    Log in Login
+  </router-link>
+  <!-- <router-link :to="{ name: 'Hall' }" class="link_color">
+    Register
+  </router-link> -->
 
 
   <nav class="page-nav">
@@ -463,6 +478,25 @@ body.page-client {
   color: #000000;
   text-decoration: none;
   font-size: 1.5rem;
+}
+
+.link_color {  
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  border-radius: 2px;
+  background-color: #FFFFFF;
+  color: #000000;
+  text-decoration: none;
+  font-size: 1.3rem;
+  padding: 2px;
+}
+
+.link_color:hover, .link_color:active {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+.link_color:nth-child(2n+1) {
+  margin-left: 5px;
 }
 
 

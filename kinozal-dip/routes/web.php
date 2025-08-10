@@ -11,13 +11,15 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 
-// Route::get('/', function () {
+// Route::get('/home', function () {
 //     return Inertia::render('Welcome');
-// })->name('home');
+// });
+// ->name('home');
 
-// Route::get('dashboard', function () {
+// Route::get('dashboard2', function () {
 //     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+// })->middleware(['auth', 'verified']);
+//->name('dashboard');
 
 Route::get('/', function () {
     return Inertia::render('App');
@@ -50,6 +52,9 @@ Route::get('/ticket', function () {
 Route::get('dashboard', function () {
     return Inertia::render('admin/Index');
 })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/admin', function () {
+    return Inertia::render('admin/Index');
+})->middleware(['auth', 'verified']);
 
 Route::get('dashboard/login', function () {
     return Inertia::render('admin/Login');
@@ -68,6 +73,8 @@ Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book'
 Route::get('/ticket/{uuid}', [TicketController::class, 'show'])->name('ticket.show');
 Route::get('/get-qr-code', [TicketController::class, 'getQrCode']);
 Route::post('/get-qr-code', [TicketController::class, 'getQrCode']);
+Route::post('/api/logout', [AuthController::class, 'logout']);
+Route::post('/hall/create', [HallController::class, 'logout']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

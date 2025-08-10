@@ -29,6 +29,8 @@ class AuthController extends Controller
 
   public function login(Request $request)
   {
+  //   echo 'Auth Login';
+
     $request->validate([
       'email' => 'required|email',
       'password' => 'required',
@@ -47,6 +49,7 @@ class AuthController extends Controller
 
   public function logout(Request $request)
   {
+    // echo 'Auth Logout';
     $request->user()->tokens()->delete();
 
     return response()->json(['message' => 'Logged out']);

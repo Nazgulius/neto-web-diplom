@@ -21,8 +21,25 @@ const routes = [
   { path: '/payment', name: 'payment', component: PaymentPage },
   { path: '/ticket', name: 'ticket', component: TicketPage },
   // admin
-  { path: '/admin', component: AdminIndex, meta: { requiresAuth: true } },
-  { path: '/admin/login', component: AdminLogin },
+  { path: '/admin', name: 'Admin', component: AdminIndex, meta: { requiresAuth: true } },
+  { path: '/dashboard', component: AdminIndex, meta: { requiresAuth: true } },
+  { path: '/admin/login', name: 'Login',component: AdminLogin },
+  {
+    path: '/logout',
+    name: 'Logout',
+    component: { template: '<router-view/>' }, // незаметный компонент
+    beforeEnter: async (to, from, next) => {
+      try {
+        await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+        // локально очистить данные пользователя, если нужно
+        // например, сбросить store или state
+        window.location.href = '/'; // или роутер push к нужной странице
+      } catch (e) {
+        console.error(e);
+        window.location.href = '/'; // fallback
+      }
+    }
+  },
 ]
 
 const router = createRouter({
