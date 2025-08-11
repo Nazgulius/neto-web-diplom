@@ -74,7 +74,8 @@ Route::get('/ticket/{uuid}', [TicketController::class, 'show'])->name('ticket.sh
 Route::get('/get-qr-code', [TicketController::class, 'getQrCode']);
 Route::post('/get-qr-code', [TicketController::class, 'getQrCode']);
 Route::post('/api/logout', [AuthController::class, 'logout']);
-Route::post('/hall/create', [HallController::class, 'logout']);
+Route::post('/hall/create', [HallController::class, 'create']);
+Route::get('/hall/index', [HallController::class, 'index']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

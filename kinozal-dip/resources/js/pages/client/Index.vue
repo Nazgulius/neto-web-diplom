@@ -105,17 +105,17 @@ export default {
 
   <Link :href="route('login')"
     class="movie-seances__time link_color">
-  Log in login
+  Log in login Link
   </Link>
   <Link :href="route('register')"
     class="movie-seances__time link_color">
-  Register
+  Register Link
   </Link>
   <router-link :to="{ name: 'Admin' }" class="link_color">
-    Log in Admin
+    Log in Admin router-link
   </router-link>
   <router-link :to="{ name: 'Login' }" class="link_color">
-    Log in Login
+    Log in Login router-link
   </router-link>
   <!-- <router-link :to="{ name: 'Hall' }" class="link_color">
     Register

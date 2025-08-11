@@ -18,28 +18,51 @@ export default {
   },
   data() {
     return { // тут состояние 
+      halls: [],
+      movies: [],
+
     }   
   },
   
   methods: {
     createHall() {
-      axios.get('http://127.0.0.1:8000/hall/create')
+      axios.post('http://127.0.0.1:8000/hall/create')
         .then(response => {
-          this.movies = response.data;
-          console.log('kino: ', this.movies);
+          console.log('Создание зала');
+          this.halls = response.data;
+          
+        })
+        .catch(error => {
+          console.error(error);
         });
-    }
+    },
+    getHalls() {
+      axios.get('http://127.0.0.1:8000/hall/index')
+        .then(response => {
+          this.halls = response.data;
+          console.log('halls: ', this.halls);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    getMovies() {
+      axios.get('http://127.0.0.1:8000/movies')
+      .then(response => {
+        this.movies = response.data;
+        console.log('movies: ', this.movies);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    },
   },
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-admin');
-    axios.get('http://127.0.0.1:8000/movies')
-    .then(response => {
-      console.log(response.data);
-    })
-    .catch(error => {
-      console.error(error);
-    });
+    
+    this.getHalls();
+    this.getMovies();
 
     // из файла js/accordeon.js
     const headers = Array.from(document.querySelectorAll('.conf-step__header'));
@@ -67,12 +90,11 @@ export default {
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">Доступные залы:</p>
         <ul class="conf-step__list">
-          <li>Зал 1
-            <button class="conf-step__button conf-step__button-trash"></button>
-          </li>
-          <li>Зал 2
-            <button class="conf-step__button conf-step__button-trash"></button>
-          </li>
+          <div v-for="hall in halls" :key="hall" class="hall">
+            <li>Зал {{ hall?.name }}
+              <button class="conf-step__button conf-step__button-trash"></button>
+            </li>
+          </div>          
         </ul>
         <button class="conf-step__button conf-step__button-accent" :onclick="createHall">Создать зал</button>
       </div>
@@ -85,10 +107,10 @@ export default {
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
-          <li><input type="radio" class="conf-step__radio" name="chairs-hall" value="Зал 1" checked><span
-              class="conf-step__selector">Зал 1</span></li>
-          <li><input type="radio" class="conf-step__radio" name="chairs-hall" value="Зал 2"><span
-              class="conf-step__selector">Зал 2</span></li>
+          <div v-for="hall in halls" :key="hall" class="hall">
+            <li><input type="radio" class="conf-step__radio" name="chairs-hall" value="Зал 1" checked><span
+                class="conf-step__selector">Зал {{ hall?.name }}</span></li>
+          </div>
         </ul>
         <p class="conf-step__paragraph">Укажите количество рядов и максимальное количество кресел в ряду:</p>
         <div class="conf-step__legend">
@@ -232,10 +254,10 @@ export default {
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
-          <li><input type="radio" class="conf-step__radio" name="prices-hall" value="Зал 1"><span
-              class="conf-step__selector">Зал 1</span></li>
-          <li><input type="radio" class="conf-step__radio" name="prices-hall" value="Зал 2" checked><span
-              class="conf-step__selector">Зал 2</span></li>
+          <div v-for="hall in halls" :key="hall" class="hall">
+            <li><input type="radio" class="conf-step__radio" name="prices-hall" value="Зал 1" checked><span
+                class="conf-step__selector">Зал {{ hall?.name }}</span></li>
+          </div>          
         </ul>
 
         <p class="conf-step__paragraph">Установите цены для типов кресел:</p>
@@ -298,6 +320,19 @@ export default {
 
         <div class="conf-step__seances">
           <div class="conf-step__seances-hall">
+            <div v-for="hall in halls" :key="hall" class="hall">
+              <h3 class="conf-step__seances-title">Зал {{ hall?.name }}</h3>
+              <div v-for="session in sessions" :key="session" class="session ">
+              
+                <div class="conf-step__seances-timeline">
+                <div class="conf-step__seances-movie" style="width: 60px; background-color: rgb(133, 255, 137); left: 0;">
+                  <p class="conf-step__seances-movie-title">Миссия выполнима</p>
+                  <p class="conf-step__seances-movie-start">00:00</p>
+                </div>
+              </div>
+              
+            </div>
+            </div>
             <h3 class="conf-step__seances-title">Зал 1</h3>
             <div class="conf-step__seances-timeline">
               <div class="conf-step__seances-movie" style="width: 60px; background-color: rgb(133, 255, 137); left: 0;">
