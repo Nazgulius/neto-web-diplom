@@ -14,7 +14,22 @@ class HallsTableSeeder extends Seeder
     public function run(): void
     {
       Hall::create([
-        'name' => 'main',
+        'name' => 'Main Hall',
+        'rows' => 10,
+        'seats_per_row' => 10,        
+        'layout' => [
+          'rows' => 10,
+          'seats_per_row' => 10,
+          'layout_type' => 'square', 
+          'additional_info' => 'места расположены квадратом'
+        ],
+          'active' => true,
+          'amountStandart' => 10,
+          'amountVip'=> 50,
+      ]);
+
+      Hall::create([
+        'name' => 'Second Hall',
         'rows' => 10,
         'seats_per_row' => 10,
         'layout' => [

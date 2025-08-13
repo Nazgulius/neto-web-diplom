@@ -20,17 +20,30 @@ export default {
     return { // тут состояние 
       halls: [],
       movies: [],
-
-    }   
+      sessions: [],
+      timelineStart: '09:00', // например
+      timelineEnd: '23:00', // например
+      timelineWidth: 720 // ширина шкалы в пикселях
+    }
   },
-  
+  computed: {
+    totalTimelineMinutes() {
+      return this.timeToMinutes(this.timelineEnd) - this.timeToMinutes(this.timelineStart);
+    },
+    // можно вернуть ширину на основe CSS
+  },
   methods: {
+      computeLeft(start_time) {
+        const delta = this.minutesBetween(this.timelineStart, start_time);
+        const percent = delta / this.totalTimelineMinutes; // ограничиваем от 0 до timelineWidth 
+        return Math.max(0, Math.min(this.timelineWidth, percent * this.timelineWidth));
+      },
     createHall() {
       axios.post('http://127.0.0.1:8000/hall/create')
         .then(response => {
           console.log('Создание зала');
           this.halls = response.data;
-          
+
         })
         .catch(error => {
           console.error(error);
@@ -48,21 +61,46 @@ export default {
     },
     getMovies() {
       axios.get('http://127.0.0.1:8000/movies')
-      .then(response => {
-        this.movies = response.data;
-        console.log('movies: ', this.movies);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+        .then(response => {
+          this.movies = response.data;
+          console.log('movies: ', this.movies);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    getSessions() {
+      axios.get('http://127.0.0.1:8000/sessions')
+        .then(response => {
+          this.sessions = response.data;
+          console.log('sessions: ', this.sessions);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    timeToMinutes(t) {
+      // t формат HH:mm
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    },
+    minutesBetween(a, b) {
+      // а и b в формате 'HH:mm'
+      return this.timeToMinutes(b) - this.timeToMinutes(a);
+    },
+    sessionsByHall(hallId) {
+      return this.sessions.filter(s => s.hall_id === hallId);
     },
   },
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-admin');
-    
+
     this.getHalls();
     this.getMovies();
+    this.getSessions();
+    console.log('movies[0]?.name ' + this.movies[0]);
+    console.log('sessions[0]?.movie_id ' + this.sessions[0]);
 
     // из файла js/accordeon.js
     const headers = Array.from(document.querySelectorAll('.conf-step__header'));
@@ -91,10 +129,10 @@ export default {
         <p class="conf-step__paragraph">Доступные залы:</p>
         <ul class="conf-step__list">
           <div v-for="hall in halls" :key="hall" class="hall">
-            <li>Зал {{ hall?.name }}
+            <li>{{ hall?.name }}
               <button class="conf-step__button conf-step__button-trash"></button>
             </li>
-          </div>          
+          </div>
         </ul>
         <button class="conf-step__button conf-step__button-accent" :onclick="createHall">Создать зал</button>
       </div>
@@ -257,7 +295,7 @@ export default {
           <div v-for="hall in halls" :key="hall" class="hall">
             <li><input type="radio" class="conf-step__radio" name="prices-hall" value="Зал 1" checked><span
                 class="conf-step__selector">Зал {{ hall?.name }}</span></li>
-          </div>          
+          </div>
         </ul>
 
         <p class="conf-step__paragraph">Установите цены для типов кресел:</p>
@@ -287,82 +325,23 @@ export default {
           <button class="conf-step__button conf-step__button-accent">Добавить фильм</button>
         </p>
         <div class="conf-step__movies">
-          <div class="conf-step__movie">
-            <img class="conf-step__movie-poster" alt="poster" src="/src/admin/poster.png">
-            <h3 class="conf-step__movie-title">Звёздные войны XXIII: Атака клонированных клонов</h3>
-            <p class="conf-step__movie-duration">130 минут</p>
-          </div>
-
-          <div class="conf-step__movie">
-            <img class="conf-step__movie-poster" alt="poster" src="/src/admin/poster.png">
-            <h3 class="conf-step__movie-title">Миссия выполнима</h3>
-            <p class="conf-step__movie-duration">120 минут</p>
-          </div>
-
-          <div class="conf-step__movie">
-            <img class="conf-step__movie-poster" alt="poster" src="/src/admin/poster.png">
-            <h3 class="conf-step__movie-title">Серая пантера</h3>
-            <p class="conf-step__movie-duration">90 минут</p>
-          </div>
-
-          <div class="conf-step__movie">
-            <img class="conf-step__movie-poster" alt="poster" src="/src/admin/poster.png">
-            <h3 class="conf-step__movie-title">Движение вбок</h3>
-            <p class="conf-step__movie-duration">95 минут</p>
-          </div>
-
-          <div class="conf-step__movie">
-            <img class="conf-step__movie-poster" alt="poster" src="/src/admin/poster.png">
-            <h3 class="conf-step__movie-title">Кот Да Винчи</h3>
-            <p class="conf-step__movie-duration">100 минут</p>
+          <div v-for="movie in movies" :key="movie" class="conf-step__movie">
+              <img class="conf-step__movie-poster" alt="poster" :src=movie?.image_url>
+              <h3 class="conf-step__movie-title">{{ movie?.title }}</h3>
+              <p class="conf-step__movie-duration">{{ movie?.duration }} минут</p>            
           </div>
         </div>
 
         <div class="conf-step__seances">
-          <div class="conf-step__seances-hall">
-            <div v-for="hall in halls" :key="hall" class="hall">
+          <div v-for="hall in halls" :key="hall" class="hall">
+            <div class="conf-step__seances-hall">
               <h3 class="conf-step__seances-title">Зал {{ hall?.name }}</h3>
-              <div v-for="session in sessions" :key="session" class="session ">
-              
-                <div class="conf-step__seances-timeline">
-                <div class="conf-step__seances-movie" style="width: 60px; background-color: rgb(133, 255, 137); left: 0;">
-                  <p class="conf-step__seances-movie-title">Миссия выполнима</p>
-                  <p class="conf-step__seances-movie-start">00:00</p>
+              <div class="conf-step__seances-timeline">
+                <div v-for="session in sessionsByHall(hall.id)" :key="session" class="conf-step__seances-movie"
+                  :style="{ left: computeLeft(session.start_time) + 'px' }">
+                    <p class="conf-step__seances-movie-title">{{ movies[session.movie_id - 1]?.title }}</p>
+                    <p class="conf-step__seances-movie-start">{{ session?.start_time }}</p>
                 </div>
-              </div>
-              
-            </div>
-            </div>
-            <h3 class="conf-step__seances-title">Зал 1</h3>
-            <div class="conf-step__seances-timeline">
-              <div class="conf-step__seances-movie" style="width: 60px; background-color: rgb(133, 255, 137); left: 0;">
-                <p class="conf-step__seances-movie-title">Миссия выполнима</p>
-                <p class="conf-step__seances-movie-start">00:00</p>
-              </div>
-              <div class="conf-step__seances-movie"
-                style="width: 60px; background-color: rgb(133, 255, 137); left: 360px;">
-                <p class="conf-step__seances-movie-title">Миссия выполнима</p>
-                <p class="conf-step__seances-movie-start">12:00</p>
-              </div>
-              <div class="conf-step__seances-movie"
-                style="width: 65px; background-color: rgb(202, 255, 133); left: 420px;">
-                <p class="conf-step__seances-movie-title">Звёздные войны XXIII: Атака клонированных клонов</p>
-                <p class="conf-step__seances-movie-start">14:00</p>
-              </div>
-            </div>
-          </div>
-          <div class="conf-step__seances-hall">
-            <h3 class="conf-step__seances-title">Зал 2</h3>
-            <div class="conf-step__seances-timeline">
-              <div class="conf-step__seances-movie"
-                style="width: 65px; background-color: rgb(202, 255, 133); left: 595px;">
-                <p class="conf-step__seances-movie-title">Звёздные войны XXIII: Атака клонированных клонов</p>
-                <p class="conf-step__seances-movie-start">19:50</p>
-              </div>
-              <div class="conf-step__seances-movie"
-                style="width: 60px; background-color: rgb(133, 255, 137); left: 660px;">
-                <p class="conf-step__seances-movie-title">Миссия выполнима</p>
-                <p class="conf-step__seances-movie-start">22:00</p>
               </div>
             </div>
           </div>
@@ -1007,6 +986,8 @@ select {
   border: 1px solid rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
   padding: 10px 2px 10px 10px;
+  width: 60px; 
+  background-color: rgb(133, 255, 137);
 }
 
 .conf-step__seances-movie .conf-step__seances-movie-title {
@@ -1192,7 +1173,7 @@ textarea.conf-step__input {
   font-weight: 600;
 }
 
-.link_exit {  
+.link_exit {
 
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
   border-radius: 2px;
@@ -1203,9 +1184,9 @@ textarea.conf-step__input {
   padding: 5px;
 }
 
-.link_exit:hover, .link_exit:active {
+.link_exit:hover,
+.link_exit:active {
   background-color: #000000;
   color: #FFFFFF;
 }
-
 </style>

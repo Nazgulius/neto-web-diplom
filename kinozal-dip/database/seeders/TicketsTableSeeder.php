@@ -13,11 +13,11 @@ class TicketsTableSeeder extends Seeder
      */
     public function run(): void
     {
-      Ticket::create([
-        'session_id' => 1,
-        'seat_id' => 1,
-        'code' => 111,
-        'status' => 'booked',
-      ]);
+      // Ticket::create([
+      //   'session_id' => 1,
+      //   'seat_id' => 1,
+      //   'code' => 111,
+      //   'status' => 'booked',
+      // ]);
     }
 }
