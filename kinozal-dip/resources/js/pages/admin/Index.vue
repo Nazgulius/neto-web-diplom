@@ -33,21 +33,50 @@ export default {
     // можно вернуть ширину на основe CSS
   },
   methods: {
-      computeLeft(start_time) {
-        const delta = this.minutesBetween(this.timelineStart, start_time);
-        const percent = delta / this.totalTimelineMinutes; // ограничиваем от 0 до timelineWidth 
-        return Math.max(0, Math.min(this.timelineWidth, percent * this.timelineWidth));
-      },
+    computeLeft(start_time) {
+      const delta = this.minutesBetween(this.timelineStart, start_time);
+      const percent = delta / this.totalTimelineMinutes; // ограничиваем от 0 до timelineWidth 
+      return Math.max(0, Math.min(this.timelineWidth, percent * this.timelineWidth));
+    },
     createHall() {
+      console.log('Создание зала');
       axios.post('http://127.0.0.1:8000/hall/create')
         .then(response => {
-          console.log('Создание зала');
           this.halls = response.data;
-
         })
         .catch(error => {
           console.error(error);
         });
+    },
+    btnHallDel(hallID) {
+      console.log('Dell Hall id: ', hallID);
+    },
+    btnCenselHallSeats() {
+      console.log('Cansel Hall seats');
+    },
+    btnSaveHallSeats() {
+      console.log('Save Hall seats');
+    },
+    btnCanselPrise() {
+      console.log('Cansel Kino Session Prise');
+    },
+    btnSavePrise() {
+      console.log('Save Kino Session Prise');
+    },
+    btnAddKino() {
+      console.log('Add Kino');
+    },
+    btnEditKino(movie) {
+      console.log('Add Edit Kino', movie.title);
+    },
+    btnCanselKinoSession() {
+      console.log('Cansel Kino Session');
+    },
+    btnSaveKinoSession() {
+      console.log('Save Kino Session');
+    },
+    btnOpenShopKino() {
+      console.log('Open shop Kino');
     },
     getHalls() {
       axios.get('http://127.0.0.1:8000/hall/index')
@@ -91,6 +120,7 @@ export default {
     sessionsByHall(hallId) {
       return this.sessions.filter(s => s.hall_id === hallId);
     },
+
   },
   mounted() {
     // fetch данных о зале 
@@ -130,11 +160,11 @@ export default {
         <ul class="conf-step__list">
           <div v-for="hall in halls" :key="hall" class="hall">
             <li>{{ hall?.name }}
-              <button class="conf-step__button conf-step__button-trash"></button>
+              <button class="conf-step__button conf-step__button-trash" @click="btnHallDel(hall.id)"></button>
             </li>
           </div>
         </ul>
-        <button class="conf-step__button conf-step__button-accent" :onclick="createHall">Создать зал</button>
+        <button class="conf-step__button conf-step__button-accent" @click="createHall">Создать зал</button>
       </div>
     </section>
 
@@ -279,8 +309,8 @@ export default {
         </div>
 
         <fieldset class="conf-step__buttons text-center">
-          <button class="conf-step__button conf-step__button-regular">Отмена</button>
-          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent">
+          <button class="conf-step__button conf-step__button-regular" @click="btnCenselHallSeats">Отмена</button>
+          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent" @click="btnSaveHallSeats">
         </fieldset>
       </div>
     </section>
@@ -310,8 +340,8 @@ export default {
         </div>
 
         <fieldset class="conf-step__buttons text-center">
-          <button class="conf-step__button conf-step__button-regular">Отмена</button>
-          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent">
+          <button class="conf-step__button conf-step__button-regular" @click="btnCanselPrise">Отмена</button>
+          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent" @click="btnSavePrise">
         </fieldset>
       </div>
     </section>
@@ -322,13 +352,13 @@ export default {
       </header>
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">
-          <button class="conf-step__button conf-step__button-accent">Добавить фильм</button>
+          <button class="conf-step__button conf-step__button-accent" @click="btnAddKino">Добавить фильм</button>
         </p>
         <div class="conf-step__movies">
-          <div v-for="movie in movies" :key="movie" class="conf-step__movie">
-              <img class="conf-step__movie-poster" alt="poster" :src=movie?.image_url>
-              <h3 class="conf-step__movie-title">{{ movie?.title }}</h3>
-              <p class="conf-step__movie-duration">{{ movie?.duration }} минут</p>            
+          <div v-for="movie in movies" :key="movie" class="conf-step__movie" @click="btnEditKino(movie)">
+            <img class="conf-step__movie-poster" alt="poster" :src=movie?.image_url>
+            <h3 class="conf-step__movie-title">{{ movie?.title }}</h3>
+            <p class="conf-step__movie-duration">{{ movie?.duration }} минут</p>
           </div>
         </div>
 
@@ -339,8 +369,8 @@ export default {
               <div class="conf-step__seances-timeline">
                 <div v-for="session in sessionsByHall(hall.id)" :key="session" class="conf-step__seances-movie"
                   :style="{ left: computeLeft(session.start_time) + 'px' }">
-                    <p class="conf-step__seances-movie-title">{{ movies[session.movie_id - 1]?.title }}</p>
-                    <p class="conf-step__seances-movie-start">{{ session?.start_time }}</p>
+                  <p class="conf-step__seances-movie-title">{{ movies[session.movie_id - 1]?.title }}</p>
+                  <p class="conf-step__seances-movie-start">{{ session?.start_time }}</p>
                 </div>
               </div>
             </div>
@@ -348,8 +378,8 @@ export default {
         </div>
 
         <fieldset class="conf-step__buttons text-center">
-          <button class="conf-step__button conf-step__button-regular">Отмена</button>
-          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent">
+          <button class="conf-step__button conf-step__button-regular" @click="btnCanselKinoSession">Отмена</button>
+          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent" @click="btnSaveKinoSession">
         </fieldset>
       </div>
     </section>
@@ -360,10 +390,25 @@ export default {
       </header>
       <div class="conf-step__wrapper text-center">
         <p class="conf-step__paragraph">Всё готово, теперь можно:</p>
-        <button class="conf-step__button conf-step__button-accent">Открыть продажу билетов</button>
+        <button class="conf-step__button conf-step__button-accent" @click="btnOpenShopKino">Открыть продажу билетов</button>
       </div>
     </section>
   </main>
+
+  <!-- popup -->
+  <div class="popup">
+    <div class="popup__container">
+      <div class="popup__header">
+        <h1 class="popup__title">popup container</h1>
+        
+      </div>
+      <div class="popup__content">
+        много текста
+      </div>
+
+
+    </div>
+  </div>
 </template>
 
 <style>
@@ -986,7 +1031,7 @@ select {
   border: 1px solid rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
   padding: 10px 2px 10px 10px;
-  width: 60px; 
+  width: 60px;
   background-color: rgb(133, 255, 137);
 }
 
@@ -1055,10 +1100,13 @@ select {
 
 .popup {
   display: none;
-  position: fixed;
+  position: absolute;
+  /* position: fixed; */
   width: 100%;
   height: 100%;
   z-index: 100;
+  left: 100px;
+  top: 100px;
 }
 
 .popup__title {
