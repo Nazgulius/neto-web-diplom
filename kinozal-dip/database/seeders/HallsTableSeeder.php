@@ -23,9 +23,9 @@ class HallsTableSeeder extends Seeder
           'layout_type' => 'square', 
           'additional_info' => 'места расположены квадратом'
         ],
-          'active' => true,
-          'amountStandart' => 10,
-          'amountVip'=> 50,
+        'active' => true,
+        'amountStandart' => 10,
+        'amountVip'=> 50,
       ]);
 
       Hall::create([

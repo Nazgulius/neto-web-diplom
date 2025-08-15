@@ -395,20 +395,44 @@ export default {
     </section>
   </main>
 
-  <!-- popup -->
+  <!-- popup add Halls -->
   <div class="popup">
     <div class="popup__container">
       <div class="popup__header">
         <h1 class="popup__title">popup container</h1>
-        
       </div>
-      <div class="popup__content">
-        много текста
-      </div>
+      <form action="" class="popup__form">
+        <div class="popup__container">
+          много текста
+        </div>
+        <div class="popup__dismiss">
+          много текста
+        </div>
+        <div class="popup__wrapper">
+          много текста
+        </div>
+        <img src="" alt="poster" class="popup__poster">
+        <label for="name" >Name</label>
+        <input type="text" class="c" placeholder="name hall" name="name">
+        <label for="rows" >Rows</label>
+        <input type="text" class="c" placeholder="rows hall" name="rows">
+        <label for="seats_per_row" >seats per row hall</label>
+        <input type="text" class="c" placeholder="seats per row hall" name="seats_per_row">
+        <label for="Standart" >Name</label>
+        <input type="text" class="c" placeholder="amount Standart seat in hall" name="Standart">
+        <label for="Vip" >Name</label>
+        <input type="text" class="c" placeholder="amount Vip seat in hall" name="Vip">
+        <label for="active" >Name</label>
+        <input type="radio" class="c" placeholder="active" name="active">       
 
-
+      </form>
     </div>
+
+    
   </div>
+
+  <!-- popup add movie -->
+  <!-- popup edit movie -->
 </template>
 
 <style>
@@ -1099,14 +1123,15 @@ select {
 }
 
 .popup {
-  display: none;
+  /* display: none; */
   position: absolute;
   /* position: fixed; */
-  width: 100%;
-  height: 100%;
+  width: 80vw;
+  height: 80vh;
   z-index: 100;
-  left: 100px;
-  top: 100px;
+  left: 50px;
+  top: 50px;
+  background: rgba(245, 245, 245, 0.7);
 }
 
 .popup__title {
