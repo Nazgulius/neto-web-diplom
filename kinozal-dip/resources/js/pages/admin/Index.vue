@@ -397,38 +397,39 @@ export default {
 
   <!-- popup add Halls -->
   <div class="popup">
-    <div class="popup__container">
+    <form action="" class="popup__form popup__container" method="post" autocomplete="on"> 
       <div class="popup__header">
-        <h1 class="popup__title">popup container</h1>
+        <h1 class="popup__title">Add Halls</h1>
       </div>
-      <form action="" class="popup__form">
-        <div class="popup__container">
-          много текста
+      <div class="popup__row">
+        <div class="popup__container__poster">        
+          <img src="" alt="poster" class="popup__poster">
         </div>
-        <div class="popup__dismiss">
-          много текста
+        
+        <div class="popup__container__cont">
+          <label for="name" >Name</label>
+          <input type="text" class="c" placeholder="Big Hall" name="name"
+          id="name" v-model="name">
+          <label for="rows" >Rows</label>
+          <input type="text" class="c" placeholder="10" name="rows"
+          id="rows" v-model="rows">
+          <label for="seats_per_row" >seats per row hall</label>
+          <input type="text" class="c" placeholder="10" name="seats_per_row"
+          id="seats_per_row" v-model="seats_per_row">
+          <label for="Standart">amount Standart seat in hall</label>
+          <input type="text" class="c" placeholder="200" name="Standart"
+          id="Standart" v-model="Standart">
+          <label for="Vip" >Amount Vip seat in hall</label>
+          <input type="text" class="c" placeholder="500" name="Vip"
+          id="Vip" v-model="Vip">
+          <label for="active" >active</label>
+          <input type="radio" class="c" placeholder="active" name="active"
+          id="active" v-model="active">       
+          <burron class="btnPopupHalls" type="submit">Create Hall</burron>
         </div>
-        <div class="popup__wrapper">
-          много текста
-        </div>
-        <img src="" alt="poster" class="popup__poster">
-        <label for="name" >Name</label>
-        <input type="text" class="c" placeholder="name hall" name="name">
-        <label for="rows" >Rows</label>
-        <input type="text" class="c" placeholder="rows hall" name="rows">
-        <label for="seats_per_row" >seats per row hall</label>
-        <input type="text" class="c" placeholder="seats per row hall" name="seats_per_row">
-        <label for="Standart" >Name</label>
-        <input type="text" class="c" placeholder="amount Standart seat in hall" name="Standart">
-        <label for="Vip" >Name</label>
-        <input type="text" class="c" placeholder="amount Vip seat in hall" name="Vip">
-        <label for="active" >Name</label>
-        <input type="radio" class="c" placeholder="active" name="active">       
 
-      </form>
-    </div>
-
-    
+      </div>
+    </form>
   </div>
 
   <!-- popup add movie -->
@@ -1223,7 +1224,29 @@ textarea.conf-step__input {
 
 .popup__container {
   display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: start;
+}
+
+.popup__row {
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
+  margin-top: 20px;
+}
+
+.popup__container__poster {
+  width: 30%;
+  margin-left: 20px;
+}
+
+.popup__container__cont {
+  width: 65%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-right: 20px; 
 }
 
 .popup__form {
