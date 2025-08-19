@@ -43,6 +43,13 @@ export default {
       popupHidden: true, // попап скрыт по умолчанию
       popupHiddenAM: true, // попап скрыт по умолчанию
       popupHiddenEM: true, // попап скрыт по умолчанию
+      formMovieData: {
+        title: '', // название
+        description: '', // описание
+        duration: 0, // минуты
+        country: '', // страна
+        image_url: "/src/client/poster1.jpg", // поко как заглушка
+      },
     }
   },
   computed: {
@@ -57,21 +64,37 @@ export default {
       const percent = delta / this.totalTimelineMinutes; // ограничиваем от 0 до timelineWidth 
       return Math.max(0, Math.min(this.timelineWidth, percent * this.timelineWidth));
     },
-    toglePopupHall() {      
+    // вкл/выкл попап зала, добавления и редактирования кино
+    toglePopupHall() {
       this.popupHidden = !this.popupHidden;
     },
-    toglePopupAddMovie() {      
+    toglePopupAddMovie() {
       this.popupHiddenAM = !this.popupHiddenAM;
     },
-    toglePopupEditMovie() {      
+    toglePopupEditMovie() {
       this.popupHiddenEM = !this.popupHiddenEM;
     },
-    btnHallDel(hallID) {
-      console.log('Dell Hall id: ', hallID);
-      // destroy
-      axios.delete('http://127.0.0.1:8000/hall/destroy/' + hallID) 
+    // добавление Hall 
+    submitFormHalls() {
+      axios.post('http://127.0.0.1:8000/hall/create', this.formHallData)
         .then(response => {
           console.log('Успех:', response.data);
+          this.getHalls(); // Перезагружаем список залов
+        })
+        .catch(error => {
+          if (error.response) {
+            // Ответ сервера с кодом ошибки
+            console.error('Ошибка сервера:', error.response.data);
+          } else {
+            console.error(error);
+          }
+        });
+    },
+    // удаление Hall
+    btnHallDel(hallID) {
+      axios.delete('http://127.0.0.1:8000/hall/destroy/' + hallID)
+        .then(response => {
+          // console.log('Успех:', response.data);
           // удалить из локального списка
           this.halls = this.halls.filter(h => h.id !== hallID);
           console.log('Зал удалён, список обновлён локально');
@@ -85,6 +108,28 @@ export default {
           }
         });
     },
+    // добавление кино
+    submitFormAddMovie() {
+      axios.post('http://127.0.0.1:8000/movies/create', this.formMovieData)
+        .then(response => {
+          console.log('Успех:', response.data);
+          this.getMovies(); // Перезагружаем список залов
+        })
+        .catch(error => {
+          if (error.response) {
+            // Ответ сервера с кодом ошибки
+            console.error('Ошибка сервера:', error.response.data);
+          } else {
+            console.error(error);
+          }
+        });
+    },
+    // удаление кино
+
+    //редактирование кино
+    submitFormEditMovie() {
+
+    },
     btnCenselHallSeats() {
       console.log('Cansel Hall seats');
     },
@@ -96,10 +141,7 @@ export default {
     },
     btnSavePrise() {
       console.log('Save Kino Session Prise');
-    },
-    btnAddKino() {
-      console.log('Add Kino');
-    },
+    },    
     btnEditKino(movie) {
       console.log('Add Edit Kino', movie.title);
     },
@@ -112,23 +154,7 @@ export default {
     btnOpenShopKino() {
       console.log('Open shop Kino');
     },
-    submitFormHalls() {
-      console.log('Создание зала');
-      axios.post('http://127.0.0.1:8000/hall/create', this.formHallData)
-        .then(response => {
-          console.log('Успех:', response.data);
-          // Перезагружаем список залов
-          this.getHalls();
-        })
-        .catch(error => {
-          if (error.response) {
-            // Ответ сервера с кодом ошибки
-            console.error('Ошибка сервера:', error.response.data);
-          } else {
-            console.error(error);
-          }
-        });
-    },
+    // получение всех Hall
     getHalls() {
       axios.get('http://127.0.0.1:8000/hall/index')
         .then(response => {
@@ -139,6 +165,7 @@ export default {
           console.error(error);
         });
     },
+    // получение всех фильмов
     getMovies() {
       axios.get('http://127.0.0.1:8000/movies')
         .then(response => {
@@ -149,6 +176,7 @@ export default {
           console.error(error);
         });
     },
+    // получение всех сеансов
     getSessions() {
       axios.get('http://127.0.0.1:8000/sessions')
         .then(response => {
@@ -361,7 +389,8 @@ export default {
 
         <fieldset class="conf-step__buttons text-center">
           <button class="conf-step__button conf-step__button-regular" @click="btnCenselHallSeats">Отмена</button>
-          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent" @click="btnSaveHallSeats">
+          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent"
+            @click="btnSaveHallSeats">
         </fieldset>
       </div>
     </section>
@@ -403,7 +432,7 @@ export default {
       </header>
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">
-          <button class="conf-step__button conf-step__button-accent" @click="btnAddKino">Добавить фильм</button>
+          <button class="conf-step__button conf-step__button-accent" @click="toglePopupAddMovie">Добавить фильм</button>
         </p>
         <div class="conf-step__movies">
           <div v-for="movie in movies" :key="movie" class="conf-step__movie" @click="btnEditKino(movie)">
@@ -430,7 +459,8 @@ export default {
 
         <fieldset class="conf-step__buttons text-center">
           <button class="conf-step__button conf-step__button-regular" @click="btnCanselKinoSession">Отмена</button>
-          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent" @click="btnSaveKinoSession">
+          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent"
+            @click="btnSaveKinoSession">
         </fieldset>
       </div>
     </section>
@@ -441,7 +471,8 @@ export default {
       </header>
       <div class="conf-step__wrapper text-center">
         <p class="conf-step__paragraph">Всё готово, теперь можно:</p>
-        <button class="conf-step__button conf-step__button-accent" @click="btnOpenShopKino">Открыть продажу билетов</button>
+        <button class="conf-step__button conf-step__button-accent" @click="btnOpenShopKino">Открыть продажу
+          билетов</button>
       </div>
     </section>
   </main>
@@ -449,109 +480,100 @@ export default {
   <!-- popup add Halls -->
   <div class="popup" :class="{ 'popup__invisibl': popupHidden }">
     <!-- в форм: method="post" autocomplete="on" -->
-    <form @submit.prevent="submitFormHalls" class="popup__form popup__container" method="post" autocomplete="on"> 
+    <form @submit.prevent="submitFormHalls" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
         <h1 class="popup__title">Add Halls</h1>
       </div>
       <div class="popup__row">
-        <div class="popup__container__poster">        
+        <div class="popup__container__poster">
           <img src="" alt="poster" class="popup__poster">
         </div>
-        
+
         <div class="popup__container__cont">
-          <label for="name" >Name</label>
-          <input type="text" class="c" placeholder="Big Hall" name="name"
-          id="name" v-model="formHallData.name">
-          <label for="rows" >Rows</label>
-          <input type="text" class="c" placeholder="10" name="rows"
-          id="rows" v-model="formHallData.rows">
-          <label for="seats_per_row" >seats per row hall</label>
-          <input type="text" class="c" placeholder="10" name="seats_per_row"
-          id="seats_per_row" v-model="formHallData.seats_per_row">
+          <label for="name">Name</label>
+          <input type="text" class="c" placeholder="Big Hall" name="name" id="name" v-model="formHallData.name">
+          <label for="rows">Rows</label>
+          <input type="text" class="c" placeholder="10" name="rows" id="rows" v-model="formHallData.rows">
+          <label for="seats_per_row">seats per row hall</label>
+          <input type="text" class="c" placeholder="10" name="seats_per_row" id="seats_per_row"
+            v-model="formHallData.seats_per_row">
           <label for="amountStandart">amount Standart seat in hall</label>
-          <input type="text" class="c" placeholder="200" name="amountStandart"
-          id="amountStandart" v-model="formHallData.amountStandart">
-          <label for="vip" >Amount Vip seat in hall</label>
-          <input type="text" class="c" placeholder="500" name="amountVip"
-          id="amountVip" v-model="formHallData.amountVip">
-          <label for="active" >active</label>
-          <input type="radio" class="c" name="active"
-          id="active" v-model="formHallData.active" checked>       
+          <input type="text" class="c" placeholder="200" name="amountStandart" id="amountStandart"
+            v-model="formHallData.amountStandart">
+          <label for="vip">Amount Vip seat in hall</label>
+          <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip" v-model="formHallData.amountVip">
+          <label for="active">active</label>
+          <input type="radio" class="c" name="active" id="active" v-model="formHallData.active" checked>
+          
           <button class="btnPopupHalls" type="submit" @click="toglePopupHall">Create Hall</button>
+          <button class="btnPopupHalls" type="reset" @click="toglePopupHall">Censel</button>
         </div>
       </div>
     </form>
   </div>
 
   <!-- popup add movie -->
-  <div class="popup" :class="{ 'popup__invisibl': popupHiddenAM }">
+  <div class="popup" :class="{ 'popup__invisiblAM': popupHiddenAM }">
     <!-- в форм: method="post" autocomplete="on" -->
-    <form @submit.prevent="submitFormHalls" class="popup__form popup__container" method="post" autocomplete="on"> 
+    <form @submit.prevent="submitFormAddMovie" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
-        <h1 class="popup__title">Add Halls</h1>
+        <h1 class="popup__title">Add Movie</h1>
       </div>
       <div class="popup__row">
-        <div class="popup__container__poster">        
+        <div class="popup__container__poster">
           <img src="" alt="poster" class="popup__poster">
         </div>
-        
+
         <div class="popup__container__cont">
-          <label for="name" >Name</label>
-          <input type="text" class="c" placeholder="Big Hall" name="name"
-          id="name" v-model="formHallData.name">
-          <label for="rows" >Rows</label>
-          <input type="text" class="c" placeholder="10" name="rows"
-          id="rows" v-model="formHallData.rows">
-          <label for="seats_per_row" >seats per row hall</label>
-          <input type="text" class="c" placeholder="10" name="seats_per_row"
-          id="seats_per_row" v-model="formHallData.seats_per_row">
-          <label for="amountStandart">amount Standart seat in hall</label>
-          <input type="text" class="c" placeholder="200" name="amountStandart"
-          id="amountStandart" v-model="formHallData.amountStandart">
-          <label for="vip" >Amount Vip seat in hall</label>
-          <input type="text" class="c" placeholder="500" name="amountVip"
-          id="amountVip" v-model="formHallData.amountVip">
-          <label for="active" >active</label>
-          <input type="radio" class="c" name="active"
-          id="active" v-model="formHallData.active" checked>       
-          <button class="btnPopupHalls" type="submit" @click="toglePopupAddMovie">Create Hall</button>
+          <label for="title">Name</label>
+          <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
+          <label for="description">description</label>
+          <input type="text" class="c" placeholder="description" name="description" id="description" v-model="formMovieData.description">
+          <label for="duration">duration</label>
+          <input type="text" class="c" placeholder="100" name="duration" id="duration"
+            v-model="formMovieData.duration">
+          <label for="country">country</label>
+          <input type="text" class="c" placeholder="США" name="country" id="country"
+            v-model="formMovieData.country">
+          <label for="image_url">image_url</label>
+          <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url" v-model="formMovieData.image_url">
+
+          <button class="btnPopupHalls" type="submit" @click="toglePopupAddMovie">Create Movie</button>
+          <button class="btnPopupHalls" type="reset" @click="toglePopupAddMovie">Censel</button>
         </div>
       </div>
     </form>
   </div>
 
   <!-- popup edit movie -->
-  <div class="popup" :class="{ 'popup__invisibl': popupHiddenEM }">
+  <div class="popup" :class="{ 'popup__invisiblEM': popupHiddenEM }">
     <!-- в форм: method="post" autocomplete="on" -->
-    <form @submit.prevent="submitFormHalls" class="popup__form popup__container" method="post" autocomplete="on"> 
+    <form @submit.prevent="submitFormEditMovie" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
-        <h1 class="popup__title">Add Halls</h1>
+        <h1 class="popup__title">Edit Movie</h1>
       </div>
       <div class="popup__row">
-        <div class="popup__container__poster">        
+        <div class="popup__container__poster">
           <img src="" alt="poster" class="popup__poster">
         </div>
-        
+
         <div class="popup__container__cont">
-          <label for="name" >Name</label>
-          <input type="text" class="c" placeholder="Big Hall" name="name"
-          id="name" v-model="formHallData.name">
-          <label for="rows" >Rows</label>
-          <input type="text" class="c" placeholder="10" name="rows"
-          id="rows" v-model="formHallData.rows">
-          <label for="seats_per_row" >seats per row hall</label>
-          <input type="text" class="c" placeholder="10" name="seats_per_row"
-          id="seats_per_row" v-model="formHallData.seats_per_row">
+          <label for="name">Name</label>
+          <input type="text" class="c" placeholder="Big Hall" name="name" id="name" v-model="formHallData.name">
+          <label for="rows">Rows</label>
+          <input type="text" class="c" placeholder="10" name="rows" id="rows" v-model="formHallData.rows">
+          <label for="seats_per_row">seats per row hall</label>
+          <input type="text" class="c" placeholder="10" name="seats_per_row" id="seats_per_row"
+            v-model="formHallData.seats_per_row">
           <label for="amountStandart">amount Standart seat in hall</label>
-          <input type="text" class="c" placeholder="200" name="amountStandart"
-          id="amountStandart" v-model="formHallData.amountStandart">
-          <label for="vip" >Amount Vip seat in hall</label>
-          <input type="text" class="c" placeholder="500" name="amountVip"
-          id="amountVip" v-model="formHallData.amountVip">
-          <label for="active" >active</label>
-          <input type="radio" class="c" name="active"
-          id="active" v-model="formHallData.active" checked>       
+          <input type="text" class="c" placeholder="200" name="amountStandart" id="amountStandart"
+            v-model="formHallData.amountStandart">
+          <label for="vip">Amount Vip seat in hall</label>
+          <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip" v-model="formHallData.amountVip">
+          <label for="active">active</label>
+          <input type="radio" class="c" name="active" id="active" v-model="formHallData.active" checked>
           <button class="btnPopupHalls" type="submit" @click="toglePopupEditMovie">Create Hall</button>
+          <button class="btnPopupHalls" type="reset" @click="toglePopupEditMovie">Censel</button>
         </div>
       </div>
     </form>
@@ -1260,6 +1282,12 @@ select {
 .popup__invisibl {
   display: none;
 }
+.popup__invisiblAM {
+  display: none;
+}
+.popup__invisiblEM {
+  display: none;
+}
 
 .popup__title {
   font-size: 2.2rem;
@@ -1372,7 +1400,7 @@ textarea.conf-step__input {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-right: 20px; 
+  margin-right: 20px;
 }
 
 .popup__form {

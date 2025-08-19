@@ -14,7 +14,7 @@ class Hall extends Model
     'amountVip',
     'active',
     // 'layout',
-];
+  ];
 
   protected $casts = [
     'layout' => 'json',

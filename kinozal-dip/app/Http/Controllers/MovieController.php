@@ -25,6 +25,29 @@ class MovieController extends Controller
       return response()->json($movie, 201);
     }
 
+    public function create(Request $request)
+  {
+    // Валидация входящих данных
+    $validated = $request->validate([
+      'title' => 'required|string|max:255',
+      'description' => 'required|string|max:2550',
+      'duration' => 'required|integer',
+      'country' => 'required|string',
+      'image_url' => 'required|string',
+    ]);
+
+    // Создание записи с массовым назначением
+    $movie = Movie::create([
+      'title' => $validated['title'],
+      'description' => $validated['description'],
+      'duration' => $validated['duration'],
+      'country' => $validated['country'],
+      'image_url' => $validated['image_url'],
+    ]);
+
+    return response()->json(['success' => true, 'movie' => $movie], 201);
+  }
+
     /**
      * Display the specified resource.
      */
@@ -48,7 +71,16 @@ class MovieController extends Controller
      */
     public function destroy(string $id)
     {
-      Movie::destroy($id);
+      $movie = Movie::find($id); 
+      if(!$movie) {
+        return response()->json(['message' => 'Movie not found'], 404);
+      }
+      $movie->delete();
+
+      // 204 No Content без тела
       return response()->json(null, 204);
+
+      // Movie::destroy($id);
+      // return response()->json(null, 204);
     }
 }

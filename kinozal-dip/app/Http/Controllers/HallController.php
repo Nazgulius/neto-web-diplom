@@ -76,7 +76,6 @@ class HallController extends Controller
    */
   public function destroy(string $id)
   {
-    // Можно добавить проверку существования 
     $hall = Hall::find($id); 
     if(!$hall) {
       return response()->json(['message' => 'Hall not found'], 404);
