@@ -52,6 +52,11 @@ export default {
         country: '', // страна
         image_url: "/src/client/poster1.jpg", // поко как заглушка
       },
+      formMovieSessionData: {
+        movie_id: 0,
+        hall_id: 0,
+        start_time: '',
+      },
     }
   },
   computed: {
@@ -75,9 +80,9 @@ export default {
     },
     toglePopupEditMovie(movieID) {
       this.popupHiddenEM = !this.popupHiddenEM;
-      this.editMovieID = movieID;
+      this.editMovieID = movieID - 1;
     },
-    toglePopupAddSessionMovie(){
+    toglePopupAddSessionMovie() {
       this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
     },
     // добавление Hall 
@@ -164,6 +169,44 @@ export default {
         });
 
     },
+    // создание сессии кино
+    submitFormAddSessionMovie() {
+      this.formMovieSessionData.movie_id = this.editMovieID + 1;
+      this.formMovieSessionData.hall_id = Number(this.formMovieSessionData.hall_id) || 0;
+      console.log('this.formMovieSessionData: ', this.formMovieSessionData);
+
+      axios.post('http://127.0.0.1:8000/movies/session/create', this.formMovieSessionData)
+        .then(response => {
+          console.log('Успех:', response.data);
+          this.getSessions(); // Перезагружаем список сессий
+        })
+        .catch(error => {
+          if (error.response) {
+            // Ответ сервера с кодом ошибки
+            console.error('Ошибка сервера:', error.response.data);
+          } else {
+            console.error(error);
+          }
+        });
+    },
+    // удаление сессии кино
+    btnSessionDel(sessionID) {
+      axios.delete('http://127.0.0.1:8000/movies/session/destroy/' + sessionID)
+        .then(response => {
+          // удалить из локального списка
+          this.halls = this.halls.filter(h => h.id !== sessionID);
+          console.log('Сессия уино удалена, список обновлён локально');
+        })
+        .catch(error => {
+          if (error.response) {
+            // Ответ сервера с кодом ошибки
+            console.error('Ошибка сервера:', error.response.data);
+          } else {
+            console.error(error);
+          }
+        });
+
+    },
     btnCenselHallSeats() {
       console.log('Cansel Hall seats');
     },
@@ -175,7 +218,7 @@ export default {
     },
     btnSavePrise() {
       console.log('Save Kino Session Prise');
-    },    
+    },
     btnEditKino(movie) {
       console.log('Add Edit Kino', movie.title);
     },
@@ -233,7 +276,7 @@ export default {
     sessionsByHall(hallId) {
       return this.sessions.filter(s => s.hall_id === hallId);
     },
-    sessionsByMovie() {      
+    sessionsByMovie() {
       console.log('editMovieID ' + this.editMovieID);
       return this.sessions.filter(s => s.movie_id === this.editMovieID);
     },
@@ -481,7 +524,7 @@ export default {
         <div class="conf-step__seances">
           <div v-for="hall in halls" :key="hall" class="hall">
             <div class="conf-step__seances-hall">
-              <h3 class="conf-step__seances-title">Зал {{ hall?.name }}</h3>
+              <h3 class="conf-step__seances-title">Зал: {{ hall?.name }} (ID: {{ hall?.id }})</h3>
               <div class="conf-step__seances-timeline">
                 <div v-for="session in sessionsByHall(hall.id)" :key="session" class="conf-step__seances-movie"
                   :style="{ left: computeLeft(session.start_time) + 'px' }">
@@ -540,7 +583,7 @@ export default {
           <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip" v-model="formHallData.amountVip">
           <label for="active">active</label>
           <input type="radio" class="c" name="active" id="active" v-model="formHallData.active" checked>
-          
+
           <button class="btnPopupHalls" type="submit" @click="toglePopupHall">Create Hall</button>
           <button class="btnPopupHalls" type="reset" @click="toglePopupHall">Censel</button>
         </div>
@@ -564,15 +607,15 @@ export default {
           <label for="title">Name</label>
           <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
           <label for="description">description</label>
-          <input type="text" class="c" placeholder="description" name="description" id="description" v-model="formMovieData.description">
+          <input type="text" class="c" placeholder="description" name="description" id="description"
+            v-model="formMovieData.description">
           <label for="duration">duration</label>
-          <input type="text" class="c" placeholder="100" name="duration" id="duration"
-            v-model="formMovieData.duration">
+          <input type="text" class="c" placeholder="100" name="duration" id="duration" v-model="formMovieData.duration">
           <label for="country">country</label>
-          <input type="text" class="c" placeholder="США" name="country" id="country"
-            v-model="formMovieData.country">
+          <input type="text" class="c" placeholder="США" name="country" id="country" v-model="formMovieData.country">
           <label for="image_url">image_url</label>
-          <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url" v-model="formMovieData.image_url">
+          <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url"
+            v-model="formMovieData.image_url">
 
           <button class="btnPopupHalls" type="submit" @click="toglePopupAddMovie">Create Movie</button>
           <button class="btnPopupHalls" type="reset" @click="toglePopupAddMovie">Censel</button>
@@ -580,6 +623,7 @@ export default {
       </div>
     </form>
   </div>
+
 
   <!-- popup edit movie -->
   <div class="popup" :class="{ 'popup__invisiblEM': popupHiddenEM }">
@@ -590,30 +634,31 @@ export default {
       </div>
       <div class="popup__row">
         <div class="popup__container__poster">
-          <img src="" alt="poster" class="popup__poster">
+          <img :src=movies[editMovieID]?.image_url alt="poster" class="popup__poster">
         </div>
 
         <div class="popup__container__cont">
-          <label for="title">Name: {{ movies[editMovieID]?.title }}</label>
+          <span>Name: {{ movies[editMovieID]?.title }} </span>
           <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
           <label for="description">description: {{ movies[editMovieID]?.description }}</label>
-          <input type="text" class="c" placeholder="description" name="description" id="description" v-model="formMovieData.description">
+          <input type="text" class="c" placeholder="description" name="description" id="description"
+            v-model="formMovieData.description">
           <label for="duration">duration: {{ movies[editMovieID]?.duration }}</label>
-          <input type="text" class="c" placeholder="100" name="duration" id="duration"
-            v-model="formMovieData.duration">
+          <input type="text" class="c" placeholder="100" name="duration" id="duration" v-model="formMovieData.duration">
           <label for="country">country: {{ movies[editMovieID]?.country }}</label>
-          <input type="text" class="c" placeholder="США" name="country" id="country"
-            v-model="formMovieData.country">
+          <input type="text" class="c" placeholder="США" name="country" id="country" v-model="formMovieData.country">
           <label for="image_url">image_url: {{ movies[editMovieID]?.image_url }}</label>
-          <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url" v-model="formMovieData.image_url">
+          <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url"
+            v-model="formMovieData.image_url">
 
           <h3>Sessions</h3>
           <ul class="conf-step__selectors-box">
-            <div v-for="session in sessionsByMovie()" :key="session" class="session">
-              <li>
-                <span class="conf-step__selector">Session {{ session?.id }}, Время сеанса {{ session?.start_time }}</span>
+             <!-- <div v-for="session in sessionsByMovie()" :key="session" class="session">  -->
+              <li v-for="session in sessionsByMovie()" :key="session" class="session">
+                <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время сеанса {{ session?.start_time }}</span>
+                <button class="conf-step__button conf-step__button-trash" @click="btnSessionDel(session?.id)"></button>
               </li>
-            </div>
+            <!-- </div>  -->
           </ul>
           <button class="btnPopupHalls" @click="toglePopupAddSessionMovie">Add session movie</button>
 
@@ -624,11 +669,39 @@ export default {
     </form>
   </div>
 
-  <!--  -->
-  <div class="popup" :class="{ 'popup__invisiblAddSessionMovie': popupHiddenEM }">
-    
+  <!-- popup add sessios movie -->
+  <div class="popup popup__plus" :class="{ 'popup__invisiblAddSessionMovie': popupHiddenAddSessionMovie }">
+    <form @submit.prevent="submitFormAddSessionMovie" class="popup__form popup__container" method="post"
+      autocomplete="on">
+      <div class="popup__header">
+        <h1 class="popup__title">Edit Session Movie</h1>
+        <h1 class="popup__title">{{ movies[editMovieID]?.title }}</h1>
+      </div>
+      <div class="popup__row">
+        <div class="popup__container__cont">
+          <span>movie id: {{ editMovieID }} - {{ movies[editMovieID]?.title }}</span>
+          <label for="hall_id">hall_id</label>
+          <input type="number" class="c" placeholder="1" name="hall_id" id="hall_id" v-model.number="formMovieSessionData.hall_id">
+          <label for="start_time">start_time</label>
+          <input type="start_time" class="c" placeholder="19:50" name="start_time" id="start_time"
+            v-model="formMovieSessionData.start_time">
+
+          <h3>Sessions</h3>
+          <ul class="conf-step__selectors-box">
+            <div v-for="session in sessionsByMovie()" :key="session?.id" class="session">
+              <li>
+                <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время сеанса {{ session?.start_time }}</span>
+                <button class="conf-step__button conf-step__button-trash" @click="btnSessionDel(session?.id)"></button>
+              </li>
+            </div>
+          </ul>
+
+          <button class="btnPopupHalls" type="submit" @click="toglePopupAddSessionMovie">Update Movie</button>
+          <button class="btnPopupHalls" type="reset" @click="toglePopupAddSessionMovie">Censel</button>
+        </div>
+      </div>
+    </form>
   </div>
-  
 </template>
 
 <style>
@@ -1320,25 +1393,38 @@ select {
 
 .popup {
   /* display: none; */
-  position: absolute;
   /* position: fixed; */
+  position: absolute;
   width: 80vw;
   height: 80vh;
   z-index: 100;
   left: 50px;
   top: 50px;
-  background: rgba(245, 245, 245, 0.7);
+  background: rgba(201, 201, 201, 0.7);
+}
+
+.popup__plus {
+  position: absolute;
+  width: 80vw;
+  height: 60vh;
+  z-index: 110;
+  left: 50px;
+  top: 50px;
+  background: rgba(248, 255, 123, 0.7);
 }
 
 .popup__invisibl {
   display: none;
 }
+
 .popup__invisiblAM {
   display: none;
 }
+
 .popup__invisiblEM {
   display: none;
 }
+
 .popup__invisiblAddSessionMovie {
   display: none;
 }
@@ -1492,5 +1578,4 @@ textarea.conf-step__input {
 .link_exit:active {
   background-color: #000000;
   color: #FFFFFF;
-}
-</style>
+}</style>

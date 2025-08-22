@@ -24,6 +24,25 @@ class KinoSessionController extends Controller
       return response()->json($movie, 201);
     }
 
+    public function create(Request $request)
+    {
+      // Валидация входящих данных
+      $validated = $request->validate([
+        'movie_id' => 'required|integer',
+        'hall_id' => 'required|integer',
+        'start_time' => 'required|string',
+      ]);
+
+      // Создание записи с массовым назначением
+      $kinoSession = KinoSession::create([
+        'movie_id' => $validated['movie_id'],
+        'hall_id' => $validated['hall_id'],
+        'start_time' => $validated['start_time'],
+      ]);
+
+      return response()->json(['success' => true, 'kinoSession' => $kinoSession], 201);
+    }
+
     /**
      * Display the specified resource.
      */
@@ -47,7 +66,16 @@ class KinoSessionController extends Controller
      */
     public function destroy(string $id)
     {
-      KinoSession::destroy($id);
+      $kinoSession = KinoSession::find($id); 
+      if(!$kinoSession) {
+        return response()->json(['message' => 'Session movie not found'], 404);
+      }
+      $kinoSession->delete();
+
+      // 204 No Content без тела
       return response()->json(null, 204);
+
+      // KinoSession::destroy($id);
+      // return response()->json(null, 204);
     }
 }

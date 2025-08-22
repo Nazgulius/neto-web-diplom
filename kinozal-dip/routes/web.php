@@ -82,6 +82,8 @@ Route::delete('/hall/destroy/{id}', [HallController::class, 'destroy']); // уд
 Route::post('/movies/create', [MovieController::class, 'create']); // создание кино
 Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
 Route::post('/movies/update/{id}', [MovieController::class, 'update']); // редактирование кино
+Route::post('/movies/session/create', [KinoSessionController::class, 'create']); // созданиие сессии кино
+Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
