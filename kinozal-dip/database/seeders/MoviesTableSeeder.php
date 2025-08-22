@@ -27,7 +27,7 @@ class MoviesTableSeeder extends Seeder
       'title' => 'Альфа',
       'description' => '20 тысяч лет назад Земля была холодным и неуютным местом, в котором смерть подстерегала человека на каждом шагу.',
       'duration' => 96, // минуты
-      'country' => 'Франция',
+      'contry' => 'Франция',
       'image_url' => "/src/client/poster2.jpg",
     ]);
 

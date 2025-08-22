@@ -19,35 +19,35 @@ class KinoSessionsTableSeeder extends Seeder
       'hall_id' => 1,
       'start_time' => '10:00',
       // 'end_time' => now(),
-      'price' => 2,
+      // 'price' => 2,
     ]);
 
     KinoSession::create([
       'movie_id' => 3,
       'hall_id' => 1,
       'start_time' => '12:20',
-      'price' => 2,
+      // 'price' => 2,
     ]);
 
     KinoSession::create([
       'movie_id' => 1,
       'hall_id' => 1,
       'start_time' => '14:40',
-      'price' => 4,
+      // 'price' => 4,
     ]);
 
     KinoSession::create([
       'movie_id' => 3,
       'hall_id' => 1,
       'start_time' => '17:00',
-      'price' => 6,
+      // 'price' => 6,
     ]);
 
     KinoSession::create([
       'movie_id' => 1,
       'hall_id' => 1,
       'start_time' => '19:20',
-      'price' => 8,
+      // 'price' => 8,
     ]);
 
     // Зал 2
@@ -55,35 +55,35 @@ class KinoSessionsTableSeeder extends Seeder
       'movie_id' => 2,
       'hall_id' => 2,
       'start_time' => '10:30',
-      'price' => 2,
+      // 'price' => 2,
     ]);
 
     KinoSession::create([
       'movie_id' => 3,
       'hall_id' => 2,
       'start_time' => '12:50',
-      'price' => 2,
+      // 'price' => 2,
     ]);
 
     KinoSession::create([
       'movie_id' => 2,
       'hall_id' => 2,
       'start_time' => '15:10',
-      'price' => 4,
+      // 'price' => 4,
     ]);
 
     KinoSession::create([
       'movie_id' => 3,
       'hall_id' => 2,
       'start_time' => '17:30',
-      'price' => 6,
+      // 'price' => 6,
     ]);
 
     KinoSession::create([
       'movie_id' => 2,
       'hall_id' => 2,
       'start_time' => '19:50',
-      'price' => 8,
+      // 'price' => 8,
     ]);
   }
 }

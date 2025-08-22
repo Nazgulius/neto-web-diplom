@@ -22,6 +22,7 @@ export default {
       halls: [],
       movies: [],
       sessions: [],
+      editMovieID: 1,
       timelineStart: '09:00', // например
       timelineEnd: '23:00', // например
       timelineWidth: 720, // ширина шкалы в пикселях
@@ -43,6 +44,7 @@ export default {
       popupHidden: true, // попап скрыт по умолчанию
       popupHiddenAM: true, // попап скрыт по умолчанию
       popupHiddenEM: true, // попап скрыт по умолчанию
+      popupHiddenAddSessionMovie: true, // попап скрыт по умолчанию
       formMovieData: {
         title: '', // название
         description: '', // описание
@@ -71,8 +73,12 @@ export default {
     toglePopupAddMovie() {
       this.popupHiddenAM = !this.popupHiddenAM;
     },
-    toglePopupEditMovie() {
+    toglePopupEditMovie(movieID) {
       this.popupHiddenEM = !this.popupHiddenEM;
+      this.editMovieID = movieID;
+    },
+    toglePopupAddSessionMovie(){
+      this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
     },
     // добавление Hall 
     submitFormHalls() {
@@ -125,9 +131,37 @@ export default {
         });
     },
     // удаление кино
-
+    btnMovieDel(movieID) {
+      axios.delete('http://127.0.0.1:8000/movie/destroy/' + movieID)
+        .then(response => {
+          // удалить из локального списка
+          this.movies = this.movies.filter(h => h.id !== movieID);
+          console.log('Кино удалено, список обновлён локально');
+        })
+        .catch(error => {
+          if (error.response) {
+            // Ответ сервера с кодом ошибки
+            console.error('Ошибка сервера:', error.response.data);
+          } else {
+            console.error(error);
+          }
+        });
+    },
     //редактирование кино
-    submitFormEditMovie() {
+    submitFormEditMovie(movie) {
+      axios.post('http://127.0.0.1:8000/movies/update' + movie.id, this.formMovieData)
+        .then(response => {
+          console.log('Успех:', response.data);
+          this.getMovies(); // Перезагружаем список залов
+        })
+        .catch(error => {
+          if (error.response) {
+            // Ответ сервера с кодом ошибки
+            console.error('Ошибка сервера:', error.response.data);
+          } else {
+            console.error(error);
+          }
+        });
 
     },
     btnCenselHallSeats() {
@@ -199,6 +233,10 @@ export default {
     sessionsByHall(hallId) {
       return this.sessions.filter(s => s.hall_id === hallId);
     },
+    sessionsByMovie() {      
+      console.log('editMovieID ' + this.editMovieID);
+      return this.sessions.filter(s => s.movie_id === this.editMovieID);
+    },
 
   },
   mounted() {
@@ -208,8 +246,6 @@ export default {
     this.getHalls();
     this.getMovies();
     this.getSessions();
-    console.log('movies[0]?.name ' + this.movies[0]);
-    console.log('sessions[0]?.movie_id ' + this.sessions[0]);
 
     // из файла js/accordeon.js
     const headers = Array.from(document.querySelectorAll('.conf-step__header'));
@@ -435,7 +471,7 @@ export default {
           <button class="conf-step__button conf-step__button-accent" @click="toglePopupAddMovie">Добавить фильм</button>
         </p>
         <div class="conf-step__movies">
-          <div v-for="movie in movies" :key="movie" class="conf-step__movie" @click="btnEditKino(movie)">
+          <div v-for="movie in movies" :key="movie" class="conf-step__movie" @click="toglePopupEditMovie(movie?.id)">
             <img class="conf-step__movie-poster" alt="poster" :src=movie?.image_url>
             <h3 class="conf-step__movie-title">{{ movie?.title }}</h3>
             <p class="conf-step__movie-duration">{{ movie?.duration }} минут</p>
@@ -558,26 +594,41 @@ export default {
         </div>
 
         <div class="popup__container__cont">
-          <label for="name">Name</label>
-          <input type="text" class="c" placeholder="Big Hall" name="name" id="name" v-model="formHallData.name">
-          <label for="rows">Rows</label>
-          <input type="text" class="c" placeholder="10" name="rows" id="rows" v-model="formHallData.rows">
-          <label for="seats_per_row">seats per row hall</label>
-          <input type="text" class="c" placeholder="10" name="seats_per_row" id="seats_per_row"
-            v-model="formHallData.seats_per_row">
-          <label for="amountStandart">amount Standart seat in hall</label>
-          <input type="text" class="c" placeholder="200" name="amountStandart" id="amountStandart"
-            v-model="formHallData.amountStandart">
-          <label for="vip">Amount Vip seat in hall</label>
-          <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip" v-model="formHallData.amountVip">
-          <label for="active">active</label>
-          <input type="radio" class="c" name="active" id="active" v-model="formHallData.active" checked>
-          <button class="btnPopupHalls" type="submit" @click="toglePopupEditMovie">Create Hall</button>
+          <label for="title">Name: {{ movies[editMovieID]?.title }}</label>
+          <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
+          <label for="description">description: {{ movies[editMovieID]?.description }}</label>
+          <input type="text" class="c" placeholder="description" name="description" id="description" v-model="formMovieData.description">
+          <label for="duration">duration: {{ movies[editMovieID]?.duration }}</label>
+          <input type="text" class="c" placeholder="100" name="duration" id="duration"
+            v-model="formMovieData.duration">
+          <label for="country">country: {{ movies[editMovieID]?.country }}</label>
+          <input type="text" class="c" placeholder="США" name="country" id="country"
+            v-model="formMovieData.country">
+          <label for="image_url">image_url: {{ movies[editMovieID]?.image_url }}</label>
+          <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url" v-model="formMovieData.image_url">
+
+          <h3>Sessions</h3>
+          <ul class="conf-step__selectors-box">
+            <div v-for="session in sessionsByMovie()" :key="session" class="session">
+              <li>
+                <span class="conf-step__selector">Session {{ session?.id }}, Время сеанса {{ session?.start_time }}</span>
+              </li>
+            </div>
+          </ul>
+          <button class="btnPopupHalls" @click="toglePopupAddSessionMovie">Add session movie</button>
+
+          <button class="btnPopupHalls" type="submit" @click="toglePopupEditMovie">Update Movie</button>
           <button class="btnPopupHalls" type="reset" @click="toglePopupEditMovie">Censel</button>
         </div>
       </div>
     </form>
   </div>
+
+  <!--  -->
+  <div class="popup" :class="{ 'popup__invisiblAddSessionMovie': popupHiddenEM }">
+    
+  </div>
+  
 </template>
 
 <style>
@@ -1286,6 +1337,9 @@ select {
   display: none;
 }
 .popup__invisiblEM {
+  display: none;
+}
+.popup__invisiblAddSessionMovie {
   display: none;
 }
 

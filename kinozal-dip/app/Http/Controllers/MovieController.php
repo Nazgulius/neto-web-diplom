@@ -30,7 +30,7 @@ class MovieController extends Controller
     // Валидация входящих данных
     $validated = $request->validate([
       'title' => 'required|string|max:255',
-      'description' => 'required|string|max:2550',
+      'description' => 'required|string',
       'duration' => 'required|integer',
       'country' => 'required|string',
       'image_url' => 'required|string',

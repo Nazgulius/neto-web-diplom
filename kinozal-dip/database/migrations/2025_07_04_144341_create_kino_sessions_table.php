@@ -17,7 +17,7 @@ return new class extends Migration
       $table->integer('hall_id');
       $table->time('start_time');
       // $table->time('end_time'); // времяокончания пока не нужно
-      $table->decimal('price');
+      // $table->decimal('price');
       $table->timestamps();
 
       $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');

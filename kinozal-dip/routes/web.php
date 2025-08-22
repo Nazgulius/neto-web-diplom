@@ -79,8 +79,9 @@ Route::post('/hall/create', [HallController::class, 'create']); // создан�
 Route::get('/hall/create', [HallController::class, 'index']); // проверка зала
 Route::get('/hall/index', [HallController::class, 'index']);
 Route::delete('/hall/destroy/{id}', [HallController::class, 'destroy']); // удаление зала
-Route::post('/movies/create', [HallController::class, 'create']); // создание зала
-Route::delete('/movies/destroy/{id}', [HallController::class, 'destroy']); // удаление зала
+Route::post('/movies/create', [MovieController::class, 'create']); // создание кино
+Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
+Route::post('/movies/update/{id}', [MovieController::class, 'update']); // редактирование кино
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
