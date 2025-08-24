@@ -137,6 +137,7 @@ export default {
     },
     // удаление кино
     btnMovieDel(movieID) {
+      this.toglePopupAddSessionMovie(); // закрывает форму
       axios.delete('http://127.0.0.1:8000/movie/destroy/' + movieID)
         .then(response => {
           // удалить из локального списка
@@ -194,7 +195,7 @@ export default {
       axios.delete('http://127.0.0.1:8000/movies/session/destroy/' + sessionID)
         .then(response => {
           // удалить из локального списка
-          this.halls = this.halls.filter(h => h.id !== sessionID);
+          this.sessions = this.sessions.filter(h => h.id !== sessionID);
           console.log('Сессия уино удалена, список обновлён локально');
         })
         .catch(error => {
@@ -278,8 +279,8 @@ export default {
     },
     sessionsByMovie() {
       console.log('editMovieID ' + this.editMovieID);
-      return this.sessions.filter(s => s.movie_id === this.editMovieID);
-    },
+      return this.sessions.filter(s => s.movie_id === (this.editMovieID + 1));
+    },    
 
   },
   mounted() {
@@ -651,6 +652,7 @@ export default {
           <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url"
             v-model="formMovieData.image_url">
 
+         
           <h3>Sessions</h3>
           <ul class="conf-step__selectors-box">
              <!-- <div v-for="session in sessionsByMovie()" :key="session" class="session">  -->
@@ -661,8 +663,9 @@ export default {
             <!-- </div>  -->
           </ul>
           <button class="btnPopupHalls" @click="toglePopupAddSessionMovie">Add session movie</button>
-
+          
           <button class="btnPopupHalls" type="submit" @click="toglePopupEditMovie">Update Movie</button>
+          <button class="btnPopupHalls" @click="btnMovieDel">Удалить кино</button>
           <button class="btnPopupHalls" type="reset" @click="toglePopupEditMovie">Censel</button>
         </div>
       </div>
@@ -696,7 +699,7 @@ export default {
             </div>
           </ul>
 
-          <button class="btnPopupHalls" type="submit" @click="toglePopupAddSessionMovie">Update Movie</button>
+          <button class="btnPopupHalls" type="submit" @click="toglePopupAddSessionMovie">Add session movie</button>
           <button class="btnPopupHalls" type="reset" @click="toglePopupAddSessionMovie">Censel</button>
         </div>
       </div>
