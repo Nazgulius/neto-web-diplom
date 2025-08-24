@@ -22,6 +22,7 @@ export default {
       halls: [],
       movies: [],
       sessions: [],
+      sessionsOpen: [],
       editMovieID: 1,
       timelineStart: '09:00', // например
       timelineEnd: '23:00', // например
@@ -64,6 +65,10 @@ export default {
       return this.timeToMinutes(this.timelineEnd) - this.timeToMinutes(this.timelineStart);
     },
     // можно вернуть ширину на основe CSS
+
+    currentSession() {
+      return this.sessions.find(s => s.id === this.activeSessionId) || null;
+    },
   },
   methods: {
     computeLeft(start_time) {
@@ -280,7 +285,39 @@ export default {
     sessionsByMovie() {
       console.log('editMovieID ' + this.editMovieID);
       return this.sessions.filter(s => s.movie_id === (this.editMovieID + 1));
-    },    
+    },  
+    openSales(sessionId) {  
+      this.$inertia.post(`http://127.0.0.1:8000/sessions/${sessionId}/open`, {}, {  
+        preserveScroll: true,  
+        onSuccess: (resp) => {  
+          // обновить локальные данные сессии  
+          const updated = resp.props?.session;  
+          this.updateSessionInList(updated);  
+        }  
+      });  
+    },  
+    closeSales(sessionId) {  
+      this.$inertia.post(`http://127.0.0.1:8000/sessions/${sessionId}/close`, {}, {  
+        preserveScroll: true,  
+        onSuccess: (resp) => {  
+          const updated = resp.props?.session;  
+          this.updateSessionInList(updated);  
+        }  
+      });  
+    },
+    updateSessionInList(updatedSession) {
+      if (!updatedSession) return;
+
+      // Если есть локальный массив this.sessionsOpen
+      const idx = this.sessionsOpen.findIndex(s => s.id === updatedSession.id);
+      if (idx !== -1) {
+        // заменить элемент
+        this.$set(this.sessionsOpen, idx, updatedSession);
+      } else {
+        // если сессия еще не была в списке, можно добавить
+        this.sessionsOpen.push(updatedSession);
+      }
+    },
 
   },
   mounted() {
@@ -554,6 +591,51 @@ export default {
         <button class="conf-step__button conf-step__button-accent" @click="btnOpenShopKino">Открыть продажу
           билетов</button>
       </div>
+
+      <!-- доп блок с контролем сессии продажи билетов -->
+      <section class="conf-step">
+        <header class="conf-step__header" :class="{ 'conf-step__header_opened': currentSession?.is_open }">
+          <h2 class="conf-step__title">Открыть продажи</h2>
+        </header>
+        <div class="conf-step__wrapper text-center">
+          <p class="conf-step__paragraph">
+            Статус продаж: <strong>{{ currentSession?.is_open ? 'Открыты' : 'Закрыты' }}</strong>
+          </p>
+
+          <button
+            v-if="currentSession && !currentSession.is_open"
+            class="conf-step__button conf-step__button-accent"
+            @click="openSales(currentSession?.id)"
+          >
+            Открыть продажу билетов
+          </button>
+
+          <button
+            v-if="currentSession && currentSession.is_open"
+            class="conf-step__button conf-step__button-secondary"
+            @click="closeSales(currentSession?.id)"
+          >
+            Закрыть продажи
+          </button>
+
+          <!-- доп кнопки -->
+          <button
+            v-if="!currentSession?.is_open"
+            class="conf-step__button conf-step__button-accent"
+            @click="openSales(currentSession?.id)"
+          >
+            Открыть продажу билетов
+          </button>
+
+          <button
+            v-if="currentSession?.is_open"
+            class="conf-step__button conf-step__button-secondary"
+            @click="closeSales(currentSession?.id)"
+          >
+            Закрыть продажи
+          </button>
+        </div>
+      </section>
     </section>
   </main>
 

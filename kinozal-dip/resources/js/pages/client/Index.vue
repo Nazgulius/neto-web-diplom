@@ -44,7 +44,32 @@ export default {
           this.sessions = response.data;
           console.log('sessions: ', this.sessions);
         });
-    }
+    },
+    proceedToBooking() {
+      const session = this.sessions.find(s => s.id === this.selectedSessionId);
+      if (!session) {
+        this.$toast.error('Сеанс не найден. Выберите другой сеанс.');
+        return;
+      }
+      if (!session.is_open) {
+        this.$toast.warn('Продажа билетов для этого сеанса сейчас закрыта.');
+        return;
+      }
+
+      // Продолжаем к экрану Hall.vue 
+      this.$router.push({ name: 'Hall', params: { sessionId: session.id } });
+    },
+    updateSessionInList(updatedSession) {
+      if (!updatedSession) return;
+
+      const idx = this.sessions.findIndex(s => s.id === updatedSession.id);
+      if (idx !== -1) {
+        this.$set(this.sessions, idx, updatedSession); // Vue 2
+        // В Vue 3 можно напрямую: this.sessions[idx] = updatedSession;
+      } else {
+        this.sessions.push(updatedSession);
+      }
+    },
   },
   mounted() {
     document.body.classList.add('page-client');

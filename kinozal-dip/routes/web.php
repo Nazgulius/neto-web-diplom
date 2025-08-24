@@ -10,6 +10,7 @@ use App\Http\Controllers\KinoSessionController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SessionController;
 
 // Route::get('/home', function () {
 //     return Inertia::render('Welcome');
@@ -84,6 +85,9 @@ Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // �
 Route::post('/movies/update/{id}', [MovieController::class, 'update']); // редактирование кино
 Route::post('/movies/session/create', [KinoSessionController::class, 'create']); // созданиие сессии кино
 Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
+
+Route::post('/sessions/{session}/open', [SessionController::class, 'openSales'])->name('sessions.open');
+Route::post('/sessions/{session}/close', [SessionController::class, 'closeSales'])->name('sessions.close');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
