@@ -86,8 +86,11 @@ Route::post('/movies/update/{id}', [MovieController::class, 'update']); // ре�
 Route::post('/movies/session/create', [KinoSessionController::class, 'create']); // созданиие сессии кино
 Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
 
-Route::post('/sessions/{session}/open', [SessionController::class, 'openSales'])->name('sessions.open');
-Route::post('/sessions/{session}/close', [SessionController::class, 'closeSales'])->name('sessions.close');
+// Route::post('/sessions/{session}/open', [SessionController::class, 'openSales'])->name('sessions.open'); // старое
+// Route::post('/sessions/{session}/close', [SessionController::class, 'closeSales'])->name('sessions.close'); // старое
+Route::post('/admin/sales/open-all', [SessionController::class, 'openAllSales'])->name('admin.sales.openAll');
+Route::post('/admin/sales/close-all', [SessionController::class, 'closeAllSales'])->name('admin.sales.closeAll');
+Route::get('/admin/sales/status', [SessionController::class, 'status'])->name('admin.sales.status');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

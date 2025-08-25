@@ -40,5 +40,6 @@ class DatabaseSeeder extends Seeder
       $this->call(KinoSessionsTableSeeder::class);
       $this->call(SeatsTableSeeder::class);
       $this->call(TicketsTableSeeder::class);
+      $this->call(SessionGlobalOpenTableSeeder::class);
     }
 }

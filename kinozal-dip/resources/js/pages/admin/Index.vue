@@ -22,7 +22,7 @@ export default {
       halls: [],
       movies: [],
       sessions: [],
-      sessionsOpen: [],
+      globalSalesOpen: true,
       editMovieID: 1,
       timelineStart: '09:00', // например
       timelineEnd: '23:00', // например
@@ -60,15 +60,18 @@ export default {
       },
     }
   },
+  created() {
+    this.fetchStatus();
+  },
   computed: {
     totalTimelineMinutes() {
       return this.timeToMinutes(this.timelineEnd) - this.timeToMinutes(this.timelineStart);
     },
     // можно вернуть ширину на основe CSS
 
-    currentSession() {
-      return this.sessions.find(s => s.id === this.activeSessionId) || null;
-    },
+    // currentSession() {
+    //   return this.sessionsOpen.find(s => s.id === this.activeSessionId) || null;
+    // },
   },
   methods: {
     computeLeft(start_time) {
@@ -286,36 +289,65 @@ export default {
       console.log('editMovieID ' + this.editMovieID);
       return this.sessions.filter(s => s.movie_id === (this.editMovieID + 1));
     },  
-    openSales(sessionId) {  
-      this.$inertia.post(`http://127.0.0.1:8000/sessions/${sessionId}/open`, {}, {  
-        preserveScroll: true,  
-        onSuccess: (resp) => {  
-          // обновить локальные данные сессии  
-          const updated = resp.props?.session;  
-          this.updateSessionInList(updated);  
-        }  
-      });  
-    },  
-    closeSales(sessionId) {  
-      this.$inertia.post(`http://127.0.0.1:8000/sessions/${sessionId}/close`, {}, {  
-        preserveScroll: true,  
-        onSuccess: (resp) => {  
-          const updated = resp.props?.session;  
-          this.updateSessionInList(updated);  
-        }  
-      });  
-    },
-    updateSessionInList(updatedSession) {
-      if (!updatedSession) return;
+    // openSales(sessionId) {  
+    //   console.log('Открыта продажа билетов');
+    //   axios.post(`http://127.0.0.1:8000/sessions/${sessionId}/open`, {}, {  
+    //     preserveScroll: true,  
+    //     onSuccess: (resp) => {  
+    //       // обновить локальные данные сессии  
+    //       const updated = resp.props?.session;  
+    //       // this.updateSessionInList(updated);  
+    //     }  
+    //   });  
+    // },  
+    // closeSales(sessionId) {
+    //   console.log('Закрыта продажа билетов');  
+    //   axios.post(`http://127.0.0.1:8000/sessions/${sessionId}/close`, {}, {  
+    //     preserveScroll: true,  
+    //     onSuccess: (resp) => {  
+    //       const updated = resp.props?.session;  
+    //       // this.updateSessionInList(updated);  
+    //     }  
+    //   });  
+    // },
+    // updateSessionInList(updatedSession) {
+    //   if (!updatedSession) return;
 
-      // Если есть локальный массив this.sessionsOpen
-      const idx = this.sessionsOpen.findIndex(s => s.id === updatedSession.id);
-      if (idx !== -1) {
-        // заменить элемент
-        this.$set(this.sessionsOpen, idx, updatedSession);
-      } else {
-        // если сессия еще не была в списке, можно добавить
-        this.sessionsOpen.push(updatedSession);
+    //   // Если есть локальный массив this.sessionsOpen
+    //   const idx = this.sessionsOpen.findIndex(s => s.id === updatedSession.id);
+    //   if (idx !== -1) {
+    //     // заменить элемент
+    //     this.$set(this.sessionsOpen, idx, updatedSession);
+    //   } else {
+    //     // если сессия еще не была в списке, можно добавить
+    //     this.sessionsOpen.push(updatedSession);
+    //   }
+    // },
+    async fetchStatus() {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/admin/sales/status');
+        this.globalSalesOpen = !!res.data.sales_globally_open;
+
+      } catch (e) {
+        console.error('Не удалось получить статус глобальных продаж', e);
+      }
+    },
+    async openAllSales() {
+      try {
+        await axios.post('http://127.0.0.1:8000/admin/sales/open-all');
+        this.globalSalesOpen = true;
+        console.log('this.globalSalesOpen ', this.globalSalesOpen);
+      } catch (e) {
+        console.error('Ошибка открытия глобальных продаж', e);
+      }
+    },
+    async closeAllSales() {
+      try {
+        await axios.post('http://127.0.0.1:8000/admin/sales/close-all');
+        this.globalSalesOpen = false;
+        console.log('this.globalSalesOpen ', this.globalSalesOpen);
+      } catch (e) {
+        console.error('Ошибка закрытия глобальных продаж', e);
       }
     },
 
@@ -582,18 +614,35 @@ export default {
       </div>
     </section>
 
+    <!-- вкл/выкл сессии продажи билетов -->
     <section class="conf-step">
       <header class="conf-step__header conf-step__header_opened">
         <h2 class="conf-step__title">Открыть продажи</h2>
       </header>
-      <div class="conf-step__wrapper text-center">
+      <!-- <div class="conf-step__wrapper text-center">
         <p class="conf-step__paragraph">Всё готово, теперь можно:</p>
         <button class="conf-step__button conf-step__button-accent" @click="btnOpenShopKino">Открыть продажу
           билетов</button>
+      </div> -->
+
+      <!-- новая кнопка для открытмя продаж -->
+      <div class="conf-step__wrapper text-center">
+        <section class="admin-settings conf-step__paragraph">
+          <h2>Глобальные продажи</h2>
+          <p>Статус: <strong>{{ globalSalesOpen ? 'Открыты' : 'Закрыты' }}</strong></p>
+          <div class="admin-settings__controls">
+            <button @click="openAllSales" :disabled="globalSalesOpen" class="conf-step__button conf-step__button-accent" >
+              Открыть продажи во всем приложении
+            </button>
+            <button @click="closeAllSales" :disabled="!globalSalesOpen" class="conf-step__button conf-step__button-accent" >
+              Закрыть продажи во всем приложении
+            </button>
+          </div>
+        </section>
       </div>
 
       <!-- доп блок с контролем сессии продажи билетов -->
-      <section class="conf-step">
+      <!-- <section class="conf-step">
         <header class="conf-step__header" :class="{ 'conf-step__header_opened': currentSession?.is_open }">
           <h2 class="conf-step__title">Открыть продажи</h2>
         </header>
@@ -619,7 +668,7 @@ export default {
           </button>
 
           <!-- доп кнопки -->
-          <button
+          <!--<button
             v-if="!currentSession?.is_open"
             class="conf-step__button conf-step__button-accent"
             @click="openSales(currentSession?.id)"
@@ -635,7 +684,7 @@ export default {
             Закрыть продажи
           </button>
         </div>
-      </section>
+      </section> -->
     </section>
   </main>
 
@@ -1663,4 +1712,10 @@ textarea.conf-step__input {
 .link_exit:active {
   background-color: #000000;
   color: #FFFFFF;
-}</style>
+}
+
+.admin-settings { padding: 16px; border: 1px solid #ddd; border-radius: 8px; }
+.admin-settings__controls { display: flex; gap: 12px; margin-top: 8px; }
+button[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+</style>

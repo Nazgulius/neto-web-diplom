@@ -7,40 +7,33 @@ use App\Models\Session;
 
 class SessionController extends Controller
 {
-  // Открыть продажи для сеанса
-  public function openSales(Request $request, $sessionId)
+  // Включить глобальные продажи
+  public function openAllSales(Request $request)
   {
-      $session = Session::findOrFail($sessionId);
-      $session->is_open = true;
-      $session->save();
+    Session::updateOrCreate(
+      ['key' => 'sales_globally_open'],
+      ['value' => true]
+    );
 
-      return response()->json(['success' => true, 'session' => $session]);
+    return response()->json(['success' => true, 'sales_globally_open' => true]);
   }
 
-  // Закрыть продажи
-  public function closeSales(Request $request, $sessionId)
+  // Отключить глобальные продажи
+  public function closeAllSales(Request $request)
   {
-      $session = Session::findOrFail($sessionId);
-      $session->is_open = false;
-      $session->save();
+    Session::updateOrCreate(
+      ['key' => 'sales_globally_open'],
+      ['value' => false]
+    );
 
-      return response()->json(['success' => true, 'session' => $session]);
+    return response()->json(['success' => true, 'sales_globally_open' => false]);
   }
 
-  public function store(Request $request)
+  // Получить текущий статус
+  public function status(Request $request)
   {
-      $validated = $request->validate([
-          'session_id' => 'required|exists:sessions,id',
-          // другие поля бронирования
-      ]);
-
-      $session = Session::findOrFail($validated['session_id']);
-
-      if (!$session->is_open) {
-          return response()->json(['message' => 'Продажа билетов закрыта для этого сеанса.'], 403);
-      }
-
-      // Продолжение процесса бронирования и оплаты
-      // ...
+    $setting = Session::where('key', 'sales_globally_open')->first();
+    $value = $setting ? (bool) $setting->value : true;
+    return response()->json(['sales_globally_open' => $value]);
   }
 }

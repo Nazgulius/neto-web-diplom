@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Session extends Model
 {
-  protected $casts = ['is_open' => 'boolean'];
-  protected $fillable = ['is_open',];
+  protected $table = 'sessionsGlobal';
+  protected $fillable = ['key', 'value'];
+
+  protected $casts = [
+      'value' => 'boolean',
+  ];
 }

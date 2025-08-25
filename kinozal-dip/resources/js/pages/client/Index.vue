@@ -46,6 +46,7 @@ export default {
         });
     },
     proceedToBooking() {
+      this.checkGlobalOpen();
       const session = this.sessions.find(s => s.id === this.selectedSessionId);
       if (!session) {
         this.$toast.error('Сеанс не найден. Выберите другой сеанс.');
@@ -68,6 +69,14 @@ export default {
         // В Vue 3 можно напрямую: this.sessions[idx] = updatedSession;
       } else {
         this.sessions.push(updatedSession);
+      }
+    },
+    checkGlobalOpen() {
+      // Предположим, что есть доступ к глобальному статусу через store или через API
+      const isGloballyOpen = this.globalSalesOpen; // из store / props / вычисляемое
+      if (!isGloballyOpen) {
+        this.$toast.error('Продажи в настоящее время закрыты по глобальной настройке.');
+        return;
       }
     },
   },
