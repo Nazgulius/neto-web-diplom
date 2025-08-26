@@ -8,7 +8,7 @@ export default {
     hallId: {
       type: Number,
       required: false,
-      default() { return 5; }
+      default() { return 1; }
     },
     sessionId: {
       type: String,
@@ -20,24 +20,29 @@ export default {
     Head,
     Link,
   },
-
+  created() {
+    this.fetchStatus();
+  },
   data() {
     return {       
       movies: [],
       sessions: [],
+      halls: [],
+      globalSalesOpen: true,
       qrCodeData: 'тест qr кода',      
     }
-  },
-  
+  },  
   methods: {
     // методы для бронирования 
+    // получение всех фильмов
     getMovies() {
       axios.get('http://127.0.0.1:8000/movies')
         .then(response => {
           this.movies = response.data;
-          console.log('kino: ', this.movies);
+          console.log('movies response.data: ', response.data);          
         });
     },
+    // получение всех сеансов
     getSessions() {
       axios.get('http://127.0.0.1:8000/sessions')
         .then(response => {
@@ -45,6 +50,18 @@ export default {
           console.log('sessions: ', this.sessions);
         });
     },
+    // получение всех Hall
+    getHalls() {
+    axios.get('http://127.0.0.1:8000/hall/index')
+      .then(response => {
+        this.halls = response.data;
+        console.log('halls: ', this.halls);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    },
+
     proceedToBooking() {
       this.checkGlobalOpen();
       const session = this.sessions.find(s => s.id === this.selectedSessionId);
@@ -59,7 +76,7 @@ export default {
 
       // Продолжаем к экрану Hall.vue 
       this.$router.push({ name: 'Hall', params: { sessionId: session.id } });
-    },
+    },    
     updateSessionInList(updatedSession) {
       if (!updatedSession) return;
 
@@ -71,28 +88,23 @@ export default {
         this.sessions.push(updatedSession);
       }
     },
-    checkGlobalOpen() {
-      // Предположим, что есть доступ к глобальному статусу через store или через API
-      const isGloballyOpen = this.globalSalesOpen; // из store / props / вычисляемое
-      if (!isGloballyOpen) {
-        this.$toast.error('Продажи в настоящее время закрыты по глобальной настройке.');
-        return;
+
+    async fetchStatus() {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/admin/sales/status');
+        this.globalSalesOpen = !!res.data.sales_globally_open;
+
+      } catch (e) {
+        console.error('Не удалось получить статус глобальных продаж', e);
       }
     },
   },
   mounted() {
     document.body.classList.add('page-client');
-    // fetch данных о зале 
-
+    
     this.getMovies();
     this.getSessions();
-    axios.get('http://127.0.0.1:8000/movies')
-      .then(response => {
-        console.log('movies: ', response.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    this.getHalls();
 
     // Получаем QR-код с сервера  
     // fetch('http://127.0.0.1:8000/get-qr-code')
@@ -180,134 +192,41 @@ export default {
   </nav>
 
   <main>
-    <section class="movie">
+    <section v-for="movie in movies" :key="movie.id" class="movie">
       <div class="movie__info">
         <div class="movie__poster">
-          <img class="movie__poster-image" alt="Звёздные войны постер" :src=movies[0]?.image_url>
+          <img class="movie__poster-image" alt="Звёздные войны постер" :src=movie?.image_url>
         </div>
         <div class="movie__description">
-          <h2 class="movie__title">{{ movies[0]?.title }}</h2>
-          <p class="movie__synopsis">{{ movies[0]?.description }}</p>
+          <h2 class="movie__title">{{ movie?.title }}</h2>
+          <p class="movie__synopsis">{{ movie?.description }}</p>
           <p class="movie__data">
-            <span class="movie__data-duration">{{ movies[0]?.duration }} минут </span>
-            <span class="movie__data-origin">{{ movies[0]?.country }}</span>
+            <span class="movie__data-duration">{{ movie?.duration }} минут </span>
+            <span class="movie__data-origin">{{ movie?.country }}</span>
           </p>
         </div>
       </div>
 
-      <div class="movie-seances__hall">
-        <h3 class="movie-seances__hall-title">Зал 1</h3>
-        <ul class="movie-seances__list">
-          <li class="movie-seances__time-block">
-            <router-link :to="{ name: 'Hall', params: { hallId: hallId, sessionId: sessionId } }" class="movie-seances__time">
-              {{ sessions[0]?.start_time }}
-            </router-link>
-          </li>
-          <li class="movie-seances__time-block ">
-            <router-link :to="{ name: 'Hall', params: { hallId: hallId, sessionId: sessionId } }" class="movie-seances__time">
-              {{ sessions[1]?.start_time }}
-            </router-link>
-          </li>          
-          <li class="movie-seances__time-block">
-            <router-link :to="{ name: 'Hall', params: { hallId: hallId, sessionId: sessionId } }" class="movie-seances__time">
-              {{ sessions[2]?.start_time }}
-            </router-link>
-          </li>
-          <li class="movie-seances__time-block">
-            <router-link :to="{ name: 'Hall', params: { hallId: hallId, sessionId: sessionId } }" class="movie-seances__time">
-              {{ sessions[3]?.start_time }}
-            </router-link>
-          </li>
-          <li class="movie-seances__time-block">
-            <router-link :to="{ name: 'Hall', params: { hallId: hallId, sessionId: sessionId } }" class="movie-seances__time">
-              {{ sessions[4]?.start_time }}
-            </router-link>
-          </li>
-        </ul>
-      </div>
-      <div class="movie-seances__hall">
-        <h3 class="movie-seances__hall-title">Зал 2</h3>
-        <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">11:15</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:40</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">16:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:30</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">21:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>
-        </ul>
-      </div>
-      
-    </section>
+      <div v-for="hall in halls" :key="hall.id" class="movie-seances__hall">
+        <h3 class="movie-seances__hall-title">Зал {{ hall.id }} {{ hall.name }}</h3>
 
-    
-
-    <section class="movie">
-      <div class="movie__info">
-        <div class="movie__poster">
-          <img class="movie__poster-image" alt="Альфа постер" :src=movies[1]?.image_url>
+        <div v-if="globalSalesOpen" >
+          <ul class="movie-seances__list">          
+            <li v-for="session in sessions" :key="session.id" class="movie-seances__time-block">
+              <router-link v-if="session.movie_id === movie.id && session.hall_id === hall.id" 
+                :to="{ name: 'Hall', params: { hallId: hallId, sessionId: session.id } }" 
+                class="movie-seances__time">
+                {{ session?.start_time }}
+              </router-link>
+            </li>
+          </ul>
         </div>
-        <div class="movie__description">
-          <h2 class="movie__title">{{ movies[1]?.title }}</h2>
-          <p class="movie__synopsis">{{ movies[1]?.description }}</p>
-          <p class="movie__data">
-            <span class="movie__data-duration">{{ movies[1]?.duration }} минут </span>
-            <span class="movie__data-origin">{{ movies[1]?.country }}</span>
-          </p>
-        </div>
-      </div>
-      <div class="movie-seances__hall">
-        <h3 class="movie-seances__hall-title">Зал 1</h3>
-        <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:20</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:10</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:40</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>
-        </ul>
-      </div>
-      <div class="movie-seances__hall">
-        <h3 class="movie-seances__hall-title">Зал 2</h3>
-        <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">11:15</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:40</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">16:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:30</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">21:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">23:30</a></li>
-        </ul>
+        <div v-if="!globalSalesOpen" >
+          <h2>Продажи {{ globalSalesOpen ? 'открыты' : 'закрыты' }}</h2>
+        </div>        
       </div>
     </section>
 
-    <section class="movie">
-      <div class="movie__info">
-        <div class="movie__poster">
-          <img class="movie__poster-image" alt="Хищник постер" :src=movies[1]?.image_url>
-        </div>
-        <div class="movie__description">
-          <h2 class="movie__title">{{ movies[2]?.title }}</h2>
-          <p class="movie__synopsis">{{ movies[2]?.description }}</p>
-          <p class="movie__data">
-            <span class="movie__data-duration">{{ movies[2]?.duration }} минут </span>
-            <span class="movie__data-origin">{{ movies[2]?.country }}</span>
-          </p>
-        </div>
-      </div>
-      <div class="movie-seances__hall">
-        <h3 class="movie-seances__hall-title">Зал 1</h3>
-        <ul class="movie-seances__list">
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">09:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">10:10</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">12:55</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:15</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">14:50</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">16:30</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:00</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">18:50</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">19:50</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">20:55</a></li>
-          <li class="movie-seances__time-block"><a class="movie-seances__time" :href="route('hall')">22:00</a></li>
-        </ul>
-      </div>
-    </section>
   </main>
 </template>
 

@@ -65,14 +65,17 @@ Route::get('dashboard/login', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/movies', [MovieController::class, 'index']);
-Route::get('/seats', [SeatController::class, 'index']);
+Route::get('/seats/index', [SeatController::class, 'index']);
 Route::get('/sessions', [KinoSessionController::class, 'index']);
 Route::post('/seats/reserve', [SeatController::class, 'reserve']);
 Route::post('/check-seat', [SeatController::class, 'checkAvailability']);
 Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']);
-Route::get('/seats', [SeatController::class, 'getSeats']);
+
 Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book');
 Route::get('/ticket/{uuid}', [TicketController::class, 'show'])->name('ticket.show');
+Route::get('/hall/sessions/{id}', [KinoSessionController::class, 'show']);
+Route::get('/hall/hall/{id}', [HallController::class, 'show']);
+Route::get('/hall/movie/{id}', [MovieController::class, 'show']);
 Route::get('/get-qr-code', [TicketController::class, 'getQrCode']);
 Route::post('/get-qr-code', [TicketController::class, 'getQrCode']);
 Route::post('/api/logout', [AuthController::class, 'logout']);
@@ -86,8 +89,6 @@ Route::post('/movies/update/{id}', [MovieController::class, 'update']); // ре�
 Route::post('/movies/session/create', [KinoSessionController::class, 'create']); // созданиие сессии кино
 Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
 
-// Route::post('/sessions/{session}/open', [SessionController::class, 'openSales'])->name('sessions.open'); // старое
-// Route::post('/sessions/{session}/close', [SessionController::class, 'closeSales'])->name('sessions.close'); // старое
 Route::post('/admin/sales/open-all', [SessionController::class, 'openAllSales'])->name('admin.sales.openAll');
 Route::post('/admin/sales/close-all', [SessionController::class, 'closeAllSales'])->name('admin.sales.closeAll');
 Route::get('/admin/sales/status', [SessionController::class, 'status'])->name('admin.sales.status');

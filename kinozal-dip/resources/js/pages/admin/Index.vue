@@ -625,7 +625,7 @@ export default {
           билетов</button>
       </div> -->
 
-      <!-- новая кнопка для открытмя продаж -->
+      <!-- новая кнопка для открытия продаж -->
       <div class="conf-step__wrapper text-center">
         <section class="admin-settings conf-step__paragraph">
           <h2>Глобальные продажи</h2>
@@ -641,50 +641,7 @@ export default {
         </section>
       </div>
 
-      <!-- доп блок с контролем сессии продажи билетов -->
-      <!-- <section class="conf-step">
-        <header class="conf-step__header" :class="{ 'conf-step__header_opened': currentSession?.is_open }">
-          <h2 class="conf-step__title">Открыть продажи</h2>
-        </header>
-        <div class="conf-step__wrapper text-center">
-          <p class="conf-step__paragraph">
-            Статус продаж: <strong>{{ currentSession?.is_open ? 'Открыты' : 'Закрыты' }}</strong>
-          </p>
-
-          <button
-            v-if="currentSession && !currentSession.is_open"
-            class="conf-step__button conf-step__button-accent"
-            @click="openSales(currentSession?.id)"
-          >
-            Открыть продажу билетов
-          </button>
-
-          <button
-            v-if="currentSession && currentSession.is_open"
-            class="conf-step__button conf-step__button-secondary"
-            @click="closeSales(currentSession?.id)"
-          >
-            Закрыть продажи
-          </button>
-
-          <!-- доп кнопки -->
-          <!--<button
-            v-if="!currentSession?.is_open"
-            class="conf-step__button conf-step__button-accent"
-            @click="openSales(currentSession?.id)"
-          >
-            Открыть продажу билетов
-          </button>
-
-          <button
-            v-if="currentSession?.is_open"
-            class="conf-step__button conf-step__button-secondary"
-            @click="closeSales(currentSession?.id)"
-          >
-            Закрыть продажи
-          </button>
-        </div>
-      </section> -->
+     
     </section>
   </main>
 

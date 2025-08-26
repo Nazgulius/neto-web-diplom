@@ -17,9 +17,17 @@ export default {
     return { // тут состояние 
       seats: [], // данные о местах
       selectedSeats: [], // список выбранных мест
+      session: null,
+      movie: [],
+      hall: [],
       
       // sessionId: this.sessionId // динамическая генерация сессии
     }
+  },
+  created() {
+    const sessionId = this.$route.params.sessionId;
+    
+    this.loadSession(sessionId);
   },
   computed: {
     rows() {
@@ -51,33 +59,36 @@ export default {
         seats: this.selectedSeats.map(s => s.id)
       }).then(() => {
         alert('Бронирование успешно!');
-        this.fetchSeats();
+        this.getSeats();
       }).catch(() => {
         alert('Ошибка бронирования');
       });
-    },
-
-    // Загрузка состояния кресел
-    fetchSeats() {
-      axios.get('http://127.0.0.1:8000/seats')
-        .then(response => {
-          this.seats = response.data;
-          // console.log('седячие места:', this.seats);
-        });
     },
 
     // Группировка сидений по рядам (можно оставить как есть)
     seatsByRow(row) {
       return this.seats.filter(seat => seat.row === row);
     },
-
-    // Проверка, выбран лиSeat
+    
+    // Проверка, выбран ли Seat
     isSelected(seat) {
       return this.selectedSeats.some(s => s.id === seat.id);
     },
-
+    getSeatClass(seat) {
+      return {
+        // 'occupied': seat.is_booked,
+        'selected': this.isSelected(seat),
+        'buying-scheme__chair': true,
+        'buying-scheme__chair_standart': seat.type === 'Обычное',
+        'buying-scheme__chair_vip': seat.type === 'VIP',
+        'blocked': seat.status === 'blocked',
+        'buying-scheme__chair_selected': seat.taken === true,
+        'occupied': seat.status === 'booked'
+      };
+    },
     // Обработка выбора места с проверками
-    async selectSeat(seat) {
+    async selectSeat(row, seat) {
+      console.log('selectSeat ', row, seat);
       if (!this.isSeatAvailable(seat)) {
         alert('Место недоступно');
         return;
@@ -107,35 +118,52 @@ export default {
     isSeatAvailable(seat) {
       return seat.status === 'available' || seat.status === 'blocked';
     },
-    getSeatClass(seat) {
-      return {
-        // 'occupied': seat.is_booked,
-        'selected': this.isSelected(seat),
-        'buying-scheme__chair': true,
-        'buying-scheme__chair_standart': seat.type === 'Обычное',
-        'buying-scheme__chair_vip': seat.type === 'VIP',
-        'blocked': seat.status === 'blocked',
-        'buying-scheme__chair_selected': seat.taken === true,
-        'occupied': seat.status === 'booked'
-      };
+    getSeats() {
+      axios.get('http://127.0.0.1:8000/seats/index')
+        .then(response => {
+          this.seats = response.data;
+          console.log('seats: ', this.seats);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    async loadSession(sessionId) {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/hall/sessions/${sessionId}`);
+        this.session = res.data;
+        this.loadHall(res.data.hall_id);
+        this.loadMovie(res.data.movie_id);
+      } catch (e) {
+        console.error('Не удалось загрузить данные сессии', e);
+      }
+    },
+    async loadHall(hallId) {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/hall/hall/${hallId}`);
+        this.hall = res.data;
+      } catch (e) {
+        console.error('Не удалось загрузить данные сессии', e);
+      }
+    },
+    async loadMovie(movieId) {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/hall/movie/${movieId}`);
+        this.movie = res.data;
+      } catch (e) {
+        console.error('Не удалось загрузить данные сессии', e);
+      }
     },
     
   },
 
   mounted() {
-    // данные о зале 
+    document.body.classList.add('page-client');
+    
     console.log('sessionId=', this.sessionId);
     console.log('Hall ID:', this.hallId);
 
-    this.fetchSeats();
-    document.body.classList.add('page-client');
-    axios.get('http://127.0.0.1:8000/seats')
-      .then(response => {
-        console.log('seats ', response.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    this.getSeats();    
   },
 } 
 </script>
@@ -149,9 +177,9 @@ export default {
     <section class="buying">
       <div class="buying__info">
         <div class="buying__info-description">
-          <h2 class="buying__info-title">Звёздные войны XXIII: Атака клонированных клонов</h2>
-          <p class="buying__info-start">Начало сеанса: 18:30</p>
-          <p class="buying__info-hall">Зал 1</p>
+          <h2 class="buying__info-title">{{ movie?.title }} </h2>
+          <p class="buying__info-start">Начало сеанса: {{ session.start_time }}</p>
+          <p class="buying__info-hall">Зал {{ hall.name }}</p>
         </div>
         <div class="buying__info-hint">
           <p>Тапните дважды,<br>чтобы увеличить</p>
@@ -161,11 +189,12 @@ export default {
         <div class="buying-scheme__wrapper">
 
           <div class="hall-room">
-            <div v-for="row in rows" :key="row" class="row">
-              <div v-for="seat in seatsByRow(row)" :key="seat.id" 
+            <div v-for="row in hall.rows" :key="row" class="row">
+              <div v-for="seat in hall.seats_per_row" :key="seat.id" 
               :class="getSeatClass(seat)"
-              @click="selectSeat(seat)">
+              @click="selectSeat(row, seat)">
                 {{ seat.seat_number }}
+                <!-- <span class="buying-scheme__chair buying-scheme__chair_standart"></span> -->
 
                 <!-- <router-link class="acceptin-button"
                   :to="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">
@@ -175,16 +204,16 @@ export default {
 
             </div>
             
-            <div v-for="seat in seats" :key="seat.id" class="seat"
+            <!-- <div v-for="seat in seats" :key="seat.id" class="seat"
               :class="{ 'blocked': seat.status === 'blocked', 'occupied': seat.status === 'booked' }"
               @click="selectSeat(seat)" :disabled="seat.status !== 'available'">
-              {{ seat.number }},
+              {{ seat.number }}, -->
 
               <!-- <router-link class="acceptin-button"
                 :to="{ name: 'Payment', params: { seatId: seat.id, sessionId: this.sessionId } }">
                 Забронировать
               </router-link> -->
-            </div>
+            <!-- </div> -->
 
 
           </div>

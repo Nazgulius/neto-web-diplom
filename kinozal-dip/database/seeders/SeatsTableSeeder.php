@@ -10,27 +10,27 @@ use App\Models\Hall;
 
 class SeatsTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
-    {
-      $hall = Hall::where('name', 'main')->first();
+  /**
+   * Run the database seeds.
+   */
+  public function run(): void
+  {
+    $halls = Hall::all();
 
-      for ($i = 1; $i <= 50; $i++) {
-        if ($hall) {
-          for ($i = 1; $i <= 50; $i++) {
-            Seat::create([
-                'hall_id' => $hall->id,
-                'row' => ceil($i / 10),
-                'number' => $i % 10 == 0 ? 10 : $i % 10,
-                'type' => 'Обычное',
-            ]);
+    foreach ($halls as $hall) {
+      $rows = (int) $hall->rows;
+      $seatsPerRow = (int) $hall->seats_per_row;
 
-          }
+      for ($row = 1; $row <= $rows; $row++) {
+        for ($num = 1; $num <= $seatsPerRow; $num++) {
+          Seat::create([
+            'hall_id' => $hall->id,
+            'row' => $row,
+            'number' => $num,
+            'type' => 'Обычное',
+          ]);
         }
       }
-
-      
     }
+  }
 }

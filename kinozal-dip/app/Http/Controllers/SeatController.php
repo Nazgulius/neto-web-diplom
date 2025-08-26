@@ -112,8 +112,5 @@ class SeatController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function getSeats()
-    {
-        return Seat::all(); // или нужные параметры
-    }
+    
 }

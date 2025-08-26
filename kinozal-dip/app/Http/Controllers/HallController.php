@@ -7,6 +7,8 @@ use App\Models\Hall;
 use App\Models\KinoSession;
 use App\Models\Seat;
 use App\Models\Ticket;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class HallController extends Controller
 {
@@ -50,6 +52,38 @@ class HallController extends Controller
       // 'layout' => $request->input('layout'), // если нужен
     ]);
 
+    // Заполнение сидений для созданного зала
+    $rows = (int) $hall->rows;
+    $seatsPerRow = (int) $hall->seats_per_row;
+
+    // Опционально можно обернуть в транзакцию чтобы данные были согласованы
+    DB::beginTransaction();
+    try {
+      for ($row = 1; $row <= $rows; $row++) {
+        for ($num = 1; $num <= $seatsPerRow; $num++) {
+          Seat::create([
+            'hall_id' => $hall->id,
+            'row' => $row,
+            'number' => $num,
+            'type' => 'Обычное',
+          ]);
+        }
+      }
+      DB::commit();
+    } catch (\Throwable $e) {
+      DB::rollBack();
+      // Логируем ошибку и возвращаем сообщение об ошибке
+      Log::error('Ошибка заполнения сидений после создания зала', ['hall_id' => $hall->id, 'error' => $e->getMessage()]);
+      return response()->json(['error' => 'Не удалось заполнить сидения'], 500);
+    }
+
+    // Возвращаем созданный зал и количество созданных сидений
+    // $totalSeats = $rows * $seatsPerRow;
+    // return response()->json([
+    //   'hall' => $hall,
+    //   'created_seats' => $totalSeats,
+    // ], 201);
+
     return response()->json(['success' => true, 'hall' => $hall], 201);
   }
 
@@ -76,8 +110,8 @@ class HallController extends Controller
    */
   public function destroy(string $id)
   {
-    $hall = Hall::find($id); 
-    if(!$hall) {
+    $hall = Hall::find($id);
+    if (!$hall) {
       return response()->json(['message' => 'Hall not found'], 404);
     }
     $hall->delete();
