@@ -57,7 +57,6 @@ Route::get('dashboard', function () {
 Route::get('/admin', function () {
     return Inertia::render('admin/Index');
 })->middleware(['auth', 'verified']);
-
 Route::get('dashboard/login', function () {
     return Inertia::render('admin/Login');
 })->middleware(['auth', 'verified'])->name('loginAdmin');
