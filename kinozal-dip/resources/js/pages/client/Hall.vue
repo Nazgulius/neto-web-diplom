@@ -46,15 +46,18 @@ export default {
 
     // Переключает выбор места
     toggleSeat(seat) {
-      if (seat.taken) return;
-      seat.selected = !seat.selected;
-      this.updateSelectedSeats(seat);
+      // Разрешаем только для доступных мест (не занятые и не заблокированные)
+      if (seat.status === 'blocked' || seat.status === 'booked') return;
+      seat.selected = !seat.selected; // Переключение состояния
+      this.updateSelectedSeats(seat); // Обновляем список выбранных мест
     },
 
     // Обновляет список выбранных мест
     updateSelectedSeats(seat) {
       if (seat.selected) {
-        this.selectedSeats.push(seat);
+        if (!this.selectedSeats.find(s => s.id === seat.id)) {
+          this.selectedSeats.push(seat);
+        }
       } else {
         this.selectedSeats = this.selectedSeats.filter(s => s.id !== seat.id);
       }
@@ -69,75 +72,73 @@ export default {
     isSelected(seat) {
       return this.selectedSeats.some(s => s.id === seat.id);
     },
-    getSeatClass(seat) {
-      // console.log('seat', seat);
-      // return {
-      //   // 'occupied': seat.is_booked,
-      //   'selected': this.isSelected(seat),
-      //   'buying-scheme__chair': true,
-      //   'buying-scheme__chair_standart': seat.type === 'Обычное',
-      //   'buying-scheme__chair_vip': seat.type === 'VIP',
-      //   'blocked': seat.status === 'blocked',
-      //   'buying-scheme__chair_selected': seat.taken === true,
-      //   'occupied': seat.status === 'booked'
-      // };
+    getSeatClass(seat) {      
       const classes = [
         'buying-scheme__chair',
         seat.type === 'Обычное' ? 'buying-scheme__chair_standart' : '',
         seat.type === 'VIP' ? 'buying-scheme__chair_vip' : '',
         seat.status === 'blocked' ? 'blocked' : '',
         seat.status === 'booked' ? 'occupied' : '',
-        // если используете выделение выбранного места
         this.isSelected(seat) ? 'selected' : '',
-        // можно учесть флаг taken, но лучше опираться на isSelected
         seat.taken === true ? 'buying-scheme__chair_selected' : ''
       ];
 
-      // удаляем пустые строки и объединяем в строку классов
-      const result = classes.filter(Boolean).join(' ');
-      console.log('getSeatClass for seat', seat, '->', result);
-      return result;
+      // удаляем пустые строки и объединяем в строку классов      
+      return classes.filter(Boolean).join(' ');
     },
     // Обработка выбора места с проверками
     async selectSeat(row, seat) {
       console.log('selectSeat ', row, seat);
-      // if (!this.isSeatAvailable(seat)) {
-      //   alert('Место недоступно');
-      //   return;
-      // }
+      if (seat.status === 'booked' || seat.status === 'blocked') {  
+        alert('Место занято');  
+        return;  
+      }  
+      // можно вызывать тоггл 
+      this.toggleSeat(seat);
+
+      // попробуем скрыть оставшийся код метода
+
+        // if (!this.isSeatAvailable(seat)) {
+        //   alert('Место недоступно');
+        //   return;
+        // }
+
       if (seat.status === 'booked') {  
         alert('Место занято');  
         return;  
       }  
 
-      if (!this.sessionId) {
-        alert('Нет sessionId');
-        return;
-      }
+      // if (!this.sessionId) {
+      //   alert('Нет sessionId');
+      //   return;
+      // }
 
-      try {
-        const response = await axios.post('http://127.0.0.1:8000/check-seat', {
-          seat_id: seat.id,
-          session_id: this.sessionId,
-        });
-        if (response.data.available) {
-          seat.status = 'blocked';
-          // можно добавить в выбранные  
-          if (!this.isSelected(seat)) {  
-            this.selectedSeats.push(seat);  
-          }  
-        } else {
-          alert('Место уже занято или заблокировано другим пользователем');
-        }
-      } catch (err) {
-        console.error('Ошибка сервера:', err.response?.data || err.message);
-      }
+      // try {
+      //   const response = await axios.post('http://127.0.0.1:8000/check-seat', {
+      //     seat_id: seat.id,
+      //     session_id: this.sessionId,
+      //   });
+      //   if (response.data.available) {
+      //     seat.status = 'blocked';
+      //     // можно добавить в выбранные  
+      //     if (!this.isSelected(seat)) {  
+      //       this.selectedSeats.push(seat);  
+      //     }  
+      //   } else {
+      //     alert('Место уже занято или заблокировано другим пользователем');
+      //   }
+      // } catch (err) {
+      //   console.error('Ошибка сервера:', err.response?.data || err.message);
+      // }
     },
     // Отправка выбранных мест на сервер
     reserveSeats() {
       axios.post('http://127.0.0.1:8000/seats/reserve', {
         seats: this.selectedSeats.map(s => s.id)
       }).then(() => {
+        // сбросить статус выделения
+        this.selectedSeats.forEach(s => { s.selected = false; });
+        this.selectedSeats = [];
         alert('Бронирование успешно!');
         this.getSeats();
       }).catch(() => {
@@ -296,10 +297,24 @@ export default {
           </div>
         </div>
       </div>
-      <!-- <button class="acceptin-button" @click="$router.push('/payment')">Забронировать</button> -->
       <button class="acceptin-button"><a :href="route('payment')">Забронировать</a></button>
-      <!-- <button class="acceptin-button"><a :href="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">Забронировать</a></button> -->
       <router-link :to="{ name: 'payment' }" class="acceptin-button">Забронировать</router-link>
+      <button class="acceptin-button"><router-link :to="{ name: 'payment', query: { 
+        payload: JSON.stringify({
+          seats: selectedSeats.map(s => s.id), 
+          movie: {
+            title: movie?.title || '',      // пример: название фильма
+            hall: hall?.name || '',          // зал
+            time: session?.start_time || '',       // время сеанса
+            priceTotal: selectedSeats.reduce((sum, s) => sum + (s.price || 0), 0)
+          },
+          seanceId: seanceId
+        })}}" 
+        >
+        Забронировать 
+      </router-link></button>
+      <!-- <button class="acceptin-button" @click="$router.push('/payment')">Забронировать</button> -->
+      <!-- <button class="acceptin-button"><a :href="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">Забронировать</a></button> -->
       <!-- <router-link :to="{ name: 'payment', query: { seats: JSON.stringify(seats) } }" class="acceptin-button">Забронировать</router-link> -->
 
 

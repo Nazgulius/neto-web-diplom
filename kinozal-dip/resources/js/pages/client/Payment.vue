@@ -8,6 +8,7 @@ export default {
   data() {
     return { // тут состояние 
       seats: [], // данные о местах
+      seatsForPayment: [],
     }
   },
   methods: {    
@@ -21,6 +22,14 @@ export default {
     },
   },
   mounted() {
+    const payloadRaw = this.$route.query.payload;
+    const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
+    console.log('mounted payloadRaw ', payloadRaw);
+    console.log('mounted payload ', payload);
+    // примеры использования
+     this.seatsForPayment = payload?.seats ?? [];
+     this.movieForPayment = payload?.movie ?? {};
+
     this.blockedSeats();
     // это про принятие параметров по ссылке перехода (<router-link ...)
     // const seatsParam = this.$route.query.seats;
