@@ -301,12 +301,13 @@ export default {
       <router-link :to="{ name: 'payment' }" class="acceptin-button">Забронировать</router-link>
       <button class="acceptin-button"><router-link :to="{ name: 'payment', query: { 
         payload: JSON.stringify({
-          seats: selectedSeats.map(s => s.id), 
+          seats: selectedSeats,
           movie: {
-            title: movie?.title || '',      // пример: название фильма
-            hall: hall?.name || '',          // зал
-            time: session?.start_time || '',       // время сеанса
-            priceTotal: selectedSeats.reduce((sum, s) => sum + (s.price || 0), 0)
+            title: movie?.title || '',
+            hall: hall?.name || '',
+            time: session?.start_time || '',
+            amountStandart: hall?.amountStandart,
+            amountVip: hall?.amountVip,
           },
           seanceId: seanceId
         })}}" 

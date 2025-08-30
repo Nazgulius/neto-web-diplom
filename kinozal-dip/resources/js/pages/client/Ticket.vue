@@ -30,6 +30,23 @@ export default {
     return { // тут состояние 
       qrCodeData: '',
       seats: [],
+      seatsForPayment: [], // данные о местах
+      movieForPayment: [], // данные о зале и кино
+      totalPrice: 0,
+    }
+  },
+  computed: {
+    editDataForQR() {
+       // Если seatsForPayment ещё пустой или не определён — вернем пустую строку
+      const seatsArray = Array.isArray(this.seatsForPayment) ? this.seatsForPayment : [];
+      const seatsStr = seatsArray.map(s => s.id).join(', ');
+
+      const hall = this.movieForPayment?.hall ?? '';
+      const title = this.movieForPayment?.title ?? '';
+      const time = this.movieForPayment?.time ?? '';
+      const total = this.totalPrice ?? 0;
+
+      return `Зал: ${hall}. Фильм: ${title}. Места: ${seatsStr}. Время начала: ${time}. Сумма: ${total} рублей.`;
     }
   },
   methods: {
@@ -40,23 +57,68 @@ export default {
           console.log('забронированные места:', this.seats);
         });
     },
+    // новый вариант генерации qr кода
     async generateQrWithSeats() {
       try {
-        await this.blockedSeats();
-        console.log('seats перед сериализацией:', this.seats);
-        const seatsData = JSON.stringify(this.seats);
-        console.log('сериализованные seats:', seatsData);
+
+        const payloadForServer = {
+          text: this.editDataForQR, // читаемая строка
+          // seats: this.seatsForPayment.map(s => s.id)
+        };        
+        console.log('payloadForServer перед отправкой:', payloadForServer);
+        const seatsData = JSON.stringify(payloadForServer);
+
         const response = await axios.post('http://127.0.0.1:8000/get-qr-code', { seats: seatsData });
         this.qrCodeData = response.data.qr_code;
       } catch (error) {
         console.error('Ошибка при генерации QR:', error);
       }
     },
+    // старый вариант генерации qr кода
+    // async generateQrWithSeats() {
+    //   try {
+    //     await this.blockedSeats();
+    //     console.log('seats перед сериализацией:', this.seats);
+
+    //     const seatsData = JSON.stringify(this.seats);
+    //     console.log('сериализованные seats:', seatsData);
+
+    //     const response = await axios.post('http://127.0.0.1:8000/get-qr-code', { seats: seatsData });
+    //     this.qrCodeData = response.data.qr_code;
+    //   } catch (error) {
+    //     console.error('Ошибка при генерации QR:', error);
+    //   }
+    // },
+    sumTotalPrice() {
+      for (const seat of this.seatsForPayment) {        
+        if (seat.type === 'Обычное') {
+          this.totalPrice += this.movieForPayment.amountStandart;
+        };
+        if (seat.type === 'VIP') {
+          this.totalPrice += this.movieForPayment.amountVip;
+        };
+      }
+      return this.totalPrice;
+    },
   },
   mounted() {
     document.body.classList.add('page-client');
-    // this.blockedSeats(); // получаем список забранированных сидений
+    const payloadRaw = this.$route.query.payload;
+    const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
+    console.log('mounted payloadRaw ', payloadRaw);
+    console.log('mounted payload ', payload);
+
+    this.seatsForPayment = payload?.seats ?? {};
+    console.log('this.seatsForPayment ', this.seatsForPayment);
+    this.movieForPayment = payload?.movie ?? {};
+    console.log('this.movieForPayment ', this.movieForPayment);
+
+    this.sumTotalPrice();
+    
     this.generateQrWithSeats();
+    
+
+    // this.blockedSeats(); // получаем список забранированных сидений
   },
 }
 </script>
@@ -74,10 +136,10 @@ export default {
       </header>
       
       <div class="ticket__info-wrapper">
-        <p class="ticket__info">На фильм: <span class="ticket__details ticket__title">Звёздные войны XXIII: Атака клонированных клонов</span></p>
-        <p class="ticket__info">Места: <span class="ticket__details ticket__chairs">6, 7</span></p>
-        <p class="ticket__info">В зале: <span class="ticket__details ticket__hall">1</span></p>
-        <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">18:30</span></p>
+        <p class="ticket__info">На фильм: <span class="ticket__details ticket__title">{{ movieForPayment?.title }}</span></p>
+        <p class="ticket__info">Места: <span v-for="seat in seatsForPayment" :key="seat" class="ticket__details ticket__chairs">{{seat?.id}}, </span></p>
+        <p class="ticket__info">В зале: <span class="ticket__details ticket__hall">{{ movieForPayment?.hall }}</span></p>
+        <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">{{ movieForPayment?.time }}</span></p>
 
         <div>
           <h1>QR Code: </h1>

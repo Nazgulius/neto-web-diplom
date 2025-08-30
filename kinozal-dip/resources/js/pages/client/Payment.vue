@@ -7,8 +7,10 @@ export default {
 
   data() {
     return { // тут состояние 
-      seats: [], // данные о местах
-      seatsForPayment: [],
+      seats: [], 
+      seatsForPayment: [], // данные о местах
+      movieForPayment: [], // данные о зале и кино
+      totalPrice: 0,
     }
   },
   methods: {    
@@ -20,17 +22,34 @@ export default {
           console.log('забронированные места:', this.seats);
         });
     },
+    sumTotalPrice() {
+      for (const seat of this.seatsForPayment) {        
+        if (seat.type === 'Обычное') {
+          this.totalPrice += this.movieForPayment.amountStandart;
+        };
+        if (seat.type === 'VIP') {
+          this.totalPrice += this.movieForPayment.amountVip;
+        };
+      }
+      return this.totalPrice;
+    },
   },
   mounted() {
+    document.body.classList.add('page-client');
     const payloadRaw = this.$route.query.payload;
     const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
-    console.log('mounted payloadRaw ', payloadRaw);
     console.log('mounted payload ', payload);
-    // примеры использования
-     this.seatsForPayment = payload?.seats ?? [];
-     this.movieForPayment = payload?.movie ?? {};
+    
+    this.seatsForPayment = payload?.seats ?? {};
+    console.log('this.seatsForPayment ', this.seatsForPayment);
+    this.movieForPayment = payload?.movie ?? {};
+    console.log('this.movieForPayment ', this.movieForPayment);
+    
+    this.sumTotalPrice(); 
+    console.log('this.totalPrice ', this.totalPrice);
+     
+    // this.blockedSeats();
 
-    this.blockedSeats();
     // это про принятие параметров по ссылке перехода (<router-link ...)
     // const seatsParam = this.$route.query.seats;
     // if (seatsParam) {
@@ -42,17 +61,16 @@ export default {
     // }
 
     // данных о зале 
-    async function confirmBooking() {
-      const response = await axios.post('http://127.0.0.1:8000/api/book', {
-        seat_id: seatId,
-        session_id: sessionId,
-        client_id: userId, // клиент из авторизации
-      });
-      // сохраняем полученный билет или uuid
-      // и переходим на Ticket.vue, передавая его через маршруты или глобальное состояние
-      this.$router.push({ name: 'ticket', params: { ticketUuid: response.data.ticket.uuid } });
-    }
-    document.body.classList.add('page-client');
+    // async function confirmBooking() {
+    //   const response = await axios.post('http://127.0.0.1:8000/api/book', {
+    //     seat_id: seatId,
+    //     session_id: sessionId,
+    //     client_id: userId, // клиент из авторизации
+    //   });
+    //   // сохраняем полученный билет или uuid
+    //   // и переходим на Ticket.vue, передавая его через маршруты или глобальное состояние
+    //   this.$router.push({ name: 'ticket', params: { ticketUuid: response.data.ticket.uuid } });
+    // }
     
   }
 }
@@ -73,15 +91,21 @@ export default {
       </header>
       
       <div class="ticket__info-wrapper">
-        <p class="ticket__info">На фильм: <span class="ticket__details ticket__title">Звёздные войны XXIII: Атака клонированных клонов</span></p>
-        <p class="ticket__info">Места: <span class="ticket__details ticket__chairs">6, 7</span></p>
-        <p class="ticket__info">В зале: <span class="ticket__details ticket__hall">1</span></p>
-        <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">18:30</span></p>
-        <p class="ticket__info">Стоимость: <span class="ticket__details ticket__cost">600</span> рублей</p>
+        <p class="ticket__info">На фильм: <span class="ticket__details ticket__title">{{ movieForPayment?.title }}</span></p>
+        <p class="ticket__info">Места: <span v-for="seat in seatsForPayment" :key="seat" class="ticket__details ticket__chairs">{{seat?.id}}, </span></p>
+        <p class="ticket__info">В зале: <span class="ticket__details ticket__hall">{{ movieForPayment?.hall }}</span></p>
+        <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">{{ movieForPayment?.time }}</span></p>
+        <p class="ticket__info">Стоимость: <span class="ticket__details ticket__cost">{{ totalPrice }}</span> рублей</p>
 
         <!-- <button class="acceptin-button" onclick="location.href='ticket.html'" >Получить код бронирования</button> -->
-        <button class="acceptin-button"><a :href="route('ticket')">Получить код бронирования</a></button>
-        <button class="acceptin-button"><router-link :to="{ name: 'ticket' }">Забронировать</router-link></button>
+        <!-- <button class="acceptin-button"><a :href="route('ticket')">Получить код бронирования</a></button> -->
+        <button class="acceptin-button"><router-link :to="{ name: 'ticket',
+          query: { 
+            payload: JSON.stringify({
+              seats: seatsForPayment, 
+              movie: movieForPayment,
+            })}
+        }">Забронировать</router-link></button>
 
         <p class="ticket__hint">После оплаты билет будет доступен в этом окне, а также придёт вам на почту. Покажите QR-код нашему контроллёру у входа в зал.</p>
         <p class="ticket__hint">Приятного просмотра!</p>
