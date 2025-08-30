@@ -46,7 +46,11 @@ export default {
       const time = this.movieForPayment?.time ?? '';
       const total = this.totalPrice ?? 0;
 
-      return `Зал: ${hall}. Фильм: ${title}. Места: ${seatsStr}. Время начала: ${time}. Сумма: ${total} рублей.`;
+      return `Зал: ${hall}. 
+Фильм: ${title}. 
+Места: ${seatsStr}. 
+Время начала: ${time}. 
+Сумма: ${total} рублей.`;
     }
   },
   methods: {
@@ -61,10 +65,11 @@ export default {
     async generateQrWithSeats() {
       try {
 
-        const payloadForServer = {
-          text: this.editDataForQR, // читаемая строка
-          // seats: this.seatsForPayment.map(s => s.id)
-        };        
+        const payloadForServer = this.editDataForQR;
+        // const payloadForServer = {
+        //   text: this.editDataForQR, // читаемая строка
+        //   // seats: this.seatsForPayment.map(s => s.id)
+        // };        
         console.log('payloadForServer перед отправкой:', payloadForServer);
         const seatsData = JSON.stringify(payloadForServer);
 
@@ -128,6 +133,9 @@ export default {
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
   
+  <router-link :to="{ name: 'Index' }" class="link_color">
+    Home
+  </router-link>
   <main>
     <section class="ticket">
       

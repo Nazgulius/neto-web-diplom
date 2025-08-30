@@ -12,15 +12,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SessionController;
 
-// Route::get('/home', function () {
-//     return Inertia::render('Welcome');
-// });
-// ->name('home');
-
-// Route::get('dashboard2', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified']);
-//->name('dashboard');
 
 Route::get('/', function () {
     return Inertia::render('App');
@@ -60,6 +51,7 @@ Route::get('/admin', function () {
 Route::get('dashboard/login', function () {
     return Inertia::render('admin/Login');
 })->middleware(['auth', 'verified'])->name('loginAdmin');
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

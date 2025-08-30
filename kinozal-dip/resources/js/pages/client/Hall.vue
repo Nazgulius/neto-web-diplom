@@ -98,15 +98,11 @@ export default {
 
       // попробуем скрыть оставшийся код метода
 
-        // if (!this.isSeatAvailable(seat)) {
+            // if (!this.isSeatAvailable(seat)) {
         //   alert('Место недоступно');
         //   return;
         // }
 
-      if (seat.status === 'booked') {  
-        alert('Место занято');  
-        return;  
-      }  
 
       // if (!this.sessionId) {
       //   alert('Нет sessionId');
@@ -235,6 +231,9 @@ export default {
 
   <main>
     <section class="buying">
+      <router-link :to="{ name: 'Index' }" class="link_color">
+        Home
+      </router-link>
       <div class="buying__info">
         <div class="buying__info-description">
           <h2 class="buying__info-title">{{ movie?.title }} </h2>
@@ -258,27 +257,6 @@ export default {
               </div>
             </div>
           </div>
-                <!-- <span class="buying-scheme__chair buying-scheme__chair_standart"></span> -->
-
-                <!-- <router-link class="acceptin-button"
-                  :to="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">
-                  Забронировать
-                </router-link> -->
-
-            
-            <!-- <div v-for="seat in seats" :key="seat.id" class="seat"
-              :class="{ 'blocked': seat.status === 'blocked', 'occupied': seat.status === 'booked' }"
-              @click="selectSeat(seat)" :disabled="seat.status !== 'available'">
-              {{ seat.number }}, -->
-
-              <!-- <router-link class="acceptin-button"
-                :to="{ name: 'Payment', params: { seatId: seat.id, sessionId: this.sessionId } }">
-                Забронировать
-              </router-link> -->
-            <!-- </div> -->
-
-
-
 
         </div>
         <div class="buying-scheme__legend">
@@ -296,9 +274,8 @@ export default {
                 class="buying-scheme__chair buying-scheme__chair_selected"></span> Выбрано</p>
           </div>
         </div>
-      </div>
-      <button class="acceptin-button"><a :href="route('payment')">Забронировать</a></button>
-      <router-link :to="{ name: 'payment' }" class="acceptin-button">Забронировать</router-link>
+      </div>      
+      
       <button class="acceptin-button"><router-link :to="{ name: 'payment', query: { 
         payload: JSON.stringify({
           seats: selectedSeats,
@@ -314,10 +291,6 @@ export default {
         >
         Забронировать 
       </router-link></button>
-      <!-- <button class="acceptin-button" @click="$router.push('/payment')">Забронировать</button> -->
-      <!-- <button class="acceptin-button"><a :href="{ name: 'payment', params: { seatId: seat.id, sessionId: session.id } }">Забронировать</a></button> -->
-      <!-- <router-link :to="{ name: 'payment', query: { seats: JSON.stringify(seats) } }" class="acceptin-button">Забронировать</router-link> -->
-
 
     </section>
   </main>
@@ -451,14 +424,6 @@ body.page-client {
   margin-top: 4px;
 }
 
-/* .seat {
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  margin: 3px;
-  background-color: #eee;
-  cursor: pointer;
-} */
 .buying-scheme__chair, .seat {
   display: inline-block;
   vertical-align: middle;
@@ -554,16 +519,6 @@ body.page-client {
   /* промежутки между креслами */
   padding: 5px;
 }
-
-/* .seat {
-  width: 2rem;
-  height: 2rem;
-  line-height: 20px;
-  text-align: center;
-  border-radius: 4px;
-  cursor: pointer;
-  background-color: #eee;
-} */
 
 
 

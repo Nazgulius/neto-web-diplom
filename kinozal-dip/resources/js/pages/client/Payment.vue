@@ -83,6 +83,9 @@ export default {
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
   
+  <router-link :to="{ name: 'Index' }" class="link_color">
+  Home
+  </router-link>
   <main>
     <section class="ticket">
       
@@ -97,15 +100,13 @@ export default {
         <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">{{ movieForPayment?.time }}</span></p>
         <p class="ticket__info">Стоимость: <span class="ticket__details ticket__cost">{{ totalPrice }}</span> рублей</p>
 
-        <!-- <button class="acceptin-button" onclick="location.href='ticket.html'" >Получить код бронирования</button> -->
-        <!-- <button class="acceptin-button"><a :href="route('ticket')">Получить код бронирования</a></button> -->
         <button class="acceptin-button"><router-link :to="{ name: 'ticket',
           query: { 
             payload: JSON.stringify({
               seats: seatsForPayment, 
               movie: movieForPayment,
             })}
-        }">Забронировать</router-link></button>
+        }">Получить код бронирования</router-link></button>
 
         <p class="ticket__hint">После оплаты билет будет доступен в этом окне, а также придёт вам на почту. Покажите QR-код нашему контроллёру у входа в зал.</p>
         <p class="ticket__hint">Приятного просмотра!</p>

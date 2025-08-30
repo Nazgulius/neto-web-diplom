@@ -124,11 +124,10 @@ export default {
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
 
-  <Head title="Welcome">
+  <!-- <Head title="Welcome">
     <link rel="preconnect" href="https://rsms.me/" />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-  </Head>
-
+  </Head> -->
 
   <!-- <header class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
     <nav class="flex items-center justify-end gap-4 movie-seances__time">
@@ -149,24 +148,15 @@ export default {
     </nav>
   </header> -->
 
-  <Link :href="route('login')"
+  <!-- <Link :href="route('login')"
     class="movie-seances__time link_color">
   Log in login Link
-  </Link>
-  <Link :href="route('register')"
+  </Link> -->
+  <!-- <Link :href="route('register')"
     class="movie-seances__time link_color">
   Register Link
-  </Link>
-  <router-link :to="{ name: 'Admin' }" class="link_color">
-    Log in Admin router-link
-  </router-link>
-  <router-link :to="{ name: 'Login' }" class="link_color">
-    Log in Login router-link
-  </router-link>
-  <!-- <router-link :to="{ name: 'Hall' }" class="link_color">
-    Register
-  </router-link> -->
-
+  </Link> -->
+  
 
   <nav class="page-nav">
     <a class="page-nav__day page-nav__day_today" href="#">
@@ -191,7 +181,15 @@ export default {
     </a>
   </nav>
 
+  
+  <router-link :to="{ name: 'Admin' }" class="link_color">
+    Login for Admin
+  </router-link>
+  <router-link :to="{ name: 'Login' }" class="link_color">
+    Login for Login
+  </router-link>
   <main>
+
     <section v-for="movie in movies" :key="movie.id" class="movie">
       <div class="movie__info">
         <div class="movie__poster">
@@ -441,17 +439,14 @@ body.page-client {
   text-decoration: none;
   font-size: 1.3rem;
   padding: 2px;
+  margin: 10px;  
+  align-items: center;    
 }
 
 .link_color:hover, .link_color:active {
   background-color: #000000;
   color: #FFFFFF;
 }
-
-.link_color:nth-child(2n+1) {
-  margin-left: 5px;
-}
-
 
 @media screen and (min-width: 479px) {
   .page-nav .page-nav__day {
