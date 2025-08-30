@@ -132,7 +132,7 @@ export default {
   <header class="page-header">
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
-  
+
   <router-link :to="{ name: 'Index' }" class="link_color">
     Home
   </router-link>
@@ -149,19 +149,13 @@ export default {
         <p class="ticket__info">В зале: <span class="ticket__details ticket__hall">{{ movieForPayment?.hall }}</span></p>
         <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">{{ movieForPayment?.time }}</span></p>
 
-        <div>
+        <div v-if="qrCodeData">
           <h1>QR Code: </h1>
           <img :src="qrCodeData" alt="QR Code" />
         </div>
-
-        <!-- <div v-if="ticket">
-          <h2>Ваш билет</h2>
-          <p>Номер билета: {{ ticket.id }}</p>
-          <img :src="qrCodeUrl" alt="QR-код" />
-        </div>
         <div v-else>
           <p>Загрузка билета...</p>
-        </div> -->
+        </div> 
 
         <p class="ticket__hint">Покажите QR-код нашему контроллеру для подтверждения бронирования.</p>
         <p class="ticket__hint">Приятного просмотра!</p>
