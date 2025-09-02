@@ -13,7 +13,7 @@ class Hall extends Model
     'amountStandart',
     'amountVip',
     'active',
-    // 'layout',
+    'vip_count',
   ];
 
   protected $casts = [

@@ -20,21 +20,17 @@ class HallsTableSeeder extends Seeder
         'active' => true,
         'amountStandart' => 10,
         'amountVip'=> 50,
+        'vip_count'=> 6,
       ]);
 
       Hall::create([
         'name' => 'Second Hall',
-        'rows' => 10,
+        'rows' => 8,
         'seats_per_row' => 10,
-        // 'layout' => [
-        //   'rows' => 10,
-        //   'seats_per_row' => 10,
-        //   'layout_type' => 'square', 
-        //   'additional_info' => 'места расположены квадратом'
-        // ],
         'active' => true,
         'amountStandart' => 10,
         'amountVip'=> 50,
+        'vip_count'=> 4,
       ]);
     }
 }

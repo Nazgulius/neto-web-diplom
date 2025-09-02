@@ -14,6 +14,7 @@ return new class extends Migration
     Schema::create('seats', function (Blueprint $table) {
       $table->id();
       $table->unsignedBigInteger('hall_id');
+      $table->unsignedBigInteger('session_id');
       $table->integer('row');
       $table->integer('number');
       $table->string('type')->default('Обычное'); // VIP или Обычное

@@ -20,6 +20,7 @@ return new class extends Migration
       $table->boolean('active')->default(true);
       $table->decimal('amountStandart', 8, 2);
       $table->decimal('amountVip', 8, 2);
+      $table->integer('vip_count')->default(0);
       $table->timestamps();
     });
   }

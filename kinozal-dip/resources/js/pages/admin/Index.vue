@@ -658,19 +658,19 @@ export default {
         </div>
 
         <div class="popup__container__cont">
-          <label for="name">Name</label>
+          <label for="name" class="conf-step__paragraph">Name</label>
           <input type="text" class="c" placeholder="Big Hall" name="name" id="name" v-model="formHallData.name">
-          <label for="rows">Rows</label>
+          <label for="rows" class="conf-step__paragraph">Rows</label>
           <input type="text" class="c" placeholder="10" name="rows" id="rows" v-model="formHallData.rows">
-          <label for="seats_per_row">seats per row hall</label>
+          <label for="seats_per_row" class="conf-step__paragraph">seats per row hall</label>
           <input type="text" class="c" placeholder="10" name="seats_per_row" id="seats_per_row"
             v-model="formHallData.seats_per_row">
-          <label for="amountStandart">amount Standart seat in hall</label>
+          <label for="amountStandart" class="conf-step__paragraph">amount Standart seat in hall</label>
           <input type="text" class="c" placeholder="200" name="amountStandart" id="amountStandart"
             v-model="formHallData.amountStandart">
-          <label for="vip">Amount Vip seat in hall</label>
+          <label for="vip" class="conf-step__paragraph">Amount Vip seat in hall</label>
           <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip" v-model="formHallData.amountVip">
-          <label for="active">active</label>
+          <label for="active" class="conf-step__paragraph">active</label>
           <input type="radio" class="c" name="active" id="active" v-model="formHallData.active" checked>
 
           <button class="btnPopupHalls" type="submit" @click="toglePopupHall">Create Hall</button>
@@ -693,16 +693,16 @@ export default {
         </div>
 
         <div class="popup__container__cont">
-          <label for="title">Name</label>
+          <label for="title" class="conf-step__paragraph">Name</label>
           <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
-          <label for="description">description</label>
+          <label for="description" class="conf-step__paragraph">description</label>
           <input type="text" class="c" placeholder="description" name="description" id="description"
             v-model="formMovieData.description">
-          <label for="duration">duration</label>
+          <label for="duration" class="conf-step__paragraph">duration</label>
           <input type="text" class="c" placeholder="100" name="duration" id="duration" v-model="formMovieData.duration">
-          <label for="country">country</label>
+          <label for="country" class="conf-step__paragraph">country</label>
           <input type="text" class="c" placeholder="США" name="country" id="country" v-model="formMovieData.country">
-          <label for="image_url">image_url</label>
+          <label for="image_url" class="conf-step__paragraph">image_url</label>
           <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url"
             v-model="formMovieData.image_url">
 
@@ -727,16 +727,16 @@ export default {
         </div>
 
         <div class="popup__container__cont">
-          <span>Name: {{ movies[editMovieID]?.title }} </span>
+          <span class="conf-step__paragraph">Name: {{ movies[editMovieID]?.title }} </span>
           <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
-          <label for="description">description: {{ movies[editMovieID]?.description }}</label>
+          <label for="description" class="conf-step__paragraph">description: {{ movies[editMovieID]?.description }}</label>
           <input type="text" class="c" placeholder="description" name="description" id="description"
             v-model="formMovieData.description">
-          <label for="duration">duration: {{ movies[editMovieID]?.duration }}</label>
+          <label for="duration" class="conf-step__paragraph">duration: {{ movies[editMovieID]?.duration }}</label>
           <input type="text" class="c" placeholder="100" name="duration" id="duration" v-model="formMovieData.duration">
-          <label for="country">country: {{ movies[editMovieID]?.country }}</label>
+          <label for="country" class="conf-step__paragraph">country: {{ movies[editMovieID]?.country }}</label>
           <input type="text" class="c" placeholder="США" name="country" id="country" v-model="formMovieData.country">
-          <label for="image_url">image_url: {{ movies[editMovieID]?.image_url }}</label>
+          <label for="image_url" class="conf-step__paragraph">image_url: {{ movies[editMovieID]?.image_url }}</label>
           <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url"
             v-model="formMovieData.image_url">
 
@@ -770,10 +770,10 @@ export default {
       </div>
       <div class="popup__row">
         <div class="popup__container__cont">
-          <span>movie id: {{ editMovieID }} - {{ movies[editMovieID]?.title }}</span>
-          <label for="hall_id">hall_id</label>
+          <span class="conf-step__paragraph">Movie id: {{ editMovieID }} - {{ movies[editMovieID]?.title }}</span>
+          <label for="hall_id" class="conf-step__paragraph">hall_id</label>
           <input type="number" class="c" placeholder="1" name="hall_id" id="hall_id" v-model.number="formMovieSessionData.hall_id">
-          <label for="start_time">start_time</label>
+          <label for="start_time" class="conf-step__paragraph">start_time</label>
           <input type="start_time" class="c" placeholder="19:50" name="start_time" id="start_time"
             v-model="formMovieSessionData.start_time">
 
@@ -1491,7 +1491,7 @@ select {
   z-index: 100;
   left: 50px;
   top: 50px;
-  background: rgba(201, 201, 201, 0.7);
+  background: rgba(220, 208, 226, 0.9);
 }
 
 .popup__plus {

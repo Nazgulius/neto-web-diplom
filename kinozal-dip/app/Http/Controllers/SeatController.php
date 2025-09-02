@@ -52,14 +52,14 @@ class SeatController extends Controller
     }
 
     public function reserve(Request $request)
-    {
-        $seatIds = $request->input('seats'); // массив id
+    {      
+      // Обновим статус выбранных сидений
+      // Предположим, есть поле 'taken' или 'status'
+      // Например: 0 - свободно, 1 - забронировано
+      // Или используется логика с массивом занятых, в этом случае:
+      // обновим их статус
 
-        // Обновим статус выбранных сидений
-        // Предположим, есть поле 'taken' или 'status'
-        // Например: 0 - свободно, 1 - забронировано
-        // Или используется логика с массивом занятых, в этом случае:
-        // обновим их статус
+      $seatIds = $request->input('seats'); // массив id
         try {
             // Обновление статуса для выбранных сидений
             Seat::whereIn('id', $seatIds)->update(['taken' => true]);
@@ -110,6 +110,36 @@ class SeatController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+    public function blockSeats(Request $request)
+    {
+      echo 'blockSeats'."\n";
+      $seatIds = $request->input('seats'); // массив id
+      try {
+          // Обновление статуса для выбранных сидений
+          Seat::whereIn('id', $seatIds)->update(['status' => 'blocked']);
+
+          return response()->json(['message' => 'Seats reserved successfully']);
+      } catch (\Exception $e) {
+          return response()->json(['error' => 'Failed to reserve seats'], 500);
+      }
+
+        // $seats = $request->input('seats'); // массив сидений
+        // echo 'blockSeats'.$seats."\n";
+        // echo 'blockSeats'.$seats[0]."\n";
+        // echo 'blockSeats'.$seats[1]."\n";
+       
+
+        // foreach ($seats as $seatId) {
+        //   echo 'blockSeats'.$seatId."\n";
+        //     $seat = Seat::find($seatId);
+        //     if ($seat && $seat->status === 'available') {
+        //         $seat->status = 'blocked ';
+        //         $seat->save();
+        //     }
+        // }
+
+        // return response()->json(['success' => true]);
     }
 
     

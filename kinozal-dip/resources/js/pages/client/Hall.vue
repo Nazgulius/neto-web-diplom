@@ -19,8 +19,7 @@ export default {
       selectedSeats: [], // список выбранных мест
       session: null,
       movie: [],
-      // hall: null,
-      hall: [], // было
+      hall: [],
       
       // sessionId: this.sessionId // динамическая генерация сессии
     }
@@ -40,34 +39,13 @@ export default {
   methods: {    
     // Возвращает сидения в заданном ряду для текущего активного зала
     seatsInRow(row) {
-      const currentHallId = this.hall?.id ?? this.hallId; // если hall загружен в этом.hall
-      return this.seats.filter(s => s.row === row && s.hall_id === currentHallId);
+      const currentHallId = this.hall?.id ?? this.hallId; // если hall загружен в этом.hall      
+      return this.seats.filter(s => s.row === row && s.hall_id === currentHallId && s.session_id === this.session.id); 
     },
-
-    // Переключает выбор места
-    toggleSeat(seat) {
-      // Разрешаем только для доступных мест (не занятые и не заблокированные)
-      if (seat.status === 'blocked' || seat.status === 'booked') return;
-      seat.selected = !seat.selected; // Переключение состояния
-      this.updateSelectedSeats(seat); // Обновляем список выбранных мест
-    },
-
-    // Обновляет список выбранных мест
-    updateSelectedSeats(seat) {
-      if (seat.selected) {
-        if (!this.selectedSeats.find(s => s.id === seat.id)) {
-          this.selectedSeats.push(seat);
-        }
-      } else {
-        this.selectedSeats = this.selectedSeats.filter(s => s.id !== seat.id);
-      }
-    },    
-
     // Группировка сидений по рядам (можно оставить как есть)
     seatsByRow(row) {
       return this.seats.filter(seat => seat.row === row);
     },
-    
     // Проверка, выбран ли Seat
     isSelected(seat) {
       return this.selectedSeats.some(s => s.id === seat.id);
@@ -87,60 +65,33 @@ export default {
       return classes.filter(Boolean).join(' ');
     },
     // Обработка выбора места с проверками
-    async selectSeat(row, seat) {
-      console.log('selectSeat ', row, seat);
+    async selectSeat(seat) {
       if (seat.status === 'booked' || seat.status === 'blocked') {  
         alert('Место занято');  
         return;  
       }  
       // можно вызывать тоггл 
       this.toggleSeat(seat);
-
-      // попробуем скрыть оставшийся код метода
-
-            // if (!this.isSeatAvailable(seat)) {
-        //   alert('Место недоступно');
-        //   return;
-        // }
-
-
-      // if (!this.sessionId) {
-      //   alert('Нет sessionId');
-      //   return;
-      // }
-
-      // try {
-      //   const response = await axios.post('http://127.0.0.1:8000/check-seat', {
-      //     seat_id: seat.id,
-      //     session_id: this.sessionId,
-      //   });
-      //   if (response.data.available) {
-      //     seat.status = 'blocked';
-      //     // можно добавить в выбранные  
-      //     if (!this.isSelected(seat)) {  
-      //       this.selectedSeats.push(seat);  
-      //     }  
-      //   } else {
-      //     alert('Место уже занято или заблокировано другим пользователем');
-      //   }
-      // } catch (err) {
-      //   console.error('Ошибка сервера:', err.response?.data || err.message);
-      // }
     },
-    // Отправка выбранных мест на сервер
-    reserveSeats() {
-      axios.post('http://127.0.0.1:8000/seats/reserve', {
-        seats: this.selectedSeats.map(s => s.id)
-      }).then(() => {
-        // сбросить статус выделения
-        this.selectedSeats.forEach(s => { s.selected = false; });
-        this.selectedSeats = [];
-        alert('Бронирование успешно!');
-        this.getSeats();
-      }).catch(() => {
-        alert('Ошибка бронирования');
-      });
+    // Переключает выбор места
+    toggleSeat(seat) {
+      // Разрешаем только для доступных мест (не занятые и не заблокированные)
+      if (seat.status === 'blocked' || seat.status === 'booked') return;
+      seat.selected = !seat.selected; // Переключение состояния
+      this.updateSelectedSeats(seat); // Обновляем список выбранных мест
     },
+
+    // Обновляет список выбранных мест
+    updateSelectedSeats(seat) {
+      if (seat.selected) {
+        if (!this.selectedSeats.find(s => s.id === seat.id)) {
+          this.selectedSeats.push(seat);
+        }
+      } else {
+        this.selectedSeats = this.selectedSeats.filter(s => s.id !== seat.id);        
+      }
+    },
+    
 
     // Проверка доступности места
     isSeatAvailable(seat) {
@@ -190,9 +141,55 @@ export default {
         console.error('Не удалось загрузить данные сессии', e);
       }
     },
+
+    // Отправка выбранных мест на сервер
+    blockSeats() {
+      axios.post('http://127.0.0.1:8000/block-seats', {
+        seats: this.selectedSeats.map(s => s.id)
+      }).then(() => {
+        // сбросить статус выделения
+        this.selectedSeats.forEach(s => { s.selected = false; });
+        this.selectedSeats = [];
+        alert('Бронирование успешно!');
+        this.getSeats();
+      }).catch(() => {
+        alert('Ошибка бронирования');
+      });
+    },
+    btnBlockSeats() {
+      this.blockSeats();
+      
+      this.$router.push({
+        name: 'payment',
+        query: {
+          payload: JSON.stringify({
+            seats: this.selectedSeats,
+            movie: {
+              title: this.movie?.title || '',
+              hall: this.hall?.name || '',
+              time: this.session?.start_time || '',
+              amountStandart: this.hall?.amountStandart,
+              amountVip: this.hall?.amountVip,
+            },
+            seanceId: this.seanceId
+          })
+        }
+      });
+    },
+    async blockSeats2() { // -
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/block-seats', {
+          // seat_id: seat.id,
+          seat_id: this.selectedSeats.map(s => s.id),
+          session_id: this.sessionId,
+        });         
+        
+      } catch (err) {
+        console.error('Ошибка сервера:', err.response?.data || err.message);
+      }
+    }
     
   },
-
   mounted() {
     document.body.classList.add('page-client');
     
@@ -252,7 +249,7 @@ export default {
               <!-- <div v-for="seat in hall.seats_per_row" :key="seat.id"  -->
               <div v-for="seat in seatsInRow(row)" :key="seat.id" 
               :class="getSeatClass(seat)"
-              @click="selectSeat(row, seat)">
+              @click="selectSeat(seat)">
                 {{ seat.seat_number }}
               </div>
             </div>
@@ -263,34 +260,26 @@ export default {
           <div class="col">
             <p class="buying-scheme__legend-price"><span
                 class="buying-scheme__chair buying-scheme__chair_standart"></span> Свободно (<span
-                class="buying-scheme__legend-value">250</span>руб)</p>
+                class="buying-scheme__legend-value">{{ hall?.amountStandart }}</span>руб)</p>
             <p class="buying-scheme__legend-price"><span class="buying-scheme__chair buying-scheme__chair_vip"></span>
-              Свободно VIP (<span class="buying-scheme__legend-value">350</span>руб)</p>
+              Свободно VIP (<span class="buying-scheme__legend-value">{{ hall?.amountVip }}</span>руб)</p>
           </div>
           <div class="col">
-            <p class="buying-scheme__legend-price"><span class="buying-scheme__chair buying-scheme__chair_taken"></span>
+            <p class="buying-scheme__legend-price"><span class="buying-scheme__chair buying-scheme__chair_block"></span>
               Занято</p>
             <p class="buying-scheme__legend-price"><span
                 class="buying-scheme__chair buying-scheme__chair_selected"></span> Выбрано</p>
           </div>
         </div>
       </div>      
-      
-      <button class="acceptin-button"><router-link :to="{ name: 'payment', query: { 
-        payload: JSON.stringify({
-          seats: selectedSeats,
-          movie: {
-            title: movie?.title || '',
-            hall: hall?.name || '',
-            time: session?.start_time || '',
-            amountStandart: hall?.amountStandart,
-            amountVip: hall?.amountVip,
-          },
-          seanceId: seanceId
-        })}}" 
-        >
-        Забронировать 
-      </router-link></button>
+           
+
+      <button 
+        class="acceptin-button"
+        @click="btnBlockSeats"
+      >
+        Забронировать 2
+      </button>
 
     </section>
   </main>
@@ -451,6 +440,10 @@ body.page-client {
   background-color: transparent;
 }
 
+.buying-scheme__chair_block {
+  background-color: #7e7d7d;
+}
+
 .buying-scheme__chair_vip {
   background-color: #F9953A;
 }
@@ -462,7 +455,7 @@ body.page-client {
 }
 
 .seat.blocked {
-  background-color: orange;
+  background-color: #525252;
 }
 
 .seat.occupied {
@@ -475,11 +468,11 @@ body.page-client {
   background-color: #2c8;
 }
 
-.buying-scheme__chair { background: #fff; border-color: #525252; }
+.buying-scheme__chair { background: #ffffff; border-color: #525252; }
 .buying-scheme__chair_standart { background: #fff; }
 .buying-scheme__chair_vip { background: #F9953A; }
 .buying-scheme__chair_selected { background: #25C4CE; box-shadow: 0 0 4px #16A6AF; transform: scale(1.2); }
-.blocked { background: orange ; }          /*!important осторожно: !important временно для теста */
+.blocked { background: #7e7d7d ; }          /*!important осторожно: !important временно для теста */
 .occupied { background: rgb(0,0,0) ; cursor: not-allowed; } /*!important */
 .selected { background-color: #2c8; }               /* ваш стиль для выбранного, если применимо */
 
