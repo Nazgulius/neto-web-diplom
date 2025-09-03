@@ -58,10 +58,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/movies', [MovieController::class, 'index']);
 Route::get('/sessions', [KinoSessionController::class, 'index']);
 Route::get('/seats/index', [SeatController::class, 'index']);
-Route::post('/seats/reserve', [SeatController::class, 'reserve']); // -
-Route::post('/check-seat', [SeatController::class, 'checkAvailability']); // -
+
 Route::post('/block-seats', [SeatController::class, 'blockSeats']); // блокирует места
 Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']); // бронирует места
+Route::post('/censel-block-seats', [SeatController::class, 'censelBlockSeats']); // отмена блокирования места
 
 Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book');
 Route::get('/ticket/{uuid}', [TicketController::class, 'show'])->name('ticket.show');

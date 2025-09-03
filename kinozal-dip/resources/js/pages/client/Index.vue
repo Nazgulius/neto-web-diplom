@@ -33,7 +33,6 @@ export default {
     }
   },  
   methods: {
-    // методы для бронирования 
     // получение всех фильмов
     getMovies() {
       axios.get('http://127.0.0.1:8000/movies')

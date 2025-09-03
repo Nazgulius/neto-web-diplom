@@ -33,20 +33,68 @@ export default {
       }
       return this.totalPrice;
     },
+    btnBookedSeats() {
+      this.bookedSeats();
+
+      this.$router.push({
+        name: 'ticket',
+          query: { 
+            payload: JSON.stringify({
+              seats: this.seatsForPayment, 
+              movie: this.movieForPayment,
+            })
+          }        
+      });
+    },
+    bookedSeats() {
+      axios.post('http://127.0.0.1:8000/reserve-seats', {
+        seats: this.seatsForPayment.map(s => s.id)
+      }).then((response ) => {
+        console.log('bookedSeats response ', response);
+        if (response.status === 200 || response.status === 201) {
+          // Сброс статуса выделения
+          this.seatsForPayment.forEach(s => { s.selected = false; });
+          this.seatsForPayment = [];
+          alert('Бронирование успешно!');          
+        } else {
+          alert('Ошибка при обработке ответа сервера');
+        }
+      }).catch((error) => {
+        console.error('Ошибка бронирования:', error);
+        alert('Ошибка бронирования в bookedSeats');
+      });
+    },
+    btnCenselBlockSeats() {
+      this.censelBlockSeats();
+
+      this.$router.push({
+        name: 'Index'                
+      });
+    },
+    censelBlockSeats() {
+      axios.post('http://127.0.0.1:8000/censel-block-seats', {
+        seats: this.seatsForPayment.map(s => s.id)
+      }).then(() => {
+        // сбросить статус выделения
+        this.seatsForPayment.forEach(s => { s.selected = false; });
+        this.seatsForPayment = [];
+        alert('Отмена блокирования успешно!');
+      }).catch(() => {
+        alert('Ошибка бронирования в censelBlockSeats');
+      });
+    },
+
   },
   mounted() {
     document.body.classList.add('page-client');
     const payloadRaw = this.$route.query.payload;
     const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
-    console.log('mounted payload ', payload);
     
     this.seatsForPayment = payload?.seats ?? {};
     console.log('this.seatsForPayment ', this.seatsForPayment);
     this.movieForPayment = payload?.movie ?? {};
-    console.log('this.movieForPayment ', this.movieForPayment);
     
     this.sumTotalPrice(); 
-    console.log('this.totalPrice ', this.totalPrice);
      
     // this.blockedSeats();
 
@@ -100,13 +148,18 @@ export default {
         <p class="ticket__info">Начало сеанса: <span class="ticket__details ticket__start">{{ movieForPayment?.time }}</span></p>
         <p class="ticket__info">Стоимость: <span class="ticket__details ticket__cost">{{ totalPrice }}</span> рублей</p>
 
-        <button class="acceptin-button"><router-link :to="{ name: 'ticket',
-          query: { 
-            payload: JSON.stringify({
-              seats: seatsForPayment, 
-              movie: movieForPayment,
-            })}
-        }">Получить код бронирования</router-link></button>
+      <button 
+        class="acceptin-button"
+        @click="btnBookedSeats"
+      >
+        Получить код бронирования
+      </button>
+      <button 
+        class="acceptin-button"
+        @click="btnCenselBlockSeats"
+      >
+        Отмена бронирования
+      </button>
 
         <p class="ticket__hint">После оплаты билет будет доступен в этом окне, а также придёт вам на почту. Покажите QR-код нашему контроллёру у входа в зал.</p>
         <p class="ticket__hint">Приятного просмотра!</p>

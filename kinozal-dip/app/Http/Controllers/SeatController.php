@@ -51,70 +51,43 @@ class SeatController extends Controller
       return response()->json(null, 204);
     }
 
-    public function reserve(Request $request)
-    {      
-      // Обновим статус выбранных сидений
-      // Предположим, есть поле 'taken' или 'status'
-      // Например: 0 - свободно, 1 - забронировано
-      // Или используется логика с массивом занятых, в этом случае:
-      // обновим их статус
+   
 
-      $seatIds = $request->input('seats'); // массив id
-        try {
-            // Обновление статуса для выбранных сидений
-            Seat::whereIn('id', $seatIds)->update(['taken' => true]);
-
-            return response()->json(['message' => 'Seats reserved successfully']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to reserve seats'], 500);
-        }
-    }
-
-    public function checkAvailability(Request $request)
-    {
-      // Предположим, что статус:
-      // 'available' - свободно
-      // 'blocked' - заблокировано на время бронирования
-      // 'booked' - окончательно забронировано
-      $request->validate([
-        'seat_id' => 'required|integer|exists:seats,id',
-        'session_id' => 'required|string',
-      ]);
-
-      $seat = Seat::find($request->seat_id);
-
-      if (!$seat) {
-          return response()->json(['available' => false]);
-      }
-
-      if ($seat->status === 'available') {
-          $seat->status = 'blocked';
-          $seat->save();
-
-          return response()->json(['available' => true]);
-      } else {
-          return response()->json(['available' => false]);
-      }
-    }
+    
 
     public function reserveSeats(Request $request)
     {
         $seats = $request->input('seats'); // массив сидений
 
-        foreach ($seats as $seatId) {
-            $seat = Seat::find($seatId);
-            if ($seat && $seat->status === 'blocked') {
-                $seat->status = 'booked';
-                $seat->save();
-            }
-        }
+        try {
+          // Обновление статуса для выбранных сидений
+          Seat::whereIn('id', $seats)->update(['status' => 'booked']);
 
-        return response()->json(['success' => true]);
+          return response()->json([
+            'success' => true,
+            'message' => 'Бронирование успешно'
+          ], 201);
+        } catch (\Exception $e) {
+          return response()->json([
+            'success' => false,
+            'message' => 'Ошибка бронирования'
+        ], 400);
+      }
+      
+        // foreach ($seats as $seatId) {
+        //     $seat = Seat::find($seatId);
+        //     if ($seat && $seat->status === 'blocked' || $seat->status === 'available') {  
+        //         $seat->status = 'booked';
+        //         $seat->save();
+        //     }
+        // }
+
+        // return response()->json(['success' => true]);
     }
     public function blockSeats(Request $request)
-    {
-      echo 'blockSeats'."\n";
+    {      
       $seatIds = $request->input('seats'); // массив id
+      
       try {
           // Обновление статуса для выбранных сидений
           Seat::whereIn('id', $seatIds)->update(['status' => 'blocked']);
@@ -140,6 +113,22 @@ class SeatController extends Controller
         // }
 
         // return response()->json(['success' => true]);
+    }
+
+    // отмена блокирования, присвоение available
+    public function censelBlockSeats(Request $request)
+    {      
+      $seatIds = $request->input('seats'); // массив id
+      
+      try {
+          // Обновление статуса для выбранных сидений
+          Seat::whereIn('id', $seatIds)->update(['status' => 'available']);
+
+          return response()->json(['message' => 'Reservation cancelled']);
+      } catch (\Exception $e) {
+          return response()->json(['error' => 'Failed to reservation cancelled seats'], 500);
+      }
+        
     }
 
     

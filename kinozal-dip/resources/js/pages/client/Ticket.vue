@@ -46,11 +46,7 @@ export default {
       const time = this.movieForPayment?.time ?? '';
       const total = this.totalPrice ?? 0;
 
-      return `Зал: ${hall}. 
-Фильм: ${title}. 
-Места: ${seatsStr}. 
-Время начала: ${time}. 
-Сумма: ${total} рублей.`;
+      return `Зал: ${hall}. Фильм: ${title}. Места: ${seatsStr}. Время начала: ${time}. Сумма: ${total} рублей.`;
     }
   },
   methods: {
@@ -79,21 +75,7 @@ export default {
         console.error('Ошибка при генерации QR:', error);
       }
     },
-    // старый вариант генерации qr кода
-    // async generateQrWithSeats() {
-    //   try {
-    //     await this.blockedSeats();
-    //     console.log('seats перед сериализацией:', this.seats);
-
-    //     const seatsData = JSON.stringify(this.seats);
-    //     console.log('сериализованные seats:', seatsData);
-
-    //     const response = await axios.post('http://127.0.0.1:8000/get-qr-code', { seats: seatsData });
-    //     this.qrCodeData = response.data.qr_code;
-    //   } catch (error) {
-    //     console.error('Ошибка при генерации QR:', error);
-    //   }
-    // },
+    
     sumTotalPrice() {
       for (const seat of this.seatsForPayment) {        
         if (seat.type === 'Обычное') {
@@ -110,13 +92,10 @@ export default {
     document.body.classList.add('page-client');
     const payloadRaw = this.$route.query.payload;
     const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
-    console.log('mounted payloadRaw ', payloadRaw);
-    console.log('mounted payload ', payload);
 
     this.seatsForPayment = payload?.seats ?? {};
     console.log('this.seatsForPayment ', this.seatsForPayment);
     this.movieForPayment = payload?.movie ?? {};
-    console.log('this.movieForPayment ', this.movieForPayment);
 
     this.sumTotalPrice();
     

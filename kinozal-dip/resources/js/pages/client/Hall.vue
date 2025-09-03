@@ -104,7 +104,6 @@ export default {
         .then(response => {
           this.seats = response.data;
           console.log('getSeats response: ', response);
-          console.log('getSeats - seats: ', this.seats);
         })
         .catch(error => {
           console.error(error);
@@ -140,22 +139,7 @@ export default {
       } catch (e) {
         console.error('Не удалось загрузить данные сессии', e);
       }
-    },
-
-    // Отправка выбранных мест на сервер
-    blockSeats() {
-      axios.post('http://127.0.0.1:8000/block-seats', {
-        seats: this.selectedSeats.map(s => s.id)
-      }).then(() => {
-        // сбросить статус выделения
-        this.selectedSeats.forEach(s => { s.selected = false; });
-        this.selectedSeats = [];
-        alert('Бронирование успешно!');
-        this.getSeats();
-      }).catch(() => {
-        alert('Ошибка бронирования');
-      });
-    },
+    },    
     btnBlockSeats() {
       this.blockSeats();
       
@@ -176,18 +160,21 @@ export default {
         }
       });
     },
-    async blockSeats2() { // -
-      try {
-        const response = await axios.post('http://127.0.0.1:8000/block-seats', {
-          // seat_id: seat.id,
-          seat_id: this.selectedSeats.map(s => s.id),
-          session_id: this.sessionId,
-        });         
+    // Отправка выбранных мест на сервер
+    blockSeats() {
+      axios.post('http://127.0.0.1:8000/block-seats', {
+        seats: this.selectedSeats.map(s => s.id)
+      }).then(() => {
+        // сбросить статус выделения
+        this.selectedSeats.forEach(s => { s.selected = false; });
+        this.selectedSeats = [];
         
-      } catch (err) {
-        console.error('Ошибка сервера:', err.response?.data || err.message);
-      }
-    }
+        this.getSeats();
+      }).catch(() => {
+        alert('Ошибка бронирования');
+      });
+    },
+    
     
   },
   mounted() {
@@ -278,7 +265,7 @@ export default {
         class="acceptin-button"
         @click="btnBlockSeats"
       >
-        Забронировать 2
+        Забронировать
       </button>
 
     </section>
