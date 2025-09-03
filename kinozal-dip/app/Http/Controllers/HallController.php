@@ -105,6 +105,61 @@ class HallController extends Controller
     return response()->json($hall);
   }
 
+  public function updatePrices(Request $request)
+  {
+    $hall = Hall::find($request->hall_id);
+
+    if (!$hall) {
+      return response()->json(['error' => 'Зал не найден'], 404);
+    }
+
+    $hall->update([
+      'amountStandart' => $request->prices['standart'],
+      'amountVip' => $request->prices['vip']
+    ]);
+
+    return response()->json(['message' => 'Цены успешно обновлены'], 200);
+  }
+
+  public function updateSeats(Request $request)
+{
+    $validatedData = $request->validate([
+        'hall_id' => 'required|exists:halls,id',
+        'rows' => 'required|integer|min:1',
+        'seats_per_row' => 'required|integer|min:1',
+        'seats' => 'required|array'
+    ]);
+
+    try {
+        $hall = Hall::find($request->hall_id);
+        
+        if (!$hall) {
+            return response()->json([
+                'error' => 'Зал не найден'
+            ], 404);
+        }
+
+        // Сохранение конфигурации
+        $hall->update([
+            'rows' => $request->rows,
+            'seats_per_row' => $request->seats_per_row
+        ]);
+
+        // Логика сохранения конфигурации мест
+        // ...
+
+        return response()->json([
+            'message' => 'Конфигурация сохранена'
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Произошла ошибка при сохранении',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
   /**
    * Remove the specified resource from storage.
    */

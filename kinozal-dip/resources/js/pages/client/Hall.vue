@@ -230,10 +230,8 @@ export default {
       </div>
       <div class="buying-scheme">
         <div class="buying-scheme__wrapper">
-
           <div class="hall-room">
-            <div v-for="row in hall.rows" :key="row" class="row">
-              <!-- <div v-for="seat in hall.seats_per_row" :key="seat.id"  -->
+            <div v-for="row in hall.rows" :key="row" class="row">              
               <div v-for="seat in seatsInRow(row)" :key="seat.id" 
               :class="getSeatClass(seat)"
               @click="selectSeat(seat)">
@@ -241,7 +239,6 @@ export default {
               </div>
             </div>
           </div>
-
         </div>
         <div class="buying-scheme__legend">
           <div class="col">

@@ -32,6 +32,9 @@ Route::get('/hall/{hallId}/session/{sessionId}', function ($hallId, $sessionId) 
     ]);
 })->name('hall.id');
 Route::get('/hall/add', [HallController::class, 'index']);
+Route::post('/halls/update-prices', [HallController::class, 'updatePrices']);
+Route::post('/halls/hall/update-seats', [HallController::class, 'updateSeats']);
+
 
 Route::get('/payment', function () {
     return Inertia::render('client/Payment');

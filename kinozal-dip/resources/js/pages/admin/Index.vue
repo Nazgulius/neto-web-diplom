@@ -18,8 +18,22 @@ export default {
     }
   },
   data() {
-    return { // тут состояние 
-      halls: [],
+    return {
+      halls: [], // залы
+      selectedHall: null, // выбранный зал
+      hallConfig: {
+        rows: 10, // количество рядов по умолчанию
+        seatsPerRow: 8, // количество мест по умолчанию
+        seats: [] // массив с конфигурацией кресел
+      },
+      seatTypes: ['standart', 'vip', 'disabled'],
+      currentSeatType: 'standart', // тип кресла по умолчанию
+      loading: false,
+      error: null,
+      prices: {
+        standart: 10, // цена за обычные места
+        vip: 20 // цена за VIP места
+      },
       movies: [],
       sessions: [],
       globalSalesOpen: true,
@@ -34,13 +48,6 @@ export default {
         amountStandart: 0,
         amountVip: 0,
         active: true,
-        /*
-        // layout: {
-        //   rows: 10,
-        //   seats_per_row: 10,
-        //   layout_type: 'square', 
-        //   additional_info: 'места расположены квадратом'
-        // } */
       }, // содержит данные для сохранения нового Hall
       popupHidden: true, // попап скрыт по умолчанию
       popupHiddenAM: true, // попап скрыт по умолчанию
@@ -62,6 +69,7 @@ export default {
   },
   created() {
     this.fetchStatus();
+    this.fetchHalls();    
   },
   computed: {
     totalTimelineMinutes() {
@@ -72,6 +80,18 @@ export default {
     // currentSession() {
     //   return this.sessionsOpen.find(s => s.id === this.activeSessionId) || null;
     // },
+    isValid() {
+      return (
+            this.selectedHall &&
+            this.hallConfig.rows > 0 &&
+            this.hallConfig.seatsPerRow > 0 &&
+            this.hallConfig.seats.length > 0
+        );
+
+      },
+      totalSeats() {
+        return this.hallConfig.rows * this.hallConfig.seatsPerRow;
+      },
   },
   methods: {
     computeLeft(start_time) {
@@ -216,17 +236,118 @@ export default {
         });
 
     },
+    updateRows(value) {
+      this.hallConfig.rows = parseInt(value);
+      this.generateSeats();
+    },
+    updateSeatsPerRow(value) {
+      this.hallConfig.seatsPerRow = parseInt(value);
+      this.generateSeats();
+    },
+    generateSeats() {
+      const seats = [];
+      for (let row = 1; row <= this.hallConfig.rows; row++) {
+        const rowSeats = [];
+        for (let seat = 1; seat <= this.hallConfig.seatsPerRow; seat++) {
+        rowSeats.push({
+          row,
+          seat,
+          type: 'standart'
+          });
+        }
+        seats.push(rowSeats);
+      }
+      this.hallConfig.seats = seats;
+    },
+    selectSeatType(type) {
+      this.currentSeatType = type;
+    },
+    changeSeatType(seat) {
+      seat.type = this.currentSeatType;
+    },
     btnCenselHallSeats() {
       console.log('Cansel Hall seats');
+      this.hallConfig = {
+        rows: 10,
+        seatsPerRow: 8,
+        seats: []
+      };
+      this.currentSeatType = 'standart';
+      this.generateSeats();
     },
     btnSaveHallSeats() {
       console.log('Save Hall seats');
+      if (!this.isValid) {
+        alert('Некорректные параметры зала');
+        return;
+      }
+      
+      // Подготовка данных для отправки
+      const seatsData = {
+            hall_id: this.selectedHall,
+            rows: this.hallConfig.rows,
+            seats_per_row: this.hallConfig.seatsPerRow,
+            seats: this.hallConfig.seats.map(row => 
+                row.map(seat => ({
+                    row: seat.row,
+                    seat: seat.seat,
+                    type: seat.type
+                }))
+            )
+        };
+
+        axios.post('http://127.0.0.1:8000/halls/update-seats', seatsData)
+            .then(response => {
+                alert('Конфигурация зала сохранена!');
+            })
+            .catch(error => {
+                console.error('Ошибка при сохранении конфигурации:', error);
+                alert('Произошла ошибка при сохранении конфигурации');
+            });
+    },
+    async fetchHalls() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/hall/index');
+        this.halls = response.data;
+
+        // Устанавливаем первый зал как выбранный по умолчанию
+        if (this.halls.length > 0) {
+          this.selectedHall = this.halls[0].id;
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке залов:', error);
+      }
     },
     btnCanselPrise() {
-      console.log('Cansel Kino Session Prise');
+      // Сброс значений
+      this.selectedHall = null;
+      this.prices = {
+        standart: 0,
+        vip: 0
+      };
     },
     btnSavePrise() {
-      console.log('Save Kino Session Prise');
+      if (!this.selectedHall) {
+        alert('Выберите зал!');
+        return;
+      }
+
+      if (this.prices.standart <= 0 || this.prices.vip <= 0) {
+        alert('Цены должны быть больше нуля!');
+        return;
+      }
+
+      axios.post('http://127.0.0.1:8000/halls/update-prices', {
+        hall_id: this.selectedHall,
+        prices: this.prices
+      })
+        .then(response => {
+          alert('Цены успешно сохранены!');
+        })
+        .catch(error => {
+          console.error(error);
+          alert('Ошибка при сохранении цен');
+        });
     },
     btnEditKino(movie) {
       console.log('Add Edit Kino', movie.title);
@@ -288,7 +409,7 @@ export default {
     sessionsByMovie() {
       console.log('editMovieID ' + this.editMovieID);
       return this.sessions.filter(s => s.movie_id === (this.editMovieID + 1));
-    },  
+    },
     // openSales(sessionId) {  
     //   console.log('Открыта продажа билетов');
     //   axios.post(`http://127.0.0.1:8000/sessions/${sessionId}/open`, {}, {  
@@ -359,6 +480,7 @@ export default {
     this.getHalls();
     this.getMovies();
     this.getSessions();
+    // this.fetchHalls();
 
     // из файла js/accordeon.js
     const headers = Array.from(document.querySelectorAll('.conf-step__header'));
@@ -410,18 +532,41 @@ export default {
         </ul>
         <p class="conf-step__paragraph">Укажите количество рядов и максимальное количество кресел в ряду:</p>
         <div class="conf-step__legend">
-          <label class="conf-step__label">Рядов, шт<input type="text" class="conf-step__input" placeholder="10"></label>
+          <label class="conf-step__label">Рядов, шт<input type="number" class="conf-step__input" v-model.number="hallConfig.rows"
+            @input="updateRows" placeholder="10"></label>
           <span class="multiplier">x</span>
-          <label class="conf-step__label">Мест, шт<input type="text" class="conf-step__input" placeholder="8"></label>
+          <label class="conf-step__label">Мест, шт<input type="number" class="conf-step__input" v-model.number="hallConfig.seatsPerRow"
+            @input="updateSeatsPerRow" placeholder="8"></label>
         </div>
         <p class="conf-step__paragraph">Теперь вы можете указать типы кресел на схеме зала:</p>
         <div class="conf-step__legend">
-          <span class="conf-step__chair conf-step__chair_standart"></span> — обычные кресла
-          <span class="conf-step__chair conf-step__chair_vip"></span> — VIP кресла
-          <span class="conf-step__chair conf-step__chair_disabled"></span> — заблокированные (нет кресла)
+          <span class="conf-step__chair conf-step__chair_standart" @click="selectSeatType('standart')"></span> — обычные кресла
+          <span class="conf-step__chair conf-step__chair_vip" @click="selectSeatType('vip')"></span> — VIP кресла
+          <span class="conf-step__chair conf-step__chair_disabled" @click="selectSeatType('disabled')"></span> — заблокированные (нет кресла)
           <p class="conf-step__hint">Чтобы изменить вид кресла, нажмите по нему левой кнопкой мыши</p>
         </div>
 
+<!-- новый вариант -->
+        <div class="conf-step__hall">
+          <div class="conf-step__hall-wrapper">
+            <div 
+              v-for="(row, rowIndex) in hallConfig.seats" 
+              :key="rowIndex" 
+              class="conf-step__row"
+            >
+            <span 
+              v-for="(seat, seatIndex) in row" 
+              :key="seatIndex" 
+              :class="`conf-step__chair conf-step__chair_${seat.type}`"
+              @click="changeSeatType(seat)"
+            ></span>
+          </div>
+        </div>
+
+      
+
+ <!-- старый вариант -->
+<!--  
         <div class="conf-step__hall">
           <div class="conf-step__hall-wrapper">
             <div class="conf-step__row">
@@ -533,7 +678,8 @@ export default {
               <span class="conf-step__chair conf-step__chair_standart"></span><span
                 class="conf-step__chair conf-step__chair_standart"></span>
             </div>
-          </div>
+          </div> -->
+          
         </div>
 
         <fieldset class="conf-step__buttons text-center">
@@ -552,19 +698,24 @@ export default {
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
           <div v-for="hall in halls" :key="hall" class="hall">
-            <li><input type="radio" class="conf-step__radio" name="prices-hall" value="Зал 1" checked><span
-                class="conf-step__selector">Зал {{ hall?.name }}</span></li>
+            <li><input type="radio" class="conf-step__radio" name="prices-hall" :value="hall.id" v-model="selectedHall">
+              <span class="conf-step__selector">Зал {{ hall?.name }}</span>
+            </li>
           </div>
         </ul>
 
         <p class="conf-step__paragraph">Установите цены для типов кресел:</p>
         <div class="conf-step__legend">
-          <label class="conf-step__label">Цена, рублей<input type="text" class="conf-step__input" placeholder="0"></label>
+          <label class="conf-step__label">Цена, рублей
+            <input type="number" class="conf-step__input" placeholder="0" v-model.number="prices.standart" min="0"
+              step="1" required>
+          </label>
           за <span class="conf-step__chair conf-step__chair_standart"></span> обычные кресла
         </div>
         <div class="conf-step__legend">
-          <label class="conf-step__label">Цена, рублей<input type="text" class="conf-step__input" placeholder="0"
-              value="350"></label>
+          <label class="conf-step__label">Цена, рублей
+            <input type="number" class="conf-step__input" placeholder="0" v-model.number="prices.vip">
+          </label>
           за <span class="conf-step__chair conf-step__chair_vip"></span> VIP кресла
         </div>
 
@@ -631,17 +782,18 @@ export default {
           <h2>Глобальные продажи</h2>
           <p>Статус: <strong>{{ globalSalesOpen ? 'Открыты' : 'Закрыты' }}</strong></p>
           <div class="admin-settings__controls">
-            <button @click="openAllSales" :disabled="globalSalesOpen" class="conf-step__button conf-step__button-accent" >
+            <button @click="openAllSales" :disabled="globalSalesOpen" class="conf-step__button conf-step__button-accent">
               Открыть продажи во всем приложении
             </button>
-            <button @click="closeAllSales" :disabled="!globalSalesOpen" class="conf-step__button conf-step__button-accent" >
+            <button @click="closeAllSales" :disabled="!globalSalesOpen"
+              class="conf-step__button conf-step__button-accent">
               Закрыть продажи во всем приложении
             </button>
           </div>
         </section>
       </div>
 
-     
+
     </section>
   </main>
 
@@ -729,7 +881,8 @@ export default {
         <div class="popup__container__cont">
           <span class="conf-step__paragraph">Name: {{ movies[editMovieID]?.title }} </span>
           <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
-          <label for="description" class="conf-step__paragraph">description: {{ movies[editMovieID]?.description }}</label>
+          <label for="description" class="conf-step__paragraph">description: {{ movies[editMovieID]?.description
+          }}</label>
           <input type="text" class="c" placeholder="description" name="description" id="description"
             v-model="formMovieData.description">
           <label for="duration" class="conf-step__paragraph">duration: {{ movies[editMovieID]?.duration }}</label>
@@ -740,18 +893,19 @@ export default {
           <input type="text" class="c" placeholder="image_url" name="image_url" id="image_url"
             v-model="formMovieData.image_url">
 
-         
+
           <h3>Sessions</h3>
           <ul class="conf-step__selectors-box">
-             <!-- <div v-for="session in sessionsByMovie()" :key="session" class="session">  -->
-              <li v-for="session in sessionsByMovie()" :key="session" class="session">
-                <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время сеанса {{ session?.start_time }}</span>
-                <button class="conf-step__button conf-step__button-trash" @click="btnSessionDel(session?.id)"></button>
-              </li>
+            <!-- <div v-for="session in sessionsByMovie()" :key="session" class="session">  -->
+            <li v-for="session in sessionsByMovie()" :key="session" class="session">
+              <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время
+                сеанса {{ session?.start_time }}</span>
+              <button class="conf-step__button conf-step__button-trash" @click="btnSessionDel(session?.id)"></button>
+            </li>
             <!-- </div>  -->
           </ul>
           <button class="btnPopupHalls" @click="toglePopupAddSessionMovie">Add session movie</button>
-          
+
           <button class="btnPopupHalls" type="submit" @click="toglePopupEditMovie">Update Movie</button>
           <button class="btnPopupHalls" @click="btnMovieDel">Удалить кино</button>
           <button class="btnPopupHalls" type="reset" @click="toglePopupEditMovie">Censel</button>
@@ -772,7 +926,8 @@ export default {
         <div class="popup__container__cont">
           <span class="conf-step__paragraph">Movie id: {{ editMovieID }} - {{ movies[editMovieID]?.title }}</span>
           <label for="hall_id" class="conf-step__paragraph">hall_id</label>
-          <input type="number" class="c" placeholder="1" name="hall_id" id="hall_id" v-model.number="formMovieSessionData.hall_id">
+          <input type="number" class="c" placeholder="1" name="hall_id" id="hall_id"
+            v-model.number="formMovieSessionData.hall_id">
           <label for="start_time" class="conf-step__paragraph">start_time</label>
           <input type="start_time" class="c" placeholder="19:50" name="start_time" id="start_time"
             v-model="formMovieSessionData.start_time">
@@ -781,7 +936,8 @@ export default {
           <ul class="conf-step__selectors-box">
             <div v-for="session in sessionsByMovie()" :key="session?.id" class="session">
               <li>
-                <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время сеанса {{ session?.start_time }}</span>
+                <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время
+                  сеанса {{ session?.start_time }}</span>
                 <button class="conf-step__button conf-step__button-trash" @click="btnSessionDel(session?.id)"></button>
               </li>
             </div>
@@ -1671,8 +1827,20 @@ textarea.conf-step__input {
   color: #FFFFFF;
 }
 
-.admin-settings { padding: 16px; border: 1px solid #ddd; border-radius: 8px; }
-.admin-settings__controls { display: flex; gap: 12px; margin-top: 8px; }
-button[disabled] { opacity: 0.5; cursor: not-allowed; }
+.admin-settings {
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
 
+.admin-settings__controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 </style>
