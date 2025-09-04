@@ -7,6 +7,7 @@ use App\Models\Hall;
 use App\Models\KinoSession;
 use App\Models\Seat;
 use App\Models\Ticket;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -163,19 +164,27 @@ class HallController extends Controller
   // В контроллере
   public function getHallConfig(Request $request, $hallId)
   {
-    $hall = Hall::findOrFail($hallId);
+    try {
+      $hall = Hall::findOrFail($hallId);
 
-    return response()->json([
-      'rows' => $hall->rows,
-      'seats_per_row' => $hall->seats_per_row,
-      'seats' => $hall->seats->map(function ($seat) {
-        return [
-          'row' => $seat->row,
-          'seat' => $seat->seat_number,
-          'type' => $seat->type
-        ];
-      })
-    ]);
+      $config = [
+          'rows' => $hall->rows,
+          'seats_per_row' => $hall->seats_per_row,
+          'seats' => $hall->seats->map(function ($seat) {
+              return [
+                  'row' => $seat->row,
+                  'number' => $seat->number,
+                  'type' => $seat->type
+              ];
+          })->toArray()
+      ];
+
+      return response()->json($config, 200);
+    } catch (ModelNotFoundException $e) {
+      return response()->json(['error' => 'Зал не найден'], 404);
+    } catch (\Exception $e) {
+      return response()->json(['error' => 'Произошла ошибка'], 500);
+    }
   }
 
 
