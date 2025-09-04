@@ -122,42 +122,62 @@ class HallController extends Controller
   }
 
   public function updateSeats(Request $request)
-{
+  {
     $validatedData = $request->validate([
-        'hall_id' => 'required|exists:halls,id',
-        'rows' => 'required|integer|min:1',
-        'seats_per_row' => 'required|integer|min:1',
-        'seats' => 'required|array'
+      'hall_id' => 'required|exists:halls,id',
+      'rows' => 'required|integer|min:1',
+      'seats_per_row' => 'required|integer|min:1',
+      'seats' => 'required|array'
     ]);
 
     try {
-        $hall = Hall::find($request->hall_id);
-        
-        if (!$hall) {
-            return response()->json([
-                'error' => 'Зал не найден'
-            ], 404);
-        }
+      $hall = Hall::find($request->hall_id);
 
-        // Сохранение конфигурации
-        $hall->update([
-            'rows' => $request->rows,
-            'seats_per_row' => $request->seats_per_row
-        ]);
-
-        // Логика сохранения конфигурации мест
-        // ...
-
+      if (!$hall) {
         return response()->json([
-            'message' => 'Конфигурация сохранена'
-        ], 200);
+          'success' => false,
+          'error' => 'Зал не найден'
+        ], 404);
+      }
+
+      // Сохранение конфигурации
+      $hall->update([
+        'rows' => $request->rows,
+        'seats_per_row' => $request->seats_per_row
+      ]);
+
+      // Логика сохранения конфигурации мест
+      // ...
+
+      return response()->json([
+        'message' => 'Конфигурация сохранена'
+      ], 200);
     } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Произошла ошибка при сохранении',
-            'message' => $e->getMessage()
-        ], 500);
+      return response()->json([
+        'error' => 'Произошла ошибка при сохранении',
+        'message' => $e->getMessage()
+      ], 500);
     }
-}
+  }
+
+  // В контроллере
+  public function getHallConfig(Request $request, $hallId)
+  {
+    $hall = Hall::findOrFail($hallId);
+
+    return response()->json([
+      'rows' => $hall->rows,
+      'seats_per_row' => $hall->seats_per_row,
+      'seats' => $hall->seats->map(function ($seat) {
+        return [
+          'row' => $seat->row,
+          'seat' => $seat->seat_number,
+          'type' => $seat->type
+        ];
+      })
+    ]);
+  }
+
 
 
   /**

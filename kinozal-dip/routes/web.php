@@ -77,6 +77,8 @@ Route::post('/api/logout', [AuthController::class, 'logout']);
 Route::post('/hall/create', [HallController::class, 'create']); // создание зала
 Route::get('/hall/create', [HallController::class, 'index']); // проверка зала
 Route::get('/hall/index', [HallController::class, 'index']);
+Route::get('/halls/{hallId}/config', [HallController::class, 'getHallConfig']);
+
 Route::delete('/hall/destroy/{id}', [HallController::class, 'destroy']); // удаление зала
 Route::post('/movies/create', [MovieController::class, 'create']); // создание кино
 Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино

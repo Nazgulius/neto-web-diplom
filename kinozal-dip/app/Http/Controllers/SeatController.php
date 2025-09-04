@@ -71,8 +71,8 @@ class SeatController extends Controller
           return response()->json([
             'success' => false,
             'message' => 'Ошибка бронирования'
-        ], 400);
-      }
+          ], 400);
+        }
       
         // foreach ($seats as $seatId) {
         //     $seat = Seat::find($seatId);

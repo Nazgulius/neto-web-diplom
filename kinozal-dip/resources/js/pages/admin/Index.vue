@@ -236,13 +236,19 @@ export default {
         });
 
     },
-    updateRows(value) {
-      this.hallConfig.rows = parseInt(value);
-      this.generateSeats();
+    updateRows(event) {
+      const value = parseInt(event.target.value);
+      if (!isNaN(value) && value > 0) {
+        this.hallConfig.rows = value;
+        this.generateSeats();
+      }
     },
-    updateSeatsPerRow(value) {
-      this.hallConfig.seatsPerRow = parseInt(value);
-      this.generateSeats();
+    updateSeatsPerRow(event) {
+      const value = parseInt(event.target.value);
+      if (!isNaN(value) && value > 0) {
+        this.hallConfig.seatsPerRow = value;
+        this.generateSeats();
+      }
     },
     generateSeats() {
       const seats = [];
@@ -263,7 +269,9 @@ export default {
       this.currentSeatType = type;
     },
     changeSeatType(seat) {
-      seat.type = this.currentSeatType;
+      const currentIndex = this.seatTypes.indexOf(seat.type);
+      const nextIndex = (currentIndex + 1) % this.seatTypes.length;
+      seat.type = this.seatTypes[nextIndex];
     },
     btnCenselHallSeats() {
       console.log('Cansel Hall seats');
@@ -313,10 +321,27 @@ export default {
         // Устанавливаем первый зал как выбранный по умолчанию
         if (this.halls.length > 0) {
           this.selectedHall = this.halls[0].id;
+          await this.loadHallConfig(this.selectedHall);
         }
       } catch (error) {
         console.error('Ошибка при загрузке залов:', error);
       }
+    },
+    async loadHallConfig(hallId) {
+      try {
+          const response = await axios.get(`http://127.0.0.1:8000/halls/${hallId}/config`);
+          this.hallConfig = {
+            rows: response.data.rows,
+            seatsPerRow: response.data.seats_per_row,
+            seats: response.data.seats
+          };
+      } catch (error) {
+        console.error('Ошибка при загрузке конфигурации зала:', error);
+      }
+    },
+    selectHall(hallId) {
+      this.selectedHall = hallId;
+      this.loadHallConfig(hallId);
     },
     btnCanselPrise() {
       // Сброс значений
@@ -481,6 +506,7 @@ export default {
     this.getMovies();
     this.getSessions();
     // this.fetchHalls();
+    this.generateSeats();
 
     // из файла js/accordeon.js
     const headers = Array.from(document.querySelectorAll('.conf-step__header'));
@@ -525,8 +551,9 @@ export default {
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
-          <div v-for="hall in halls" :key="hall" class="hall">
-            <li><input type="radio" class="conf-step__radio" name="chairs-hall" value="Зал 1" checked><span
+          <div v-for="hall in halls" :key="hall.id" class="hall">
+            <li><input type="radio" class="conf-step__radio" name="chairs-hall" :value="hall.id" 
+              :checked="hall.id === selectedHall" @change="selectHall(hall.id)"><span
                 class="conf-step__selector">Зал {{ hall?.name }}</span></li>
           </div>
         </ul>
