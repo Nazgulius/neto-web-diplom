@@ -59,7 +59,7 @@ class SeatsTableSeeder extends Seeder
             }
             
             for ($num = 1; $num <= $seatsPerRow; $num++) {
-              echo 'last for num '."\n";
+              
 
               $seatType = in_array($num, $currentVipSeats)
                 ? "VIP"

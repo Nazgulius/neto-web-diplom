@@ -91,8 +91,7 @@ export default {
     async fetchStatus() {
       try {
         const res = await axios.get('http://127.0.0.1:8000/admin/sales/status');
-        this.globalSalesOpen = !!res.data.sales_globally_open;
-
+        this.globalSalesOpen = !!res.data.data.sales_globally_open;
       } catch (e) {
         console.error('Не удалось получить статус глобальных продаж', e);
       }

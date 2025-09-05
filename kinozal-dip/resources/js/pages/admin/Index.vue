@@ -24,7 +24,8 @@ export default {
       hallConfig: {
         rows: 10, // количество рядов по умолчанию
         seatsPerRow: 8, // количество мест по умолчанию
-        seats: [] // массив с конфигурацией кресел
+        seats: [], // массив с конфигурацией кресел
+        isGenerating: false, // Флаг для отслеживания генерации
       },
       seatTypes: ['standart', 'vip', 'disabled'],
       currentSeatType: 'standart', // тип кресла по умолчанию
@@ -69,7 +70,7 @@ export default {
   },
   created() {
     this.fetchStatus();
-    this.fetchHalls();    
+    this.fetchHalls();
   },
   computed: {
     totalTimelineMinutes() {
@@ -82,16 +83,16 @@ export default {
     // },
     isValid() {
       return (
-            this.selectedHall &&
-            this.hallConfig.rows > 0 &&
-            this.hallConfig.seatsPerRow > 0 &&
-            this.hallConfig.seats.length > 0
-        );
+        this.selectedHall &&
+        this.hallConfig.rows > 0 &&
+        this.hallConfig.seatsPerRow > 0 &&
+        this.hallConfig.seats.length > 0
+      );
 
-      },
-      totalSeats() {
-        return this.hallConfig.rows * this.hallConfig.seatsPerRow;
-      },
+    },
+    totalSeats() {
+      return this.hallConfig.rows * this.hallConfig.seatsPerRow;
+    },
   },
   methods: {
     computeLeft(start_time) {
@@ -240,30 +241,37 @@ export default {
       const value = parseInt(event.target.value);
       if (!isNaN(value) && value > 0) {
         this.hallConfig.rows = value;
-        this.generateSeats();
+        this.$nextTick(() => {
+          this.generateSeats();
+        });
       }
     },
     updateSeatsPerRow(event) {
       const value = parseInt(event.target.value);
       if (!isNaN(value) && value > 0) {
         this.hallConfig.seatsPerRow = value;
-        this.generateSeats();
+        this.$nextTick(() => {
+          this.generateSeats();
+        });
       }
     },
     generateSeats() {
+      this.hallConfig.seats = []; // Очищаем массив перед генерацией
+
       const seats = [];
       for (let row = 1; row <= this.hallConfig.rows; row++) {
         const rowSeats = [];
         for (let seat = 1; seat <= this.hallConfig.seatsPerRow; seat++) {
-        rowSeats.push({
-          row,
-          seat,
-          type: 'standart'
+          rowSeats.push({
+            row,
+            seat,
+            type: 'standart'
           });
         }
         seats.push(rowSeats);
       }
       this.hallConfig.seats = seats;
+
     },
     selectSeatType(type) {
       this.currentSeatType = type;
@@ -289,29 +297,29 @@ export default {
         alert('Некорректные параметры зала');
         return;
       }
-      
+
       // Подготовка данных для отправки
       const seatsData = {
-            hall_id: this.selectedHall,
-            rows: this.hallConfig.rows,
-            seats_per_row: this.hallConfig.seatsPerRow,
-            seats: this.hallConfig.seats.map(row => 
-                row.map(seat => ({
-                    row: seat.row,
-                    seat: seat.seat,
-                    type: seat.type
-                }))
-            )
-        };
+        hall_id: this.selectedHall,
+        rows: this.hallConfig.rows,
+        seats_per_row: this.hallConfig.seatsPerRow,
+        seats: this.hallConfig.seats.map(row =>
+          row.map(seat => ({
+            row: seat.row,
+            seat: seat.seat,
+            type: seat.type
+          }))
+        )
+      };
 
-        axios.post('http://127.0.0.1:8000/halls/hall/update-seats', seatsData)
-            .then(response => {
-                alert('Конфигурация зала сохранена!');
-            })
-            .catch(error => {
-                console.error('Ошибка при сохранении конфигурации:', error);
-                alert('Произошла ошибка при сохранении конфигурации');
-            });
+      axios.post('http://127.0.0.1:8000/halls/hall/update-seats', seatsData)
+        .then(response => {
+          alert('Конфигурация зала сохранена!');
+        })
+        .catch(error => {
+          console.error('Ошибка при сохранении конфигурации:', error);
+          alert('Произошла ошибка при сохранении конфигурации');
+        });
     },
     async fetchHalls() {
       try {
@@ -329,17 +337,18 @@ export default {
     },
     async loadHallConfig(hallId) {
       try {
-          const response = await axios.get(`http://127.0.0.1:8000/halls/${hallId}/config`);
-          this.hallConfig = {
-            rows: response.data.rows,
-            seatsPerRow: response.data.seats_per_row,
-            seats: response.data.seats
-          };
+        const response = await axios.get(`http://127.0.0.1:8000/halls/${hallId}/config`);
+        this.hallConfig = {
+          rows: response.data.rows,
+          seatsPerRow: response.data.seats_per_row,
+          // seats: this.generateSeats(response.data.seats)
+          seats: response.data.seats
+        };
       } catch (error) {
         console.error('Ошибка при загрузке конфигурации зала:', error);
         if (error.response) {
-            console.log('Статус ошибки:', error.response.status);
-            console.log('Сообщение об ошибке:', error.response.data);
+          console.log('Статус ошибки:', error.response.status);
+          console.log('Сообщение об ошибке:', error.response.data);
         }
       }
     },
@@ -436,7 +445,7 @@ export default {
       return this.sessions.filter(s => s.hall_id === hallId);
     },
     sessionsByMovie() {
-      console.log('editMovieID ' + this.editMovieID);
+      // console.log('editMovieID ' + this.editMovieID);
       return this.sessions.filter(s => s.movie_id === (this.editMovieID + 1));
     },
     // openSales(sessionId) {  
@@ -476,8 +485,7 @@ export default {
     async fetchStatus() {
       try {
         const res = await axios.get('http://127.0.0.1:8000/admin/sales/status');
-        this.globalSalesOpen = !!res.data.sales_globally_open;
-
+        this.globalSalesOpen = !!res.data.data.sales_globally_open;
       } catch (e) {
         console.error('Не удалось получить статус глобальных продаж', e);
       }
@@ -500,7 +508,27 @@ export default {
         console.error('Ошибка закрытия глобальных продаж', e);
       }
     },
+    
 
+  },
+  watch: {
+    'hallConfig.rows': {
+      handler(newValue) {
+        if (newValue > 0) {
+          this.generateSeats();
+        }
+      },
+      immediate: true
+    },
+    
+    'hallConfig.seatsPerRow': {
+      handler(newValue) {
+        if (newValue > 0) {
+          this.generateSeats();
+        }
+      },
+      immediate: true
+    }
   },
   mounted() {
     // fetch данных о зале 
@@ -556,44 +584,38 @@ export default {
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
           <div v-for="hall in halls" :key="hall.id" class="hall">
-            <li><input type="radio" class="conf-step__radio" name="chairs-hall" :value="hall.id" 
-              :checked="hall.id === selectedHall" @change="selectHall(hall.id)"><span
-                class="conf-step__selector">Зал {{ hall?.name }}</span></li>
+            <li><input type="radio" class="conf-step__radio" name="chairs-hall" :value="hall.id"
+                :checked="hall.id === selectedHall" @change="selectHall(hall.id)"><span class="conf-step__selector">Зал {{
+                  hall?.name }}</span></li>
           </div>
         </ul>
         <p class="conf-step__paragraph">Укажите количество рядов и максимальное количество кресел в ряду:</p>
         <div class="conf-step__legend">
-          <label class="conf-step__label">Рядов, шт<input type="number" class="conf-step__input" v-model.number="hallConfig.rows"
-            @input="updateRows" placeholder="10"></label>
+          <label class="conf-step__label">Рядов, шт<input type="number" class="conf-step__input"
+              v-model.number="hallConfig.rows" @input="updateRows" placeholder="10"></label>
           <span class="multiplier">x</span>
-          <label class="conf-step__label">Мест, шт<input type="number" class="conf-step__input" v-model.number="hallConfig.seatsPerRow"
-            @input="updateSeatsPerRow" placeholder="8"></label>
+          <label class="conf-step__label">Мест, шт<input type="number" class="conf-step__input"
+              v-model.number="hallConfig.seatsPerRow" @input="updateSeatsPerRow" placeholder="8"></label>
         </div>
         <p class="conf-step__paragraph">Теперь вы можете указать типы кресел на схеме зала:</p>
         <div class="conf-step__legend">
-          <span class="conf-step__chair conf-step__chair_standart" @click="selectSeatType('standart')"></span> — обычные кресла
+          <span class="conf-step__chair conf-step__chair_standart" @click="selectSeatType('standart')"></span> — обычные
+          кресла
           <span class="conf-step__chair conf-step__chair_vip" @click="selectSeatType('vip')"></span> — VIP кресла
-          <span class="conf-step__chair conf-step__chair_disabled" @click="selectSeatType('disabled')"></span> — заблокированные (нет кресла)
+          <span class="conf-step__chair conf-step__chair_disabled" @click="selectSeatType('disabled')"></span> —
+          заблокированные (нет кресла)
           <p class="conf-step__hint">Чтобы изменить вид кресла, нажмите по нему левой кнопкой мыши</p>
         </div>
 
-<!-- отображаемый зал -->
-        <div class="conf-step__hall">
+        <!-- отображаемый зал -->
+        <div v-if="hallConfig.seats.length > 0" class="conf-step__hall">
           <div class="conf-step__hall-wrapper">
-            <div 
-              v-for="(row, rowIndex) in hallConfig.seats" 
-              :key="rowIndex" 
-              class="conf-step__row"
-            >
-            <span 
-              v-for="(seat, seatIndex) in row" 
-              :key="seatIndex" 
-              :class="`conf-step__chair conf-step__chair_${seat.type}`"
-              @click="changeSeatType(seat)"
-            ></span>
+            <div v-for="(row, rowIndex) in hallConfig.seats" :key="rowIndex" class="conf-step__row">
+              <span v-for="(seat, seatIndex) in row" :key="seatIndex"
+                :class="`conf-step__chair conf-step__chair_${seat.type}`" @click="changeSeatType(seat)"></span>
+            </div>
           </div>
-        </div>          
-      </div>
+        </div>
 
         <fieldset class="conf-step__buttons text-center">
           <button class="conf-step__button conf-step__button-regular" @click="btnCenselHallSeats">Отмена</button>
