@@ -22,8 +22,8 @@ export default {
       halls: [], // залы
       selectedHall: null, // выбранный зал
       hallConfig: {
-        rows: 10, // количество рядов по умолчанию
-        seatsPerRow: 8, // количество мест по умолчанию
+        rows: 6, // количество рядов по умолчанию
+        seatsPerRow: 6, // количество мест по умолчанию
         seats: [], // массив с конфигурацией кресел
         isGenerating: false, // Флаг для отслеживания генерации
       },
@@ -38,7 +38,7 @@ export default {
       movies: [],
       sessions: [],
       globalSalesOpen: true,
-      editMovieID: 1,
+      editMovieID: null,
       timelineStart: '09:00', // например
       timelineEnd: '23:00', // например
       timelineWidth: 720, // ширина шкалы в пикселях
@@ -59,7 +59,7 @@ export default {
         description: '', // описание
         duration: 0, // минуты
         country: '', // страна
-        image_url: "/src/client/poster1.jpg", // поко как заглушка
+        image_url: "/src/client/poster1.jpg", // пока как заглушка
       },
       formMovieSessionData: {
         movie_id: 0,
@@ -107,9 +107,14 @@ export default {
     toglePopupAddMovie() {
       this.popupHiddenAM = !this.popupHiddenAM;
     },
+    // тогл для открытия редактирования
     toglePopupEditMovie(movieID) {
       this.popupHiddenEM = !this.popupHiddenEM;
-      this.editMovieID = movieID - 1;
+      this.editMovieID = movieID;
+    },
+    // тогл для закрытия редактирования
+    toglePopupEditMovieClose() {
+      this.popupHiddenEM = !this.popupHiddenEM;
     },
     toglePopupAddSessionMovie() {
       this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
@@ -183,8 +188,22 @@ export default {
         });
     },
     //редактирование кино
-    submitFormEditMovie(movie) {
-      axios.post('http://127.0.0.1:8000/movies/update' + movie.id, this.formMovieData)
+    submitFormEditMovie() {
+      // Проверяем, что форма заполнена
+      if (!this.formMovieData.title || !this.formMovieData.duration) {
+        alert('Заполните все обязательные поля');
+        return;
+      }
+      console.log('submitFormEditMovie editMovieID ', this.editMovieID);
+
+      // Проверяем, что editMovieID существует и является числом
+      if (!this.editMovieID || isNaN(this.editMovieID)) {
+        console.error('Неверный ID фильма:', this.editMovieID);
+        return;
+      }
+
+      // axios.post('http://127.0.0.1:8000/movies/update/' + movie.id, this.formMovieData)
+      axios.post(`http://127.0.0.1:8000/movies/update/${this.editMovieID}`, this.formMovieData)
         .then(response => {
           console.log('Успех:', response.data);
           this.getMovies(); // Перезагружаем список залов
@@ -201,6 +220,7 @@ export default {
     },
     // создание сессии кино
     submitFormAddSessionMovie() {
+      console.log('submitFormAddSessionMovie start');
       this.formMovieSessionData.movie_id = this.editMovieID + 1;
       this.formMovieSessionData.hall_id = Number(this.formMovieSessionData.hall_id) || 0;
       console.log('this.formMovieSessionData: ', this.formMovieSessionData);
@@ -225,7 +245,7 @@ export default {
         .then(response => {
           // удалить из локального списка
           this.sessions = this.sessions.filter(h => h.id !== sessionID);
-          console.log('Сессия уино удалена, список обновлён локально');
+          console.log('Сессия кино удалена, список обновлён локально');
         })
         .catch(error => {
           if (error.response) {
@@ -238,11 +258,14 @@ export default {
 
     },
     updateRows(event) {
-      const value = parseInt(event.target.value);
+      // const value = parseInt(event.target.value);
       if (!isNaN(value) && value > 0) {
         this.hallConfig.rows = value;
+        this.resetSeats(); // Очищаем старые данные
+        // this.updateSeatsLayout();
         this.$nextTick(() => {
           this.generateSeats();
+          // this.updateSeatsLayout();
         });
       }
     },
@@ -250,13 +273,21 @@ export default {
       const value = parseInt(event.target.value);
       if (!isNaN(value) && value > 0) {
         this.hallConfig.seatsPerRow = value;
+        this.resetSeats(); // Очищаем старые данные
+        // this.updateSeatsLayout();
         this.$nextTick(() => {
           this.generateSeats();
+          // this.updateSeatsLayout();
         });
       }
     },
+    resetSeats() {
+      this.seats = [];
+      // Дополнительно можно очистить другие связанные данные
+    },
+    // метод для отризоваки сетки зала по ручному вводу рядов и мест
     generateSeats() {
-      this.hallConfig.seats = []; // Очищаем массив перед генерацией
+      // this.hallConfig.seats = []; // Очищаем массив перед генерацией
 
       const seats = [];
       for (let row = 1; row <= this.hallConfig.rows; row++) {
@@ -273,6 +304,39 @@ export default {
       this.hallConfig.seats = seats;
 
     },
+    // Новый метод для обновления рассадки автоматичнский
+    updateSeatsLayout() {
+      // Если есть сохраненные данные из API, используем их
+      if (
+        this.hallConfig &&
+        this.hallConfig.seats &&
+        (this.hallConfig.seats.length > 0 || Object.keys(this.hallConfig.seats).length > 0)
+      ) {
+        // console.log("updateSeatsLayout this.hallConfig ", this.hallConfig);
+        this.hallConfig.seats = this.formatSeats(this.hallConfig.seats);
+      } else {
+        // console.log("updateSeatsLayout 1 вариант не прошёл, это стандартная сетка ", this.hallConfig.seats);
+        // Если данных нет, генерируем стандартную рассадку
+        this.hallConfig.seats = this.generateDefaultSeats();
+      }
+      
+    },
+    // Метод для генерации стандартной рассадки
+    generateDefaultSeats() {
+      const seats = [];
+      for (let row = 1; row <= this.hallConfig.rows; row++) {
+        const rowSeats = [];
+        for (let seat = 1; seat <= this.hallConfig.seatsPerRow; seat++) {
+          rowSeats.push({
+            row,
+            seat,
+            type: 'standart'
+          });
+        }
+        seats.push(rowSeats);
+      }
+      return seats;
+    },
     selectSeatType(type) {
       this.currentSeatType = type;
     },
@@ -280,6 +344,18 @@ export default {
       const currentIndex = this.seatTypes.indexOf(seat.type);
       const nextIndex = (currentIndex + 1) % this.seatTypes.length;
       seat.type = this.seatTypes[nextIndex];
+      // находим индекс ряда
+      // const rowIndex = this.hallConfig.seats.findIndex(row => 
+      //   row.find(s => s.number === seat.number && s.row === seat.row)
+      // );
+      
+      // // находим индекс места в ряду
+      // const seatIndex = this.hallConfig.seats[rowIndex].findIndex(s => 
+      //   s.number === seat.number && s.row === seat.row
+      // );
+      
+      // // меняем тип места
+      // this.hallConfig.seats[rowIndex][seatIndex].type = this.currentSeatType;
     },
     btnCenselHallSeats() {
       console.log('Cansel Hall seats');
@@ -289,7 +365,8 @@ export default {
         seats: []
       };
       this.currentSeatType = 'standart';
-      this.generateSeats();
+      // this.generateSeats();
+      this.updateSeatsLayout();
     },
     btnSaveHallSeats() {
       console.log('Save Hall seats');
@@ -338,12 +415,17 @@ export default {
     async loadHallConfig(hallId) {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/halls/${hallId}/config`);
+        // console.log("loadHallConfig response ", response);
         this.hallConfig = {
           rows: response.data.rows,
           seatsPerRow: response.data.seats_per_row,
           // seats: this.generateSeats(response.data.seats)
-          seats: response.data.seats
+          // seats: response.data.seats
+          // seats: this.formatSeats(response.data.seats) // Используем форматирование
+          seats: response.data.seats || {} // Добавляем проверку на существование
         };
+        // console.log('loadHallConfig дошли до updateSeatsLayout');
+        this.updateSeatsLayout(); // Обновляем рассадку после загрузки
       } catch (error) {
         console.error('Ошибка при загрузке конфигурации зала:', error);
         if (error.response) {
@@ -352,9 +434,82 @@ export default {
         }
       }
     },
+    formatSeats(apiSeats) {
+      // console.log('formatSeats apiSeats ', apiSeats);
+      // console.log('formatSeats this.hallConfig.seatsPerRow ', this.hallConfig.seatsPerRow);
+
+      // Добавляем проверку корректности входных данных
+      if (!apiSeats || typeof apiSeats !== 'object') {
+        console.error('Некорректные входные данные apiSeats');
+        return [];
+      }
+      
+      if (!this.hallConfig.rows || !this.hallConfig.seatsPerRow) {
+        console.error('Некорректная конфигурация зала');
+        return [];
+      }
+
+      if (!apiSeats || Object.keys(apiSeats).length === 0) {
+        return []; // Возвращаем пустой массив, если данные отсутствуют
+      }
+      // Преобразуем плоские данные в вложенный массив
+      const seats = [];
+
+      for (let i = 1; i <= this.hallConfig.rows; i++) {
+        const rowSeats = [];
+
+        for (let j = 1; j <= this.hallConfig.seatsPerRow; j++) {
+          const seatKey = this.getSeatKey(i, j);
+
+          // Добавляем логирование для отладки
+          // console.log(`Проверяем ключ: ${seatKey}`);
+          // console.log(`Значение по ключу:`, apiSeats[seatKey]);
+
+          const seat = apiSeats[seatKey];
+
+          // Добавляем проверку на существование места
+          if (seat) {
+            rowSeats.push({
+              row: seat.row,
+              number: seat.number,
+              type: seat.type || 'standart' // Устанавливаем тип по умолчанию
+            });
+          } else {
+            console.warn(`Место не найдено для ключа ${seatKey}`);
+          }
+        }
+
+        seats.push(rowSeats);
+      }
+      
+      // console.log('formatSeats по итогу seats ', seats);
+      return seats;
+    },
+    getSeatKey(row, number) {
+      if (!this.hallConfig || !this.hallConfig.seatsPerRow) {
+        return 0;
+      }
+      // Возвращает ключ для доступа к объекту места
+      // Добавляем логирование для отладки
+      // console.log(`getSeatKey: row=${row}, number=${number}`);
+      // console.log(`Вычисляем ключ: (${row-1}) * ${this.hallConfig.seatsPerRow} + (${number-1})`);
+      
+      // return (row - 1) * this.hallConfig.seatsPerRow + (number - 1); // начальный вариант
+      return (row - 1) * this.hallConfig.seatsPerRow * 5 + (number - 1) * 5;
+    },
+
     selectHall(hallId) {
       this.selectedHall = hallId;
       this.loadHallConfig(hallId);
+      // this.loadHallConfig(hallId)
+      //   .then(() => {
+      //       this.updateSeatsLayout();
+      //   })
+      //   .catch(error => {
+      //       console.error('Ошибка при выборе зала:', error);
+      //   });
+      // this.generateSeats();
+      // this.updateSeatsLayout();
     },
     btnCanselPrise() {
       // Сброс значений
@@ -404,7 +559,7 @@ export default {
       axios.get('http://127.0.0.1:8000/hall/index')
         .then(response => {
           this.halls = response.data;
-          console.log('halls: ', this.halls);
+          // console.log('halls: ', this.halls);
         })
         .catch(error => {
           console.error(error);
@@ -415,7 +570,7 @@ export default {
       axios.get('http://127.0.0.1:8000/movies')
         .then(response => {
           this.movies = response.data;
-          console.log('movies: ', this.movies);
+          // console.log('movies: ', this.movies);
         })
         .catch(error => {
           console.error(error);
@@ -426,7 +581,7 @@ export default {
       axios.get('http://127.0.0.1:8000/sessions')
         .then(response => {
           this.sessions = response.data;
-          console.log('sessions: ', this.sessions);
+          // console.log('sessions: ', this.sessions);
         })
         .catch(error => {
           console.error(error);
@@ -508,37 +663,49 @@ export default {
         console.error('Ошибка закрытия глобальных продаж', e);
       }
     },
-    
+    // для попап
+    handleScroll() {
+      const scrollTop = window.scrollY;
+      this.$refs.popup1.style.top = `${scrollTop + 10}px`;
+      this.$refs.popup2.style.top = `${scrollTop + 10}px`;
+      this.$refs.popup3.style.top = `${scrollTop + 10}px`;
+      this.$refs.popup4.style.top = `${scrollTop + 10}px`;
+    },
 
   },
-  watch: {
-    'hallConfig.rows': {
-      handler(newValue) {
-        if (newValue > 0) {
-          this.generateSeats();
-        }
-      },
-      immediate: true
-    },
-    
-    'hallConfig.seatsPerRow': {
-      handler(newValue) {
-        if (newValue > 0) {
-          this.generateSeats();
-        }
-      },
-      immediate: true
-    }
+  // watch: {
+  //   'hallConfig.rows': {
+  //     handler(newValue) {
+  //       if (newValue > 0) {
+  //         this.generateSeats();
+  //       }
+  //     },
+  //     immediate: true
+  //   },
+
+  //   'hallConfig.seatsPerRow': {
+  //     handler(newValue) {
+  //       if (newValue > 0) {
+  //         this.generateSeats();
+  //       }
+  //     },
+  //     immediate: true
+  //   }
+  // },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.handleScroll);
   },
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-admin');
+    window.addEventListener('scroll', this.handleScroll); // для скролла попап
 
     this.getHalls();
     this.getMovies();
     this.getSessions();
     // this.fetchHalls();
-    this.generateSeats();
+    // this.generateSeats();
+    this.updateSeatsLayout();
 
     // из файла js/accordeon.js
     const headers = Array.from(document.querySelectorAll('.conf-step__header'));
@@ -585,7 +752,8 @@ export default {
         <ul class="conf-step__selectors-box">
           <div v-for="hall in halls" :key="hall.id" class="hall">
             <li><input type="radio" class="conf-step__radio" name="chairs-hall" :value="hall.id"
-                :checked="hall.id === selectedHall" @change="selectHall(hall.id)"><span class="conf-step__selector">Зал {{
+                :checked="hall.id === selectedHall" @change="selectHall(hall.id)"><span class="conf-step__selector">Зал
+                {{
                   hall?.name }}</span></li>
           </div>
         </ul>
@@ -625,6 +793,7 @@ export default {
       </div>
     </section>
 
+    <!-- конфигурация цен -->
     <section class="conf-step">
       <header class="conf-step__header conf-step__header_opened">
         <h2 class="conf-step__title">Конфигурация цен</h2>
@@ -656,7 +825,8 @@ export default {
 
         <fieldset class="conf-step__buttons text-center">
           <button class="conf-step__button conf-step__button-regular" @click="btnCanselPrise">Отмена</button>
-          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent" @click="btnSavePrise">
+          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent"
+            @click="btnSavePrise">
         </fieldset>
       </div>
     </section>
@@ -717,7 +887,8 @@ export default {
           <h2>Глобальные продажи</h2>
           <p>Статус: <strong>{{ globalSalesOpen ? 'Открыты' : 'Закрыты' }}</strong></p>
           <div class="admin-settings__controls">
-            <button @click="openAllSales" :disabled="globalSalesOpen" class="conf-step__button conf-step__button-accent">
+            <button @click="openAllSales" :disabled="globalSalesOpen"
+              class="conf-step__button conf-step__button-accent">
               Открыть продажи во всем приложении
             </button>
             <button @click="closeAllSales" :disabled="!globalSalesOpen"
@@ -733,7 +904,7 @@ export default {
   </main>
 
   <!-- popup add Halls -->
-  <div class="popup" :class="{ 'popup__invisibl': popupHidden }">
+  <div class="popup" ref="popup4" :class="{ 'popup__invisibl': popupHidden }">
     <!-- в форм: method="post" autocomplete="on" -->
     <form @submit.prevent="submitFormHalls" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
@@ -756,7 +927,8 @@ export default {
           <input type="text" class="c" placeholder="200" name="amountStandart" id="amountStandart"
             v-model="formHallData.amountStandart">
           <label for="vip" class="conf-step__paragraph">Amount Vip seat in hall</label>
-          <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip" v-model="formHallData.amountVip">
+          <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip"
+            v-model="formHallData.amountVip">
           <label for="active" class="conf-step__paragraph">active</label>
           <input type="radio" class="c" name="active" id="active" v-model="formHallData.active" checked>
 
@@ -768,7 +940,7 @@ export default {
   </div>
 
   <!-- popup add movie -->
-  <div class="popup" :class="{ 'popup__invisiblAM': popupHiddenAM }">
+  <div class="popup" ref="popup3" :class="{ 'popup__invisiblAM': popupHiddenAM }">
     <!-- в форм: method="post" autocomplete="on" -->
     <form @submit.prevent="submitFormAddMovie" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
@@ -802,7 +974,7 @@ export default {
 
 
   <!-- popup edit movie -->
-  <div class="popup" :class="{ 'popup__invisiblEM': popupHiddenEM }">
+  <div class="popup" ref="popup1" :class="{ 'popup__invisiblEM': popupHiddenEM }">
     <!-- в форм: method="post" autocomplete="on" -->
     <form @submit.prevent="submitFormEditMovie" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
@@ -817,7 +989,7 @@ export default {
           <span class="conf-step__paragraph">Name: {{ movies[editMovieID]?.title }} </span>
           <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
           <label for="description" class="conf-step__paragraph">description: {{ movies[editMovieID]?.description
-          }}</label>
+            }}</label>
           <input type="text" class="c" placeholder="description" name="description" id="description"
             v-model="formMovieData.description">
           <label for="duration" class="conf-step__paragraph">duration: {{ movies[editMovieID]?.duration }}</label>
@@ -839,18 +1011,18 @@ export default {
             </li>
             <!-- </div>  -->
           </ul>
-          <button class="btnPopupHalls" @click="toglePopupAddSessionMovie">Add session movie</button>
 
-          <button class="btnPopupHalls" type="submit" @click="toglePopupEditMovie">Update Movie</button>
+          <button class="btnPopupHalls" @click="toglePopupAddSessionMovie">Add session movie</button>
+          <button class="btnPopupHalls" type="submit" @click="toglePopupEditMovieClose">Update Movie</button>
           <button class="btnPopupHalls" @click="btnMovieDel">Удалить кино</button>
-          <button class="btnPopupHalls" type="reset" @click="toglePopupEditMovie">Censel</button>
+          <button class="btnPopupHalls" type="reset" @click="toglePopupEditMovieClose">Censel</button>
         </div>
       </div>
     </form>
   </div>
 
   <!-- popup add sessios movie -->
-  <div class="popup popup__plus" :class="{ 'popup__invisiblAddSessionMovie': popupHiddenAddSessionMovie }">
+  <div class="popup popup__plus" ref="popup2" :class="{ 'popup__invisiblAddSessionMovie': popupHiddenAddSessionMovie }">
     <form @submit.prevent="submitFormAddSessionMovie" class="popup__form popup__container" method="post"
       autocomplete="on">
       <div class="popup__header">
@@ -1578,21 +1750,23 @@ select {
   /* position: fixed; */
   position: absolute;
   width: 80vw;
-  height: 80vh;
+  height: 90vh;
   z-index: 100;
   left: 50px;
-  top: 50px;
+  top: 10px;
+  overflow-y: auto;
   background: rgba(220, 208, 226, 0.9);
 }
 
 .popup__plus {
   position: absolute;
   width: 80vw;
-  height: 60vh;
+  height: 90vh;
   z-index: 110;
   left: 50px;
   top: 50px;
-  background: rgba(248, 255, 123, 0.7);
+  overflow-y: auto;
+  background: rgba(248, 255, 123, 0.9);
 }
 
 .popup__invisibl {

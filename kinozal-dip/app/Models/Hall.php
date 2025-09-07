@@ -23,7 +23,8 @@ class Hall extends Model
 
   public function seats(): HasMany
     {
-        return $this->hasMany(Seat::class);
+        // return $this->hasMany(Seat::class);
+        return $this->hasMany(Seat::class)->orderBy('row')->orderBy('number');
     }
   
 }

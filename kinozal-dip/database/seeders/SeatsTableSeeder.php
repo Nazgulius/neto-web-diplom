@@ -62,8 +62,8 @@ class SeatsTableSeeder extends Seeder
               
 
               $seatType = in_array($num, $currentVipSeats)
-                ? "VIP"
-                : 'Обычное';
+                ? "vip"
+                : 'standart';
               
               Seat::create([
                 'session_id' => $session->id,

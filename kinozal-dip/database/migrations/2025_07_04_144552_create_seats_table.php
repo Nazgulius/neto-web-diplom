@@ -17,7 +17,7 @@ return new class extends Migration
       $table->unsignedBigInteger('session_id');
       $table->integer('row');
       $table->integer('number');
-      $table->string('type')->default('Обычное'); // VIP или Обычное
+      $table->string('type')->default('standart'); // 'standart', 'vip', 'disabled'
       $table->boolean('taken')->default(false);
       $table->string('status')->default('available');
       $table->timestamps();

@@ -66,6 +66,25 @@ class MovieController extends Controller
       return response()->json($movie);
     }
 
+    public function updateMovie(Request $request)
+  {
+    $movie = Movie::find($request->hall_id);
+
+    if (!$movie) {
+      return response()->json(['error' => 'Фильм не найден'], 404);
+    }
+
+    $movie->update([
+      'title' => $request->title['title'],
+      'description' => $request->description['description'],
+      'duration' => $request->duration['duration'],
+      'country' => $request->country['country'],
+      'image_url' => $request->image_url['image_url'],
+    ]);
+
+    return response()->json(['message' => 'Фильм успешно обновлён'], 200);
+  }
+
     /**
      * Remove the specified resource from storage.
      */

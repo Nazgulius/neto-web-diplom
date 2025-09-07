@@ -162,21 +162,52 @@ class HallController extends Controller
   }
 
   // В контроллере
+  // public function getHallConfig(Request $request, $hallId)
+  // {
+  //   try {
+  //     $hall = Hall::findOrFail($hallId);
+
+  //     $config = [
+  //         'rows' => $hall->rows,
+  //         'seats_per_row' => $hall->seats_per_row,
+  //         'seats' => $hall->seats->map(function ($seat) {
+  //             return [
+  //                 'row' => $seat->row,
+  //                 'number' => $seat->number,
+  //                 'type' => $seat->type
+  //             ];
+  //         })->toArray()
+  //     ];
+
+
+  //     return response()->json($config, 200);
+  //   } catch (ModelNotFoundException $e) {
+  //     return response()->json(['error' => 'Зал не найден'], 404);
+  //   } catch (\Exception $e) {
+  //     return response()->json(['error' => 'Произошла ошибка'], 500);
+  //   }
+  // }
   public function getHallConfig(Request $request, $hallId)
   {
     try {
       $hall = Hall::findOrFail($hallId);
 
       $config = [
-          'rows' => $hall->rows,
-          'seats_per_row' => $hall->seats_per_row,
-          'seats' => $hall->seats->map(function ($seat) {
-              return [
-                  'row' => $seat->row,
-                  'number' => $seat->number,
-                  'type' => $seat->type
-              ];
-          })->toArray()
+        'rows' => $hall->rows,
+        'seats_per_row' => $hall->seats_per_row,
+        'seats' => $hall->seats
+          ->unique(function ($seat) {
+            // Создаем уникальный ключ на основе номера ряда и места
+            return $seat->row . '-' . $seat->number;
+          })
+          ->map(function ($seat) {
+            return [
+              'row' => $seat->row,
+              'number' => $seat->number,
+              'type' => $seat->type
+            ];
+          })
+          ->toArray()
       ];
 
       return response()->json($config, 200);
