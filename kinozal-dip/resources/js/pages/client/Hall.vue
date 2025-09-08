@@ -53,8 +53,8 @@ export default {
     getSeatClass(seat) {      
       const classes = [
         'buying-scheme__chair',
-        seat.type === 'Обычное' ? 'buying-scheme__chair_standart' : '',
-        seat.type === 'VIP' ? 'buying-scheme__chair_vip' : '',
+        seat.type === 'standart' ? 'buying-scheme__chair_standart' : '',
+        seat.type === 'vip' ? 'buying-scheme__chair_vip' : '',
         seat.status === 'blocked' ? 'blocked' : '',
         seat.status === 'booked' ? 'occupied' : '',
         this.isSelected(seat) ? 'selected' : '',

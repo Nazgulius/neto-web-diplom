@@ -751,10 +751,14 @@ export default {
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
           <div v-for="hall in halls" :key="hall.id" class="hall">
-            <li><input type="radio" class="conf-step__radio" name="chairs-hall" :value="hall.id"
-                :checked="hall.id === selectedHall" @change="selectHall(hall.id)"><span class="conf-step__selector">Зал
-                {{
-                  hall?.name }}</span></li>
+            <li>
+              <label class="conf-step__selector">
+                <input type="radio" class="conf-step__radio" name="chairs-hall" :value="hall.id"
+                  :checked="hall.id === selectedHall" @change="selectHall(hall.id)">
+                Зал {{ hall?.name }}
+                  <!-- <span class="conf-step__selector">Зал {{ hall?.name }}</span> -->
+              </label>
+            </li>
           </div>
         </ul>
         <p class="conf-step__paragraph">Укажите количество рядов и максимальное количество кресел в ряду:</p>
@@ -801,7 +805,7 @@ export default {
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
-          <div v-for="hall in halls" :key="hall" class="hall">
+          <div v-for="hall in halls" :key="hall.id" class="hall">
             <li><input type="radio" class="conf-step__radio" name="prices-hall" :value="hall.id" v-model="selectedHall">
               <span class="conf-step__selector">Зал {{ hall?.name }}</span>
             </li>
@@ -1482,9 +1486,10 @@ select {
 }
 
 .conf-step__selectors-box {
-  font-size: 0;
+  /* font-size: 0; */
   list-style: none;
-  margin-bottom: 15px;
+  padding: 0;
+  /* margin-bottom: 15px; */
 }
 
 .conf-step__selectors-box li {
@@ -1533,6 +1538,38 @@ select {
 
 .conf-step__selectors-box .conf-step__radio:hover+.conf-step__selector {
   background-color: rgba(255, 255, 255, 0.9);
+}
+
+.conf-step__selector {
+  display: block;
+  padding: 13px 21px;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.24), 0px 0px 3px rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+.conf-step__radio {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.conf-step__selector:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.conf-step__radio:checked + .conf-step__selector {
+  background-color: #FFFFFF;
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.24), 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  transform: scale(1.1);
+  font-weight: 900;
+  font-size: 1.4rem;
 }
 
 .conf-step__hall {
