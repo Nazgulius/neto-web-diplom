@@ -31,10 +31,10 @@ createInertiaApp({
   setup({ el, App, props, plugin }) {
     try {
       createApp({ render: () => h(App, props) })
-        .use(router) // добавил для новых машрутов кинотеатра
-        .use(plugin)
-        .use(ZiggyVue)
-        .mount(el);
+      .use(plugin)
+      .use(ZiggyVue)
+      .use(router) // добавил для новых машрутов кинотеатра
+      .mount(el);
     } catch (e) {
       console.log(e);
     }

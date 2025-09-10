@@ -163,6 +163,8 @@ body.page-client {
   background-size: cover;
   background-attachment: fixed;
   background-position: right;
+  background-blend-mode: multiply;  
+  counter-reset: num;
 }
 
 .page-header {

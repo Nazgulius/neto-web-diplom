@@ -143,24 +143,28 @@ export default {
       }
     },    
     btnBlockSeats() {
-      this.blockSeats();
-      
-      this.$router.push({
-        name: 'payment',
-        query: {
-          payload: JSON.stringify({
-            seats: this.selectedSeats,
-            movie: {
-              title: this.movie?.title || '',
-              hall: this.hall?.name || '',
-              time: this.session?.start_time || '',
-              amountStandart: this.hall?.amountStandart,
-              amountVip: this.hall?.amountVip,
-            },
-            seanceId: this.seanceId
-          })
-        }
-      });
+      if (this.selectedSeats.length > 0) {
+        this.blockSeats();
+        
+        this.$router.push({
+          name: 'payment',
+          query: {
+            payload: JSON.stringify({
+              seats: this.selectedSeats,
+              movie: {
+                title: this.movie?.title || '',
+                hall: this.hall?.name || '',
+                time: this.session?.start_datetime || '',
+                amountStandart: this.hall?.amountStandart,
+                amountVip: this.hall?.amountVip,
+              },
+              seanceId: this.seanceId
+            })
+          }
+        });
+      } else {
+        alert('Места не выбраны!');
+      }
     },
     // Отправка выбранных мест на сервер
     blockSeats() {
@@ -261,7 +265,7 @@ export default {
       <div class="buying__info">
         <div class="buying__info-description">
           <h2 class="buying__info-title">{{ movie?.title }} </h2>
-          <p class="buying__info-start">Начало сеанса: {{ session?.start_time }}</p>
+          <p class="buying__info-start">Начало сеанса: {{ session?.start_datetime }}</p>
           <p class="buying__info-hall">Зал {{ hall?.name }}</p>
         </div>
         <div class="buying__info-hint">
@@ -328,6 +332,8 @@ body.page-client {
   background-size: cover;
   background-attachment: fixed;
   background-position: right;
+  background-blend-mode: multiply;  
+  counter-reset: num;
 }
 
 .page-header {

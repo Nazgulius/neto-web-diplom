@@ -3,8 +3,18 @@
 <template>
   <div id="app">
     <!-- <Index /> -->
-    
+
     <router-view></router-view>
+    <!-- <router-view v-slot="{ Component }">
+      <suspense>
+        <template #default>
+          <component :is="Component" v-bind="$route.params" />
+        </template>
+        <template #fallback>
+          <div>Загрузка...</div>
+        </template>
+      </suspense>
+    </router-view> -->
   </div>
 </template>
 
@@ -16,8 +26,8 @@ import Ticket from './client/Ticket.vue';
 
 export default {
   name: 'App',
-  components: { 
-    Index 
+  components: {
+    Index
   } // открывается то, что написано
 };
 </script>

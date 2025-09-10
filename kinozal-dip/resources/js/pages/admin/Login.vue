@@ -39,6 +39,7 @@ export default {
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-admin');   
+    document.body.classList.add('page-admin-login');   
   }
 }
 </script>
@@ -114,6 +115,9 @@ body.page-admin {
   background-size: cover;
   background-attachment: fixed;
   counter-reset: num;
+}
+body.page-admin-login {
+  height: 100vh;
 }
 
 input[type='radio'],

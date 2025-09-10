@@ -24,13 +24,14 @@ export default {
     },
     sumTotalPrice() {
       for (const seat of this.seatsForPayment) {        
-        if (seat.type === 'Обычное') {
+        if (seat.type === 'standart') {
           this.totalPrice += this.movieForPayment.amountStandart;
         };
-        if (seat.type === 'VIP') {
+        if (seat.type === 'vip') {
           this.totalPrice += this.movieForPayment.amountVip;
         };
       }
+      
       return this.totalPrice;
     },
     btnBookedSeats() {
@@ -187,6 +188,8 @@ body.page-client {
   background-size: cover;
   background-attachment: fixed;
   background-position: right;
+  background-blend-mode: multiply;  
+  counter-reset: num;
 }
 
 .page-header {

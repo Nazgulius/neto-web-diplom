@@ -9,7 +9,7 @@ class KinoSession extends Model
   protected $fillable = [
     'movie_id',
     'hall_id',
-    'start_time',
+    'start_datetime',
   ];
   public function movie()
   {
@@ -24,5 +24,11 @@ class KinoSession extends Model
   public function tickets()
   {
       return $this->hasMany(Ticket::class);
+  }
+
+  // Метод для форматирования времени
+  public function getFormattedTimeAttribute()
+  {
+      return $this->start_datetime->format('H:i');
   }
 }

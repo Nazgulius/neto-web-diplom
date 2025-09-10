@@ -38,7 +38,7 @@ export default {
       movies: [],
       sessions: [],
       globalSalesOpen: true,
-      editMovieID: null,
+      editMovieID: null,      
       timelineStart: '09:00', // например
       timelineEnd: '23:00', // например
       timelineWidth: 720, // ширина шкалы в пикселях
@@ -64,8 +64,12 @@ export default {
       formMovieSessionData: {
         movie_id: 0,
         hall_id: 0,
-        start_time: '',
+        start_datetime: '',
       },
+      selectedDate: '',  // YYYY-MM-DD
+      selectedTime: '',  // HH:mm
+      movie_id: null,
+      hall_id: null,
     }
   },
   created() {
@@ -93,10 +97,19 @@ export default {
     totalSeats() {
       return this.hallConfig.rows * this.hallConfig.seatsPerRow;
     },
+    // Форматируем время с секундами
+    formattedDateTime() {
+      if (!this.formMovieSessionData.selectedDate || !this.formMovieSessionData.selectedTime) {
+        return '';
+      }
+      
+      const [hours, minutes] = this.formMovieSessionData.selectedTime.split(':');
+      return `${this.formMovieSessionData.selectedDate} ${hours}:${minutes}:00`;
+    }
   },
   methods: {
-    computeLeft(start_time) {
-      const delta = this.minutesBetween(this.timelineStart, start_time);
+    computeLeft(start_datetime) {
+      const delta = this.minutesBetween(this.timelineStart, start_datetime);
       const percent = delta / this.totalTimelineMinutes; // ограничиваем от 0 до timelineWidth 
       return Math.max(0, Math.min(this.timelineWidth, percent * this.timelineWidth));
     },
@@ -220,12 +233,25 @@ export default {
     },
     // создание сессии кино
     submitFormAddSessionMovie() {
-      console.log('submitFormAddSessionMovie start');
-      this.formMovieSessionData.movie_id = this.editMovieID + 1;
-      this.formMovieSessionData.hall_id = Number(this.formMovieSessionData.hall_id) || 0;
-      console.log('this.formMovieSessionData: ', this.formMovieSessionData);
+      // this.formMovieSessionData.movie_id = this.editMovieID + 1;
+      // this.formMovieSessionData.hall_id = Number(this.formMovieSessionData.hall_id) || 0;
+      
+      // Проверяем, что дата и время заполнены
+      if (!this.formMovieSessionData.selectedDate || !this.formMovieSessionData.selectedTime) {
+        this.$toast.error('Пожалуйста, выберите дату и время');
+        return;
+      }
 
-      axios.post('http://127.0.0.1:8000/movies/session/create', this.formMovieSessionData)
+      // Формируем данные для отправки
+      const dataToSend = {
+        movie_id: this.editMovieID + 1,
+        hall_id: Number(this.formMovieSessionData.hall_id) || 0,
+        start_datetime: this.formattedDateTime
+      };
+
+      console.log('this.formMovieSessionData: ', dataToSend);
+
+      axios.post('http://127.0.0.1:8000/movies/session/create', dataToSend)
         .then(response => {
           console.log('Успех:', response.data);
           this.getSessions(); // Перезагружаем список сессий
@@ -238,6 +264,19 @@ export default {
             console.error(error);
           }
         });
+    },
+    validateForm() {
+      if (!this.formMovieSessionData.selectedDate) {
+        this.$toast.error('Пожалуйста, выберите дату');
+        return false;
+      }
+      
+      if (!this.formMovieSessionData.selectedTime) {
+        this.$toast.error('Пожалуйста, выберите время');
+        return false;
+      }
+      
+      return true;
     },
     // удаление сессии кино
     btnSessionDel(sessionID) {
@@ -857,9 +896,9 @@ export default {
               <h3 class="conf-step__seances-title">Зал: {{ hall?.name }} (ID: {{ hall?.id }})</h3>
               <div class="conf-step__seances-timeline">
                 <div v-for="session in sessionsByHall(hall.id)" :key="session" class="conf-step__seances-movie"
-                  :style="{ left: computeLeft(session.start_time) + 'px' }">
+                  :style="{ left: computeLeft(session.start_datetime) + 'px' }">
                   <p class="conf-step__seances-movie-title">{{ movies[session.movie_id - 1]?.title }}</p>
-                  <p class="conf-step__seances-movie-start">{{ session?.start_time }}</p>
+                  <p class="conf-step__seances-movie-start">{{ session?.start_datetime }}</p>
                 </div>
               </div>
             </div>
@@ -1010,7 +1049,7 @@ export default {
             <!-- <div v-for="session in sessionsByMovie()" :key="session" class="session">  -->
             <li v-for="session in sessionsByMovie()" :key="session" class="session">
               <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время
-                сеанса {{ session?.start_time }}</span>
+                сеанса {{ session?.start_datetime }}</span>
               <button class="conf-step__button conf-step__button-trash" @click="btnSessionDel(session?.id)"></button>
             </li>
             <!-- </div>  -->
@@ -1028,7 +1067,7 @@ export default {
   <!-- popup add sessios movie -->
   <div class="popup popup__plus" ref="popup2" :class="{ 'popup__invisiblAddSessionMovie': popupHiddenAddSessionMovie }">
     <form @submit.prevent="submitFormAddSessionMovie" class="popup__form popup__container" method="post"
-      autocomplete="on">
+      autocomplete="on"> 
       <div class="popup__header">
         <h1 class="popup__title">Edit Session Movie</h1>
         <h1 class="popup__title">{{ movies[editMovieID]?.title }}</h1>
@@ -1039,23 +1078,43 @@ export default {
           <label for="hall_id" class="conf-step__paragraph">hall_id</label>
           <input type="number" class="c" placeholder="1" name="hall_id" id="hall_id"
             v-model.number="formMovieSessionData.hall_id">
-          <label for="start_time" class="conf-step__paragraph">start_time</label>
-          <input type="start_time" class="c" placeholder="19:50" name="start_time" id="start_time"
-            v-model="formMovieSessionData.start_time">
+          <label for="start_datetime" class="conf-step__paragraph">start_datetime Время работы от {{ timelineStart }} до {{ timelineEnd }} <br>(учитывайте продолжительность фильма)</label>
+          <!-- <input type="start_datetime" class="c" placeholder="2025-09-10 10:00:00" name="start_datetime" id="start_datetime"
+            v-model="formMovieSessionData.start_datetime"> -->
+          <!-- Поле для выбора даты -->
+          <input 
+            type="date" 
+            v-model="formMovieSessionData.selectedDate" 
+            required 
+          >
+          
+          <!-- Поле для выбора времени -->
+          <input 
+            type="time" 
+            v-model="formMovieSessionData.selectedTime" 
+            required 
+          >
+          
+          <!-- Скрытое поле для финального datetime -->
+          <input 
+            type="hidden" 
+            name="start_datetime" 
+            :value="formattedDateTime"
+          >
 
           <h3>Sessions</h3>
           <ul class="conf-step__selectors-box">
             <div v-for="session in sessionsByMovie()" :key="session?.id" class="session">
               <li>
                 <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время
-                  сеанса {{ session?.start_time }}</span>
+                  сеанса {{ session?.start_datetime }}</span>
                 <button class="conf-step__button conf-step__button-trash" @click="btnSessionDel(session?.id)"></button>
               </li>
             </div>
           </ul>
-
-          <button class="btnPopupHalls" type="submit" @click="toglePopupAddSessionMovie">Add session movie</button>
-          <button class="btnPopupHalls" type="reset" @click="toglePopupAddSessionMovie">Censel</button>
+         
+          <button class="btnPopupHalls" type="submit" @click="toglePopupAddSessionMovie" :disabled="!formattedDateTime">Создать сессию для кино</button>
+          <button class="btnPopupHalls" type="reset" @click="toglePopupAddSessionMovie">Отмена</button>
         </div>
       </div>
     </form>

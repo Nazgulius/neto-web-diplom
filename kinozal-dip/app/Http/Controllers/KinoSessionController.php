@@ -30,14 +30,14 @@ class KinoSessionController extends Controller
       $validated = $request->validate([
         'movie_id' => 'required|integer',
         'hall_id' => 'required|integer',
-        'start_time' => 'required|string',
+        'start_datetime' => 'required|date_format:Y-m-d H:i:s',
       ]);
 
       // Создание записи с массовым назначением
       $kinoSession = KinoSession::create([
         'movie_id' => $validated['movie_id'],
         'hall_id' => $validated['hall_id'],
-        'start_time' => $validated['start_time'],
+        'start_datetime' => $validated['start_datetime'],
       ]);
 
       return response()->json(['success' => true, 'kinoSession' => $kinoSession], 201);

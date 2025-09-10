@@ -40,6 +40,23 @@ const routes = [
       }
     }
   },
+  {
+    path: '/movies/:date',
+    name: 'movies',
+    component: IndexPage,
+    props: true,
+    beforeEnter: (to, from, next) => {
+      const date = to.params.date;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !new Date(date).getTime()) {
+        next({
+          name: 'movies',
+          params: { date: new Date().toISOString().split('T')[0] }
+        });
+      } else {
+        next();
+      }
+    }
+  }
 ]
 
 const router = createRouter({

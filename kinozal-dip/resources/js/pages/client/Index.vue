@@ -14,7 +14,14 @@ export default {
       type: String,
       required: false,
       default() { return 'abc123'; }
-    }
+    },
+    date: {
+      type: String,
+      required: false,
+      default: () => {
+          return new Date().toISOString().split('T')[0];
+      }
+    },
   },
   components: {
     Head,
@@ -32,16 +39,21 @@ export default {
       qrCodeData: 'тест qr кода',
       pollInterval: null,
       isFetching: false,
+      selectedDate: null,
+      daysOfWeek: [],
+      filteredMovies: [],
     }
   },  
   methods: {
     // получение всех фильмов
-    getMovies() {
-      axios.get('http://127.0.0.1:8000/movies')
-        .then(response => {
-          this.movies = response.data;
-          // console.log('movies response.data: ', response.data);          
-        });
+    async getMovies() {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/movies');
+        this.movies = response.data;
+        // await this.filterMoviesByDate(this.formatDate(this.selectedDate));
+      } catch (error) {
+        console.error('Ошибка при получении фильмов:', error);
+      }
     },
     // получение всех сеансов
     getSessions() {
@@ -77,6 +89,9 @@ export default {
       try {
         // Проверяем, не выполняется ли уже запрос
         if (this.isFetching) return;
+        if (!this.isValidDate(this.date)) {
+          this.date = this.getDefaultDate();
+        }
         
         this.isFetching = true;
         
@@ -128,10 +143,166 @@ export default {
         console.error('Не удалось получить статус глобальных продаж', e);
       }
     },
+    // генерация календаря на неделю
+    generateDaysOfWeek() {
+      try {
+        const startDate = new Date();
+        const today = new Date();
+        const days = [];
+        
+        for (let i = 0; i < 7; i++) {
+          const date = new Date(startDate);
+          date.setDate(date.getDate() + i);
+          days.push({
+            date: this.formatDate(date),
+            weekday: this.getWeekday(date),
+            day: date.getDate(),
+            month: date.getMonth() + 1,
+            year: date.getFullYear(),
+            isToday: this.isSameDay(date, today) // может и не нужна
+          });
+        }
+        console.log('Текущая дата:', this.date, typeof this.date);
+        
+        this.daysOfWeek = days;
+      } catch (error) {
+        console.error('Ошибка при генерации дней недели:', error);
+      }
+    },
+    isSameDay(date1, date2) {
+      return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+      );
+    },
+    formatDate(date) {
+      if (!date) return '';
+      if (!(date instanceof Date)) {
+        date = new Date(date);
+      }
+      if (isNaN(date)) {
+        return new Date().toISOString().split('T')[0];
+      }
+
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    },
+    getWeekday(date) {
+      const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+      return weekdays[date.getDay()];
+    },
+    isWeekend(date) {
+      const day = new Date(date);
+      return day.getDay() === 0 || day.getDay() === 6;
+    },
+    isToday(date) {
+      const today = new Date();
+      const testDate = new Date(date);
+      return (
+        testDate.getDate() === today.getDate() &&
+        testDate.getMonth() === today.getMonth() &&
+        testDate.getFullYear() === today.getFullYear()
+      );
+    },
+    handleDateClick(date) {
+      try {
+        this.selectedDate = date;
+        this.filterMoviesByDate(date);
+      } catch (error) {
+        console.error('Ошибка при выборе даты:', error);
+      }
+    },
+    async filterMoviesByDate(date) {
+      try {
+        // Преобразуем дату в начало и конец дня
+        const startOfDay = new Date(date);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59);
+
+        // Собираем movie_id всех сеансов, которые попадают в выбранный день
+        const movieIdsForDate = new Set(
+          this.sessions.filter(session => {
+            const sessionDate = new Date(session.start_datetime);
+            return (
+              sessionDate >= startOfDay &&
+              sessionDate <= endOfDay
+            );
+          }).map(session => session.movie_id)
+        );
+
+        // Фильтруем фильмы по собранным ID
+        this.filteredMovies = this.movies.filter(movie => 
+          movieIdsForDate.has(movie.id)
+        );
+      } catch (error) {
+        console.error('Ошибка при фильтрации фильмов:', error);
+      }
+    },    
+    getCurrentDate() {
+      let a = this.formatDate(new Date());
+      console.log('getCurrentDate a Текущая дата:', a, typeof a);
+      return a;
+    },
+    fetchMovies() {
+      this.getMovies();
+    },
+    // приводим дату к нужному формату времени
+    formatTime(datetime) {
+      const date = new Date(datetime);
+      
+      // Получаем часы и минуты
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${hours}:${minutes}`;
+    },
+    isValidDate(dateString) {
+      return /^\d{4}-\d{2}-\d{2}$/.test(dateString) && !isNaN(new Date(dateString));
+    },
+    getDefaultDate() {
+      return new Date().toISOString().split('T')[0];
+    },
+    async fetchData() {
+      try {
+        await this.getMovies();
+        await this.getSessions();
+        await this.getHalls();
+        await this.filterMoviesByDate(this.selectedDate);
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+      }
+    },
+  },
+  beforeRouteUpdate(to, from, next) {
+    // Проверяем валидность даты
+    if (!this.isValidDate(to.params.date)) {
+      next({
+        name: 'movies',
+        params: { date: this.getDefaultDate() }
+      });
+      return;
+    }
+    
+    this.selectedDate = to.params.date;
+    this.fetchMovies();
+    next();
   },
   mounted() {
     document.body.classList.add('page-client');
+    console.log('Текущая дата:', this.date, typeof this.date);
     
+    // Преобразуем строковую дату в объект Date
+    this.selectedDate = this.formatDate(this.isValidDate(this.date) ? new Date(this.date) : new Date());
+    this.generateDaysOfWeek();
+    this.fetchMovies();
+
+    // Проверяем валидность даты
+    if (!this.isValidDate(this.selectedDate)) {
+      this.selectedDate = this.getCurrentDate();
+    }
+    this.fetchData();
+    console.log('Текущая дата:', this.date, typeof this.date);
+
     this.startPolling(); // обновляет информацию о залах, кино, сеансах
     this.getMovies();
     this.getSessions();
@@ -190,26 +361,21 @@ export default {
   
 
   <nav class="page-nav">
-    <a class="page-nav__day page-nav__day_today" href="#">
-      <span class="page-nav__day-week">Пн</span><span class="page-nav__day-number">31</span>
-    </a>
-    <a class="page-nav__day" href="#">
-      <span class="page-nav__day-week">Вт</span><span class="page-nav__day-number">1</span>
-    </a>
-    <a class="page-nav__day page-nav__day_chosen" href="#">
-      <span class="page-nav__day-week">Ср</span><span class="page-nav__day-number">2</span>
-    </a>
-    <a class="page-nav__day" href="#">
-      <span class="page-nav__day-week">Чт</span><span class="page-nav__day-number">3</span>
-    </a>
-    <a class="page-nav__day" href="#">
-      <span class="page-nav__day-week">Пт</span><span class="page-nav__day-number">4</span>
-    </a>
-    <a class="page-nav__day page-nav__day_weekend" href="#">
-      <span class="page-nav__day-week">Сб</span><span class="page-nav__day-number">5</span>
-    </a>
-    <a class="page-nav__day page-nav__day_next" href="#">
-    </a>
+    <router-link 
+      v-for="(day, index) in daysOfWeek" 
+      :key="index" 
+      class="page-nav__day"
+      :to="{ name: 'Index', params: { date: day.date } }"
+      :class="{
+        'page-nav__day_today': isToday(day.date),
+        'page-nav__day_chosen': selectedDate === day.date,
+        'page-nav__day_weekend': isWeekend(day.date),        
+      }"
+      @click.native="handleDateClick(day.date)"
+    >
+      <span class="page-nav__day-week">{{ day.weekday }}</span>
+      <span class="page-nav__day-number">{{ day.day }}</span>
+    </router-link>
   </nav>
 
   
@@ -236,23 +402,28 @@ export default {
         </div>
       </div>
 
-      <div v-for="hall in halls" :key="hall.id" class="movie-seances__hall">
-        <h3 class="movie-seances__hall-title">Зал {{ hall.id }} {{ hall.name }}</h3>
-
-        <div v-if="globalSalesOpen" >
-          <ul class="movie-seances__list">          
-            <li v-for="session in sessions" :key="session.id" class="movie-seances__time-block">
-              <router-link v-if="session.movie_id === movie.id && session.hall_id === hall.id" 
-                :to="{ name: 'Hall', params: { hallId: hallId, sessionId: session.id } }" 
-                class="movie-seances__time">
-                {{ session?.start_time }}
-              </router-link>
-            </li>
-          </ul>
+      <div v-if="filteredMovies.length > 0">
+        <div v-for="hall in halls" :key="hall.id" class="movie-seances__hall">
+          <h3 class="movie-seances__hall-title">Зал {{ hall.id }} {{ hall.name }}</h3>
+  
+          <div v-if="globalSalesOpen" >
+            <ul class="movie-seances__list">          
+              <li v-for="session in sessions" :key="session.id" class="movie-seances__time-block">
+                <router-link v-if="session.movie_id === movie.id && session.hall_id === hall.id" 
+                  :to="{ name: 'Hall', params: { hallId: hallId, sessionId: session.id } }" 
+                  class="movie-seances__time">
+                  {{ formatTime(session.start_datetime) }}
+                </router-link>
+              </li>
+            </ul>
+          </div>
+          <div v-if="!globalSalesOpen" >
+            <h2>Продажи {{ globalSalesOpen ? 'открыты' : 'закрыты' }}</h2>
+          </div>        
         </div>
-        <div v-if="!globalSalesOpen" >
-          <h2>Продажи {{ globalSalesOpen ? 'открыты' : 'закрыты' }}</h2>
-        </div>        
+      </div>
+      <div v-else>
+        Сеансов на выбранную дату нет.
       </div>
     </section>
 
@@ -277,7 +448,9 @@ body.page-client {
   background-image: url("/src/client/background.jpg");
   background-size: cover;
   background-attachment: fixed;
-  background-position: right;
+  background-position: right; 
+  background-blend-mode: multiply;  
+  counter-reset: num;
 }
 
 .page-header {
@@ -349,6 +522,10 @@ body.page-client {
 
 .page-nav .page-nav__day_next {
   text-align: center;
+}
+
+.page-nav__day:hover {
+  background-color: #f8f9fa;
 }
 
 .page-nav .page-nav__day_next::before {

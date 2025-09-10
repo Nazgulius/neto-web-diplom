@@ -17,73 +17,63 @@ class KinoSessionsTableSeeder extends Seeder
     KinoSession::create([
       'movie_id' => 1,
       'hall_id' => 1,
-      'start_time' => '10:00',
+      'start_datetime' => now()->setTime(10, 0, 0),
       // 'end_time' => now(),
-      // 'price' => 2,
     ]);
 
     KinoSession::create([
       'movie_id' => 3,
       'hall_id' => 1,
-      'start_time' => '12:20',
-      // 'price' => 2,
+      'start_datetime' => now()->setTime(12, 20, 0),      
     ]);
 
     KinoSession::create([
       'movie_id' => 1,
       'hall_id' => 1,
-      'start_time' => '14:40',
-      // 'price' => 4,
+      'start_datetime' => now()->setTime(14, 40, 0),
     ]);
 
     KinoSession::create([
       'movie_id' => 3,
       'hall_id' => 1,
-      'start_time' => '17:00',
-      // 'price' => 6,
+      'start_datetime' => now()->setTime(17, 0, 0),
     ]);
 
     KinoSession::create([
       'movie_id' => 1,
       'hall_id' => 1,
-      'start_time' => '19:20',
-      // 'price' => 8,
+      'start_datetime' => now()->setTime(19, 20, 0),
     ]);
 
     // Зал 2
     KinoSession::create([
       'movie_id' => 2,
       'hall_id' => 2,
-      'start_time' => '10:30',
-      // 'price' => 2,
+      'start_datetime' => now()->setTime(10, 30, 0),
     ]);
 
     KinoSession::create([
       'movie_id' => 3,
       'hall_id' => 2,
-      'start_time' => '12:50',
-      // 'price' => 2,
+      'start_datetime' => now()->setTime(12, 50, 0),
     ]);
 
     KinoSession::create([
       'movie_id' => 2,
       'hall_id' => 2,
-      'start_time' => '15:10',
-      // 'price' => 4,
+      'start_datetime' => now()->setTime(15, 10, 0),
     ]);
 
     KinoSession::create([
       'movie_id' => 3,
       'hall_id' => 2,
-      'start_time' => '17:30',
-      // 'price' => 6,
+      'start_datetime' => now()->setTime(17, 30, 0),
     ]);
 
     KinoSession::create([
       'movie_id' => 2,
       'hall_id' => 2,
-      'start_time' => '19:50',
-      // 'price' => 8,
+      'start_datetime' => now()->setTime(19, 50, 0),
     ]);
   }
 }
