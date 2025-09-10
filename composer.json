@@ -13,5 +13,7 @@
             "email": "nazgulius@yandex.ru"
         }
     ],
-    "require": {}
+    "require": {
+        "beyondcode/laravel-websockets": "^1.14"
+    }
 }

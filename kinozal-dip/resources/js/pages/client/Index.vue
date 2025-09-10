@@ -29,7 +29,9 @@ export default {
       sessions: [],
       halls: [],
       globalSalesOpen: true,
-      qrCodeData: 'тест qr кода',      
+      qrCodeData: 'тест qr кода',
+      pollInterval: null,
+      isFetching: false,
     }
   },  
   methods: {
@@ -38,7 +40,7 @@ export default {
       axios.get('http://127.0.0.1:8000/movies')
         .then(response => {
           this.movies = response.data;
-          console.log('movies response.data: ', response.data);          
+          // console.log('movies response.data: ', response.data);          
         });
     },
     // получение всех сеансов
@@ -46,7 +48,7 @@ export default {
       axios.get('http://127.0.0.1:8000/sessions')
         .then(response => {
           this.sessions = response.data;
-          console.log('sessions: ', this.sessions);
+          // console.log('sessions: ', this.sessions);
         });
     },
     // получение всех Hall
@@ -54,11 +56,41 @@ export default {
     axios.get('http://127.0.0.1:8000/hall/index')
       .then(response => {
         this.halls = response.data;
-        console.log('halls: ', this.halls);
+        // console.log('halls: ', this.halls);
       })
       .catch(error => {
         console.error(error);
       });
+    },
+    // периодическое обновление залов, кино, сессий
+    startPolling() {
+      // Запускаем интервал опроса
+      this.pollInterval = setInterval(() => {
+        this.fetchHalls();
+      }, 5000); // Каждые 5 секунд
+    },
+    stopPolling() {
+      // Очищаем интервал
+      clearInterval(this.pollInterval);
+    },
+    async fetchHalls() {
+      try {
+        // Проверяем, не выполняется ли уже запрос
+        if (this.isFetching) return;
+        
+        this.isFetching = true;
+        
+         // Обновляем данные
+        this.getMovies();
+        this.getSessions();
+        this.getHalls();
+        console.log("fetchHalls Успешное обновление!");
+               
+      } catch (error) {
+        console.error('Ошибка при получении данных:', error);
+      } finally {
+        this.isFetching = false;
+      }
     },
 
     proceedToBooking() {
@@ -87,7 +119,7 @@ export default {
         this.sessions.push(updatedSession);
       }
     },
-
+    // проверка глобального статуса
     async fetchStatus() {
       try {
         const res = await axios.get('http://127.0.0.1:8000/admin/sales/status');
@@ -100,6 +132,7 @@ export default {
   mounted() {
     document.body.classList.add('page-client');
     
+    this.startPolling(); // обновляет информацию о залах, кино, сеансах
     this.getMovies();
     this.getSessions();
     this.getHalls();

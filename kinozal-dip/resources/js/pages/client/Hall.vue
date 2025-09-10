@@ -20,7 +20,9 @@ export default {
       session: null,
       movie: [],
       hall: [],
-      
+      globalSalesOpen: true,
+      pollInterval: null,
+      isFetching: false,
       // sessionId: this.sessionId // динамическая генерация сессии
     }
   },
@@ -95,15 +97,15 @@ export default {
 
     // Проверка доступности места
     isSeatAvailable(seat) {
-      console.log('isSeatAvailable ', seat);
-      console.log('isSeatAvailable ', seat.status);
+      // console.log('isSeatAvailable ', seat);
+      // console.log('isSeatAvailable ', seat.status);
       return seat.status === 'available' || seat.status === 'blocked';
     },
     getSeats() {
       axios.get('http://127.0.0.1:8000/seats/index')
         .then(response => {
           this.seats = response.data;
-          console.log('getSeats response: ', response);
+          // console.log('getSeats response: ', response);
         })
         .catch(error => {
           console.error(error);
@@ -174,11 +176,49 @@ export default {
         alert('Ошибка бронирования');
       });
     },
-    
+    // периодическое обновление залов, кино, сессий
+    startPolling() {
+      // Запускаем интервал опроса
+      this.pollInterval = setInterval(() => {
+        this.fetchHalls();
+      }, 2000); // Каждые 2 секунд
+    },
+    stopPolling() {
+      // Очищаем интервал
+      clearInterval(this.pollInterval);
+    },
+    async fetchHalls() {
+      try {
+        // Проверяем, не выполняется ли уже запрос
+        if (this.isFetching) return;
+        
+        this.isFetching = true;
+        
+         // Обновляем данные
+        this.getSeats();
+        console.log("fetchHalls Успешное обновление!");
+               
+      } catch (error) {
+        console.error('Ошибка при получении данных:', error);
+      } finally {
+        this.isFetching = false;
+      }
+    },
+    // проверка глобального статуса
+    async fetchStatus() {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/admin/sales/status');
+        this.globalSalesOpen = !!res.data.data.sales_globally_open;
+      } catch (e) {
+        console.error('Не удалось получить статус глобальных продаж', e);
+      }
+    },
     
   },
   mounted() {
     document.body.classList.add('page-client');
+
+    this.startPolling(); // обновляет информацию
     
     console.log('sessionId=', this.sessionId);
     console.log('Hall ID:', this.hallId);
