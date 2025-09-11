@@ -56,6 +56,7 @@ headers.forEach(header => header.addEventListener('click', () => {
 /* css */
 
 /* @charset "UTF-8"; */ 
+/*
 @keyframes slideFromTop {
   0% {
     top: -50vh;
@@ -801,9 +802,9 @@ select {
   transform: scale(1.2);
   transition: .3s all ease;
 }
-
+*/
 /*==================================*/
-
+/*
 .conf-step__wrapper__save-status {
   padding-top: 10px;
   font-size: 15px;
@@ -858,5 +859,5 @@ textarea.conf-step__input {
   color: #ff0000;
   font-weight: 600;
 }
-
+*/
 /*# sourceMappingURL=styles.css.map */</style>

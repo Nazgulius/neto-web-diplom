@@ -272,6 +272,20 @@ export default {
         console.error('Ошибка при загрузке данных:', error);
       }
     },
+    logRoute(routeName) {
+      console.log(`Переход по маршруту: ${routeName}`);
+    },
+    updateBodyClasses(type) {
+      if (type === 'admin') {
+        document.body.classList.remove('page-client');
+        document.body.classList.add('page-admin');
+        document.body.classList.add('page-admin-index');
+      } else if (type === 'client') {
+        document.body.classList.remove('page-admin');
+        document.body.classList.remove('page-admin-index');
+        document.body.classList.add('page-client');
+      }
+    },
   },
   beforeRouteUpdate(to, from, next) {
     // Проверяем валидность даты
@@ -287,6 +301,21 @@ export default {
     this.fetchMovies();
     next();
   },
+  // beforeRouteEnter(to, from, next) {
+  //   document.body.classList.remove('page-admin');
+  //   document.body.classList.remove('page-admin-index');
+  //   document.body.classList.add('page-client');
+  //   next();
+  // },
+  // watch: {
+  //   $route() {
+  //     if (this.$route.meta.isAdmin) {
+  //       this.updateBodyClasses('admin');
+  //     } else {
+  //       this.updateBodyClasses('client');
+      // }
+  //   }
+  // },
   mounted() {
     document.body.classList.add('page-client');
     console.log('Текущая дата:', this.date, typeof this.date);
@@ -377,14 +406,16 @@ export default {
       <span class="page-nav__day-number">{{ day.day }}</span>
     </router-link>
   </nav>
-
   
-  <router-link :to="{ name: 'Admin' }" class="link_color">
-    Login for Admin
-  </router-link>
-  <router-link :to="{ name: 'Login' }" class="link_color">
-    Login for Login
-  </router-link>
+  <nav class="page-nav">  
+    <router-link :to="{ name: 'Admin' }" class="link_color" @click.native="logRoute('Admin')">
+      Вход в административную панель
+    </router-link>
+    <!-- <router-link :to="{ name: 'Login' }" class="link_color" @click.native="logRoute('Login')">
+      Login for Login
+    </router-link> -->
+  </nav>
+
   <main>
 
     <section v-for="movie in movies" :key="movie.id" class="movie">
@@ -446,6 +477,7 @@ html {
 
 body.page-client {
   background-image: url("/src/client/background.jpg");
+  background-color: rgba(0, 0, 0, 0);
   background-size: cover;
   background-attachment: fixed;
   background-position: right; 

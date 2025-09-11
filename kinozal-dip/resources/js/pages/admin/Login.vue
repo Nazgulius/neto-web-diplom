@@ -16,30 +16,31 @@ export default {
     }
   },
   data() {
-    return { // тут состояние 
+    return { 
     }  
   }, 
   methods: {
-    // методы для бронирования 
     login() { 
-      axios.post('/api/login', { 
+      axios.post('http://127.0.0.1:8000/login', { 
         email: this.email, 
         password: this.password 
       }) 
       .then(response => { 
         // сохраняем токен 
         localStorage.setItem('token', response.data.token) 
-        // перенаправление или иные действия 
+       
+        // Выполняем редирект
+        this.$router.push({ name: 'admin.login' });
       }) 
       .catch(error => { 
-        console.error('Ошибка входа:', error) 
+        console.error('Ошибка входа:', error);        
       }) 
     } 
   },
   mounted() {
-    // fetch данных о зале 
     document.body.classList.add('page-admin');   
-    document.body.classList.add('page-admin-login');   
+    document.body.classList.add('page-admin-login');  
+     
   }
 }
 </script>

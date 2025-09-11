@@ -1,5 +1,3 @@
- <!-- добавил -->
- 
 <template>
   <div id="app">
     <!-- <Index /> -->

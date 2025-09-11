@@ -38,7 +38,7 @@ export default {
       movies: [],
       sessions: [],
       globalSalesOpen: true,
-      editMovieID: null,      
+      editMovieID: null,
       timelineStart: '09:00', // например
       timelineEnd: '23:00', // например
       timelineWidth: 720, // ширина шкалы в пикселях
@@ -102,14 +102,23 @@ export default {
       if (!this.formMovieSessionData.selectedDate || !this.formMovieSessionData.selectedTime) {
         return '';
       }
-      
+
       const [hours, minutes] = this.formMovieSessionData.selectedTime.split(':');
       return `${this.formMovieSessionData.selectedDate} ${hours}:${minutes}:00`;
     }
   },
   methods: {
     computeLeft(start_datetime) {
-      const delta = this.minutesBetween(this.timelineStart, start_datetime);
+      // Преобразуем строку в Date объект
+      const date = new Date(start_datetime);
+
+      // Получаем время в формате ЧЧ:ММ
+      const time = date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const delta = this.minutesBetween(this.timelineStart, time);
       const percent = delta / this.totalTimelineMinutes; // ограничиваем от 0 до timelineWidth 
       return Math.max(0, Math.min(this.timelineWidth, percent * this.timelineWidth));
     },
@@ -235,7 +244,7 @@ export default {
     submitFormAddSessionMovie() {
       // this.formMovieSessionData.movie_id = this.editMovieID + 1;
       // this.formMovieSessionData.hall_id = Number(this.formMovieSessionData.hall_id) || 0;
-      
+
       // Проверяем, что дата и время заполнены
       if (!this.formMovieSessionData.selectedDate || !this.formMovieSessionData.selectedTime) {
         this.$toast.error('Пожалуйста, выберите дату и время');
@@ -270,12 +279,12 @@ export default {
         this.$toast.error('Пожалуйста, выберите дату');
         return false;
       }
-      
+
       if (!this.formMovieSessionData.selectedTime) {
         this.$toast.error('Пожалуйста, выберите время');
         return false;
       }
-      
+
       return true;
     },
     // удаление сессии кино
@@ -358,7 +367,7 @@ export default {
         // Если данных нет, генерируем стандартную рассадку
         this.hallConfig.seats = this.generateDefaultSeats();
       }
-      
+
     },
     // Метод для генерации стандартной рассадки
     generateDefaultSeats() {
@@ -387,12 +396,12 @@ export default {
       // const rowIndex = this.hallConfig.seats.findIndex(row => 
       //   row.find(s => s.number === seat.number && s.row === seat.row)
       // );
-      
+
       // // находим индекс места в ряду
       // const seatIndex = this.hallConfig.seats[rowIndex].findIndex(s => 
       //   s.number === seat.number && s.row === seat.row
       // );
-      
+
       // // меняем тип места
       // this.hallConfig.seats[rowIndex][seatIndex].type = this.currentSeatType;
     },
@@ -482,7 +491,7 @@ export default {
         console.error('Некорректные входные данные apiSeats');
         return [];
       }
-      
+
       if (!this.hallConfig.rows || !this.hallConfig.seatsPerRow) {
         console.error('Некорректная конфигурация зала');
         return [];
@@ -520,7 +529,7 @@ export default {
 
         seats.push(rowSeats);
       }
-      
+
       // console.log('formatSeats по итогу seats ', seats);
       return seats;
     },
@@ -532,7 +541,7 @@ export default {
       // Добавляем логирование для отладки
       // console.log(`getSeatKey: row=${row}, number=${number}`);
       // console.log(`Вычисляем ключ: (${row-1}) * ${this.hallConfig.seatsPerRow} + (${number-1})`);
-      
+
       // return (row - 1) * this.hallConfig.seatsPerRow + (number - 1); // начальный вариант
       return (row - 1) * this.hallConfig.seatsPerRow * 5 + (number - 1) * 5;
     },
@@ -549,6 +558,11 @@ export default {
       //   });
       // this.generateSeats();
       // this.updateSeatsLayout();
+    },
+    selectHallPrise(hallId) {
+      const selectedHallP = this.halls.filter(h => h.id === hallId);
+      this.prices.standart = selectedHallP[0].amountStandart;
+      this.prices.vip = selectedHallP[0].amountVip;
     },
     btnCanselPrise() {
       // Сброс значений
@@ -705,31 +719,71 @@ export default {
     // для попап
     handleScroll() {
       const scrollTop = window.scrollY;
-      this.$refs.popup1.style.top = `${scrollTop + 10}px`;
-      this.$refs.popup2.style.top = `${scrollTop + 10}px`;
-      this.$refs.popup3.style.top = `${scrollTop + 10}px`;
-      this.$refs.popup4.style.top = `${scrollTop + 10}px`;
+      if (!this.popupHidden || !this.popupHiddenAM || !this.popupHiddenEM || !this.popupHiddenAddSessionMovie) {
+        this.$refs.popup1.style.top = `${scrollTop + 10}px`;
+        this.$refs.popup2.style.top = `${scrollTop + 10}px`;
+        this.$refs.popup3.style.top = `${scrollTop + 10}px`;
+        this.$refs.popup4.style.top = `${scrollTop + 10}px`;
+      }
     },
+    async logout() {
+      try {
+        // Получаем CSRF токен
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
+        // Отправляем запрос на выход
+        await fetch('/logout', { // используем относительный путь
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          credentials: 'include'
+        });
+
+        // Очищаем локальные данные
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+
+        // Перенаправляем на главную через Inertia
+        this.$inertia.get('/'); // используем Inertia для перенаправления
+      } catch (error) {
+        console.error('Ошибка при выходе:', error);
+        this.$router.push('/');
+      }
+      this.updateBodyClasses('client');
+    },
+    updateBodyClasses(type) {
+      if (type === 'admin') {
+        document.body.classList.remove('page-client');
+        document.body.classList.add('page-admin');
+        document.body.classList.add('page-admin-index');
+      } else if (type === 'client') {
+        document.body.classList.remove('page-admin');
+        document.body.classList.remove('page-admin-index');
+        document.body.classList.add('page-client');
+      }
+    },
   },
-  // watch: {
-  //   'hallConfig.rows': {
-  //     handler(newValue) {
-  //       if (newValue > 0) {
-  //         this.generateSeats();
-  //       }
-  //     },
-  //     immediate: true
-  //   },
+ 
+  // watch: {  
+    //   'hallConfig.rows': {
+    //     handler(newValue) {
+    //       if (newValue > 0) {
+    //         this.generateSeats();
+    //       }
+    //     },
+    //     immediate: true
+    //   },
 
-  //   'hallConfig.seatsPerRow': {
-  //     handler(newValue) {
-  //       if (newValue > 0) {
-  //         this.generateSeats();
-  //       }
-  //     },
-  //     immediate: true
-  //   }
+    //   'hallConfig.seatsPerRow': {
+    //     handler(newValue) {
+    //       if (newValue > 0) {
+    //         this.generateSeats();
+    //       }
+    //     },
+    //     immediate: true
+    //   }
   // },
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll);
@@ -737,6 +791,7 @@ export default {
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-admin');
+    document.body.classList.add('page-admin-index');
     window.addEventListener('scroll', this.handleScroll); // для скролла попап
 
     this.getHalls();
@@ -757,12 +812,19 @@ export default {
 </script>
 
 <template>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
   <header class="page-header">
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
     <span class="page-header__subtitle">Администраторррская</span>
   </header>
 
-  <router-link :to="{ name: 'Logout' }" class="link_exit">Exit</router-link>
+  <!-- <router-link :to="{ name: 'Logout' }" class="link_exit">Exit</router-link> logout-->.
+  <nav class="page-nav">
+    <button @click="logout" class="link_exit">
+      Exit
+    </button>
+  </nav>
 
   <main class="conf-steps">
     <section class="conf-step">
@@ -782,6 +844,7 @@ export default {
       </div>
     </section>
 
+    <!-- конфигурация мест в зале -->
     <section class="conf-step">
       <header class="conf-step__header conf-step__header_opened">
         <h2 class="conf-step__title">Конфигурация залов</h2>
@@ -789,16 +852,13 @@ export default {
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
-          <div v-for="hall in halls" :key="hall.id" class="hall">
-            <li>
-              <label class="conf-step__selector">
-                <input type="radio" class="conf-step__radio" name="chairs-hall" :value="hall.id"
-                  :checked="hall.id === selectedHall" @change="selectHall(hall.id)">
-                Зал {{ hall?.name }}
-                  <!-- <span class="conf-step__selector">Зал {{ hall?.name }}</span> -->
-              </label>
-            </li>
-          </div>
+          <li v-for="hall in halls" :key="hall.id" class="hall">
+            <label>
+              <input type="radio" class="conf-step__radio" name="chairs-hall" :value="hall.id"
+                :checked="hall.id === selectedHall" @change="selectHall(hall.id)">
+              <span class="conf-step__selector">Зал {{ hall?.name }}</span>
+            </label>
+          </li>
         </ul>
         <p class="conf-step__paragraph">Укажите количество рядов и максимальное количество кресел в ряду:</p>
         <div class="conf-step__legend">
@@ -844,11 +904,13 @@ export default {
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">Выберите зал для конфигурации:</p>
         <ul class="conf-step__selectors-box">
-          <div v-for="hall in halls" :key="hall.id" class="hall">
-            <li><input type="radio" class="conf-step__radio" name="prices-hall" :value="hall.id" v-model="selectedHall">
+          <li v-for="hall in halls" :key="hall.id" class="hall">
+            <label>
+              <input type="radio" class="conf-step__radio" name="prices-hall" :value="hall.id" v-model="selectedHall"
+                @change="selectHallPrise(hall.id)">
               <span class="conf-step__selector">Зал {{ hall?.name }}</span>
-            </li>
-          </div>
+            </label>
+          </li>
         </ul>
 
         <p class="conf-step__paragraph">Установите цены для типов кресел:</p>
@@ -868,8 +930,7 @@ export default {
 
         <fieldset class="conf-step__buttons text-center">
           <button class="conf-step__button conf-step__button-regular" @click="btnCanselPrise">Отмена</button>
-          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent"
-            @click="btnSavePrise">
+          <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent" @click="btnSavePrise">
         </fieldset>
       </div>
     </section>
@@ -930,8 +991,7 @@ export default {
           <h2>Глобальные продажи</h2>
           <p>Статус: <strong>{{ globalSalesOpen ? 'Открыты' : 'Закрыты' }}</strong></p>
           <div class="admin-settings__controls">
-            <button @click="openAllSales" :disabled="globalSalesOpen"
-              class="conf-step__button conf-step__button-accent">
+            <button @click="openAllSales" :disabled="globalSalesOpen" class="conf-step__button conf-step__button-accent">
               Открыть продажи во всем приложении
             </button>
             <button @click="closeAllSales" :disabled="!globalSalesOpen"
@@ -970,8 +1030,7 @@ export default {
           <input type="text" class="c" placeholder="200" name="amountStandart" id="amountStandart"
             v-model="formHallData.amountStandart">
           <label for="vip" class="conf-step__paragraph">Amount Vip seat in hall</label>
-          <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip"
-            v-model="formHallData.amountVip">
+          <input type="text" class="c" placeholder="500" name="amountVip" id="amountVip" v-model="formHallData.amountVip">
           <label for="active" class="conf-step__paragraph">active</label>
           <input type="radio" class="c" name="active" id="active" v-model="formHallData.active" checked>
 
@@ -1032,7 +1091,7 @@ export default {
           <span class="conf-step__paragraph">Name: {{ movies[editMovieID]?.title }} </span>
           <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
           <label for="description" class="conf-step__paragraph">description: {{ movies[editMovieID]?.description
-            }}</label>
+          }}</label>
           <input type="text" class="c" placeholder="description" name="description" id="description"
             v-model="formMovieData.description">
           <label for="duration" class="conf-step__paragraph">duration: {{ movies[editMovieID]?.duration }}</label>
@@ -1067,7 +1126,7 @@ export default {
   <!-- popup add sessios movie -->
   <div class="popup popup__plus" ref="popup2" :class="{ 'popup__invisiblAddSessionMovie': popupHiddenAddSessionMovie }">
     <form @submit.prevent="submitFormAddSessionMovie" class="popup__form popup__container" method="post"
-      autocomplete="on"> 
+      autocomplete="on">
       <div class="popup__header">
         <h1 class="popup__title">Edit Session Movie</h1>
         <h1 class="popup__title">{{ movies[editMovieID]?.title }}</h1>
@@ -1078,29 +1137,18 @@ export default {
           <label for="hall_id" class="conf-step__paragraph">hall_id</label>
           <input type="number" class="c" placeholder="1" name="hall_id" id="hall_id"
             v-model.number="formMovieSessionData.hall_id">
-          <label for="start_datetime" class="conf-step__paragraph">start_datetime Время работы от {{ timelineStart }} до {{ timelineEnd }} <br>(учитывайте продолжительность фильма)</label>
+          <label for="start_datetime" class="conf-step__paragraph">start_datetime Время работы от {{ timelineStart }} до
+            {{ timelineEnd }} <br>(учитывайте продолжительность фильма)</label>
           <!-- <input type="start_datetime" class="c" placeholder="2025-09-10 10:00:00" name="start_datetime" id="start_datetime"
             v-model="formMovieSessionData.start_datetime"> -->
           <!-- Поле для выбора даты -->
-          <input 
-            type="date" 
-            v-model="formMovieSessionData.selectedDate" 
-            required 
-          >
-          
+          <input type="date" v-model="formMovieSessionData.selectedDate" required>
+
           <!-- Поле для выбора времени -->
-          <input 
-            type="time" 
-            v-model="formMovieSessionData.selectedTime" 
-            required 
-          >
-          
+          <input type="time" v-model="formMovieSessionData.selectedTime" required>
+
           <!-- Скрытое поле для финального datetime -->
-          <input 
-            type="hidden" 
-            name="start_datetime" 
-            :value="formattedDateTime"
-          >
+          <input type="hidden" name="start_datetime" :value="formattedDateTime">
 
           <h3>Sessions</h3>
           <ul class="conf-step__selectors-box">
@@ -1112,8 +1160,9 @@ export default {
               </li>
             </div>
           </ul>
-         
-          <button class="btnPopupHalls" type="submit" @click="toglePopupAddSessionMovie" :disabled="!formattedDateTime">Создать сессию для кино</button>
+
+          <button class="btnPopupHalls" type="submit" @click="toglePopupAddSessionMovie"
+            :disabled="!formattedDateTime">Создать сессию для кино</button>
           <button class="btnPopupHalls" type="reset" @click="toglePopupAddSessionMovie">Отмена</button>
         </div>
       </div>
@@ -1162,6 +1211,10 @@ body.page-admin {
   background-size: cover;
   background-attachment: fixed;
   counter-reset: num;
+}
+
+body.page-admin-index {
+  height: 100%;
 }
 
 input[type='radio'],
@@ -1544,17 +1597,29 @@ select {
   border-color: #C4C4C4;
 }
 
+.hall {
+  display: flex;
+  align-items: center;
+}
+
 .conf-step__selectors-box {
   /* font-size: 0; */
   list-style: none;
   padding: 0;
   /* margin-bottom: 15px; */
+
+  display: flex;
+  gap: 5px;
+  margin: 0;
 }
 
 .conf-step__selectors-box li {
-  position: relative;
-  display: inline-block;
+  /* position: relative; */
+  /* display: inline-block; */
   font-size: 1.2rem;
+
+  display: flex;
+  align-items: center;
 }
 
 .conf-step__selectors-box .conf-step__radio {
@@ -1570,8 +1635,8 @@ select {
 }
 
 .conf-step__selectors-box .conf-step__selector {
-  position: relative;
-  display: block;
+  /* position: relative; */
+  /* display: flex; */
   padding: 13px 21px;
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.24), 0px 0px 3px rgba(0, 0, 0, 0.12);
   border-radius: 3px;
@@ -1600,7 +1665,7 @@ select {
 }
 
 .conf-step__selector {
-  display: block;
+  display: flex;
   padding: 13px 21px;
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.24), 0px 0px 3px rgba(0, 0, 0, 0.12);
   border-radius: 3px;
@@ -1610,6 +1675,9 @@ select {
   font-size: 1.4rem;
   cursor: pointer;
   transition: all 0.5s ease;
+
+  position: relative;
+  align-items: center;
 }
 
 .conf-step__radio {
@@ -1623,13 +1691,36 @@ select {
   background-color: rgba(255, 255, 255, 0.9);
 }
 
-.conf-step__radio:checked + .conf-step__selector {
+.conf-step__radio:checked+.conf-step__selector {
   background-color: #FFFFFF;
   box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.24), 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
   transform: scale(1.1);
   font-weight: 900;
   font-size: 1.4rem;
+
+  z-index: 1;
 }
+
+/* Объединяем стили для hover и checked */
+.conf-step__radio:checked+.conf-step__selector:hover {
+  background-color: #FFFFFF;
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.24), 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  transform: scale(1.1);
+  font-weight: 900;
+  font-size: 1.4rem;
+
+
+}
+
+.conf-step__selectors-box .conf-step__radio:checked+.conf-step__selector {
+  background-color: #FFFFFF;
+  box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.24), 0px 2px 2px rgba(0, 0, 0, 0.12), 0px 0px 2px rgba(0, 0, 0, 0.12);
+  transform: scale(1.1);
+  font-weight: 900;
+  font-size: 1.4rem;
+  z-index: 10;
+}
+
 
 .conf-step__hall {
   position: relative;

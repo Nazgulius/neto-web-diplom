@@ -6,10 +6,12 @@ import HallPage from '@/pages/client/Hall.vue';
 import PaymentPage from '@/pages/client/Payment.vue';
 import TicketPage from '@/pages/client/Ticket.vue';
 import AdminIndex from '@/pages/admin/Index.vue';
+import AdminLogin2 from '@/pages/auth/Login.vue';
 import AdminLogin from '@/pages/admin/Login.vue';
 
 const routes = [
   { path: '/', component: IndexPage, name: 'Index' },
+  { path: '/', component: IndexPage, name: 'Home' },
   { path: '/hall/:id', component: HallPage },
   { path: '/hall', name: 'hall',component: HallPage },
   {
@@ -21,22 +23,25 @@ const routes = [
   { path: '/payment', name: 'payment', component: PaymentPage },
   { path: '/ticket', name: 'ticket', component: TicketPage },
   // admin
-  { path: '/admin', name: 'Admin', component: AdminIndex, meta: { requiresAuth: true } },
+  { path: '/admin', name: 'Admin', component: AdminLogin2, meta: { requiresAuth: true } },
   { path: '/dashboard', component: AdminIndex, meta: { requiresAuth: true } },
   { path: '/admin/login', name: 'Login',component: AdminLogin },
   {
     path: '/logout',
     name: 'Logout',
-    component: { template: '<router-view/>' }, // незаметный компонент
     beforeEnter: async (to, from, next) => {
       try {
-        await fetch('/api/logout', { method: 'POST', credentials: 'include' });
-        // локально очистить данные пользователя, если нужно
-        // например, сбросить store или state
-        window.location.href = '/'; // или роутер push к нужной странице
+        await fetch('/logout', { method: 'POST', credentials: 'include' });
+        // Очистка локальных данных
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        
+        // Возврат на главную страницу
+        // next('/'); // или 
+        this.$router.push('/');
       } catch (e) {
         console.error(e);
-        window.location.href = '/'; // fallback
+        next('/');
       }
     }
   },

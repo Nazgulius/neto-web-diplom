@@ -8,6 +8,7 @@ use App\Http\Controllers\KinoSessionController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use Illuminate\Http\Request;
 
 Route::apiResources([
     'halls' => HallController::class,
@@ -24,6 +25,11 @@ Route::post('/check-seat', [SeatController::class, 'checkAvailability']);
 Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']);
 Route::get('/seats', [SeatController::class, 'getSeats']);
 Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book');
+
+Route::post('/logout', function (Request $request) {
+  $request->user()->tokens()->delete();
+  return response('Successfully logged out.', 200);
+});
 
 // Route::get('/movies', [MovieController::class, 'index']);
 

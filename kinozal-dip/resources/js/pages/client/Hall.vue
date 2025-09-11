@@ -258,10 +258,13 @@ export default {
   </header>
 
   <main>
-    <section class="buying">
+    <nav class="page-nav">  
       <router-link :to="{ name: 'Index' }" class="link_color">
         Home
       </router-link>
+    </nav>
+    
+    <section class="buying">
       <div class="buying__info">
         <div class="buying__info-description">
           <h2 class="buying__info-title">{{ movie?.title }} </h2>

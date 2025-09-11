@@ -132,9 +132,12 @@ export default {
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
   
-  <router-link :to="{ name: 'Index' }" class="link_color">
-  Home
-  </router-link>
+  <nav class="page-nav">
+    <router-link :to="{ name: 'Index' }" class="link_color">
+    Home
+    </router-link>
+  </nav>
+      
   <main>
     <section class="ticket">
       

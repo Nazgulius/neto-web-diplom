@@ -11,10 +11,12 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SessionController;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 
 Route::get('/', function () {
-    return Inertia::render('App');
+    return Inertia::render('client/Index');
 })->name('app'); // обновлён переход. Начало в App vue, и в нём уже будут открываться другие страницы приложения.
 
 // маршруты для клиента:
@@ -50,7 +52,7 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/admin', function () {
     return Inertia::render('admin/Index');
-})->middleware(['auth', 'verified']);
+})->middleware(['auth', 'verified'])->name('admin.login');
 Route::get('admin/login', function () {
     return Inertia::render('admin/Login');
 })->middleware(['auth', 'verified'])->name('loginAdmin');
@@ -74,6 +76,14 @@ Route::get('/hall/movie/{id}', [MovieController::class, 'show']);
 Route::get('/get-qr-code', [TicketController::class, 'getQrCode']);
 Route::post('/get-qr-code', [TicketController::class, 'getQrCode']);
 Route::post('/api/logout', [AuthController::class, 'logout']);
+// Route::post('/logout', function (Request $request) {
+//   $request->user()->tokens()->delete();
+//   return response('Successfully logged out.', 200);
+// });
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+  ->middleware('auth')
+  ->name('logout');
+
 Route::post('/hall/create', [HallController::class, 'create']); // создание зала
 Route::get('/hall/create', [HallController::class, 'index']); // проверка зала
 Route::get('/hall/index', [HallController::class, 'index']);
