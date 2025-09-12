@@ -48,12 +48,12 @@ export default {
         seats_per_row: 10,
         amountStandart: 0,
         amountVip: 0,
-        active: true,
       }, // содержит данные для сохранения нового Hall
       popupHidden: true, // попап скрыт по умолчанию
       popupHiddenAM: true, // попап скрыт по умолчанию
       popupHiddenEM: true, // попап скрыт по умолчанию
       popupHiddenAddSessionMovie: true, // попап скрыт по умолчанию
+      isVisible: false,
       formMovieData: {
         title: '', // название
         description: '', // описание
@@ -141,22 +141,58 @@ export default {
     toglePopupAddSessionMovie() {
       this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
     },
+    openPopup() {
+      this.isVisible = true;
+    },
+    closePopup() {
+      this.isVisible = false;
+      this.resetForm();
+    },
+    resetForm() {
+      this.formHallData = {
+        name: '',
+        rows: '',
+        seats_per_row: '',
+        amountStandart: '',
+        amountVip: '',
+      };
+    },
+
     // добавление Hall 
     submitFormHalls() {
-      axios.post('http://127.0.0.1:8000/hall/create', this.formHallData)
-        .then(response => {
-          console.log('Успех:', response.data);
-          this.getHalls(); // Перезагружаем список залов
-        })
-        .catch(error => {
-          if (error.response) {
-            // Ответ сервера с кодом ошибки
-            console.error('Ошибка сервера:', error.response.data);
-          } else {
-            console.error(error);
-          }
-        });
+      try {
+        // Добавляем типы полей согласно валидации
+        const data = {
+          name: this.formHallData.name,
+          rows: parseInt(this.formHallData.rows),
+          seats_per_row: parseInt(this.formHallData.seats_per_row),
+          amountStandart: parseInt(this.formHallData.amountStandart),
+          amountVip: parseInt(this.formHallData.amountVip)
+        };
+
+        axios.post('http://127.0.0.1:8000/hall/create', data)
+          .then(response => {
+            this.$emit('hall-created', this.formHallData);
+            this.closePopup();
+            console.log('Успех:', response.data);
+            this.getHalls(); // Перезагружаем список залов
+          })
+          .catch(error => {
+            if (error.response) {
+              // Ответ сервера с кодом ошибки
+              console.error('Ошибка сервера:', error.response.data);
+            } else {
+              console.error(error);
+            }
+          });
+      } catch (error) {
+        console.error('Ошибка при создании зала:', error);
+        this.$toast.error('Произошла ошибка при создании зала');
+      }
+
     },
+    emits: ['hall-created'],
+
     // удаление Hall
     btnHallDel(hallID) {
       axios.delete('http://127.0.0.1:8000/hall/destroy/' + hallID)
@@ -765,25 +801,25 @@ export default {
       }
     },
   },
- 
-  // watch: {  
-    //   'hallConfig.rows': {
-    //     handler(newValue) {
-    //       if (newValue > 0) {
-    //         this.generateSeats();
-    //       }
-    //     },
-    //     immediate: true
-    //   },
 
-    //   'hallConfig.seatsPerRow': {
-    //     handler(newValue) {
-    //       if (newValue > 0) {
-    //         this.generateSeats();
-    //       }
-    //     },
-    //     immediate: true
-    //   }
+  // watch: {  
+  //   'hallConfig.rows': {
+  //     handler(newValue) {
+  //       if (newValue > 0) {
+  //         this.generateSeats();
+  //       }
+  //     },
+  //     immediate: true
+  //   },
+
+  //   'hallConfig.seatsPerRow': {
+  //     handler(newValue) {
+  //       if (newValue > 0) {
+  //         this.generateSeats();
+  //       }
+  //     },
+  //     immediate: true
+  //   }
   // },
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll);
@@ -840,7 +876,7 @@ export default {
             </li>
           </div>
         </ul>
-        <button class="conf-step__button conf-step__button-accent" @click="toglePopupHall">Создать зал</button>
+        <button class="conf-step__button conf-step__button-accent" @click="openPopup">Создать зал</button>
       </div>
     </section>
 
@@ -1007,8 +1043,8 @@ export default {
   </main>
 
   <!-- popup add Halls -->
-  <div class="popup" ref="popup4" :class="{ 'popup__invisibl': popupHidden }">
-    <!-- в форм: method="post" autocomplete="on" -->
+  <!-- в форм: method="post" autocomplete="on" -->
+  <!-- <div class="popup" ref="popup4" :class="{ 'popup__invisibl': popupHidden }">
     <form @submit.prevent="submitFormHalls" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
         <h1 class="popup__title">Add Halls</h1>
@@ -1039,7 +1075,7 @@ export default {
         </div>
       </div>
     </form>
-  </div>
+  </div> -->
 
   <!-- popup add movie -->
   <div class="popup" ref="popup3" :class="{ 'popup__invisiblAM': popupHiddenAM }">
@@ -1167,6 +1203,52 @@ export default {
         </div>
       </div>
     </form>
+  </div>
+
+  <!-- обновлённый попап hall -->
+  <div class="popup" :class="{ 'popup--visible': isVisible }">
+    <div class="popup__overlay" @click="closePopup"></div>
+    <div class="popup__content">
+      <button class="popup__close" @click="closePopup">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+      <h2 class="popup__title">Добавление зала</h2>
+      <form class="popup__form" @submit.prevent="submitFormHalls">
+        <div class="popup__fields">
+          <div class="form-group">
+            <label for="hallName">Название зала</label>
+            <input type="text" id="hallName" v-model="formHallData.name" required>
+          </div>
+          <div class="form-group">
+            <label for="rows">Количество рядов</label>
+            <input type="number" id="rows" v-model="formHallData.rows" required>
+          </div>
+          <div class="form-group">
+            <label for="seatsPerRow">Мест в ряду</label>
+            <input type="number" id="seatsPerRow" v-model="formHallData.seats_per_row" required>
+          </div>
+          <div class="form-group">
+            <label for="standartSeats">Цена стандартных мест</label>
+            <input type="number" id="standartSeats" v-model="formHallData.amountStandart" required>
+          </div>
+          <div class="form-group">
+            <label for="vipSeats">Цена VIP мест</label>
+            <input type="number" id="vipSeats" v-model="formHallData.amountVip" required>
+          </div>
+        </div>
+        <div class="popup__actions">
+          <button type="submit" class="btn btn--primary">
+            Создать зал
+          </button>
+          <button type="button" class="btn btn--secondary" @click="closePopup">
+            Отмена
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -2138,5 +2220,157 @@ textarea.conf-step__input {
 button[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+
+
+
+/* новый вариант попап */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+}
+
+.popup--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.popup__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.popup__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+}
+
+.popup__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.popup__title {
+  margin-bottom: 2rem;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.radio-group label {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.popup__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+}
+
+.btn--primary:hover {
+  background-color: #0056b3;
+}
+
+.btn--secondary {
+  background-color: #f8f9fa;
+  color: #343a40;
+  border: 1px solid #ced4da;
+}
+
+.btn--secondary:hover {
+  background-color: #e9ecef;
+}
+
+.popup__fields {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .popup__content {
+    width: 80%;
+  }
+
+  .popup__fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.form-group input {
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+}
+
+.radio-group input[type="radio"] {
+  margin-right: 0.5rem;
 }
 </style>

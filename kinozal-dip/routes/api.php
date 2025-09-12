@@ -31,6 +31,7 @@ Route::post('/logout', function (Request $request) {
   return response('Successfully logged out.', 200);
 });
 
+Route::put('/halls/{hall}/seats/types', [SeatController::class, 'updateSeatTypes']);
 // Route::get('/movies', [MovieController::class, 'index']);
 
 // Защищённые маршруты

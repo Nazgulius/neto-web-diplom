@@ -16,7 +16,6 @@ return new class extends Migration
       $table->string('name');
       $table->integer('rows');
       $table->integer('seats_per_row');
-      // $table->json('layout')->nullable(); // структура комнаты, расположение мест
       $table->boolean('active')->default(true);
       $table->decimal('amountStandart', 8, 2);
       $table->decimal('amountVip', 8, 2);

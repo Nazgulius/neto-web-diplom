@@ -34,12 +34,10 @@ class HallController extends Controller
     // Валидация входящих данных
     $validated = $request->validate([
       'name' => 'required|string|max:255',
-      'rows' => 'required|integer',
-      'seats_per_row' => 'required|integer',
-      'amountStandart' => 'required|integer',
-      'amountVip' => 'required|integer',
-      'active' => 'required|boolean',
-      // 'layout' => 'nullable|json', // если нужен
+      'rows' => 'required|integer|min:1',
+      'seats_per_row' => 'required|integer|min:1',
+      'amountStandart' => 'required|integer|min:1',
+      'amountVip' => 'required|integer|min:1',
     ]);
 
     // Создание записи с массовым назначением
@@ -49,8 +47,6 @@ class HallController extends Controller
       'seats_per_row' => $validated['seats_per_row'],
       'amountStandart' => $validated['amountStandart'],
       'amountVip' => $validated['amountVip'],
-      'active' => $validated['active'],
-      // 'layout' => $request->input('layout'), // если нужен
     ]);
 
     // Заполнение сидений для созданного зала
@@ -66,7 +62,7 @@ class HallController extends Controller
             'hall_id' => $hall->id,
             'row' => $row,
             'number' => $num,
-            'type' => 'Обычное',
+            'type' => 'standart',
           ]);
         }
       }

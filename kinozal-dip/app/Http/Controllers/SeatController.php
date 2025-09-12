@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Seat;
+use Illuminate\Support\Facades\DB;
 
 class SeatController extends Controller
 {
@@ -131,5 +132,31 @@ class SeatController extends Controller
         
     }
 
+    public function updateSeatTypes(Request $request)
+{
+    $validated = $request->validate([
+        'hall_id' => 'required|integer',
+        'seat_types' => 'required|array',
+        'seat_types.*.row' => 'required|integer',
+        'seat_types.*.number' => 'required|integer',
+        'seat_types.*.type' => 'required|in:standart,vip,disabled'
+    ]);
+
+    DB::beginTransaction();
+    try {
+        foreach ($validated['seat_types'] as $seat) {
+            Seat::where('hall_id', $validated['hall_id'])
+                ->where('row', $seat['row'])
+                ->where('number', $seat['number'])
+                ->update(['type' => $seat['type']]);
+        }
+        DB::commit();
+        
+        return response()->json(['success' => true], 200);
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        return response()->json(['error' => 'Ошибка при обновлении типов мест'], 500);
+    }
+}
     
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\KinoSession;
+use App\Models\Seat;
 
 class KinoSessionController extends Controller
 {
@@ -39,6 +40,12 @@ class KinoSessionController extends Controller
         'hall_id' => $validated['hall_id'],
         'start_datetime' => $validated['start_datetime'],
       ]);
+
+      // Связываем места с конкретным сеансом
+      $seats = Seat::where('hall_id', $validated['hall_id'])->get();
+      foreach ($seats as $seat) {
+          $seat->update(['session_id' => $kinoSession->id]);
+      }
 
       return response()->json(['success' => true, 'kinoSession' => $kinoSession], 201);
     }

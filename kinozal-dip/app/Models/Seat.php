@@ -16,6 +16,11 @@ class Seat extends Model
     return $this->hasMany(Ticket::class);
   }
 
+  public function session()
+  {
+      return $this->belongsTo(KinoSession::class);
+  }
+
   protected $fillable = [
     'hall_id',
     'session_id',
