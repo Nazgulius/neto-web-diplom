@@ -1,5 +1,3 @@
-// добавил
-
 import { createRouter, createWebHistory } from 'vue-router';
 import IndexPage from '@/pages/client/Index.vue';
 import HallPage from '@/pages/client/Hall.vue';
@@ -11,7 +9,6 @@ import AdminLogin from '@/pages/admin/Login.vue';
 
 const routes = [
   { path: '/', component: IndexPage, name: 'Index' },
-  { path: '/', component: IndexPage, name: 'Home' },
   { path: '/hall/:id', component: HallPage },
   { path: '/hall', name: 'hall',component: HallPage },
   {
@@ -38,8 +35,8 @@ const routes = [
         localStorage.removeItem('user');
         
         // Возврат на главную страницу
-        // next('/'); // или 
-        this.$router.push('/');
+        next('/'); // или 
+        // this.$router.push('/');
       } catch (e) {
         console.error(e);
         next('/');
@@ -53,10 +50,14 @@ const routes = [
     props: true,
     beforeEnter: (to, from, next) => {
       const date = to.params.date;
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !new Date(date).getTime()) {
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      const isValidDate = dateRegex.test(date) && !isNaN(new Date(date).getTime());
+
+      if (!isValidDate) {
+        const currentDate = new Date().toISOString().split('T')[0];
         next({
           name: 'movies',
-          params: { date: new Date().toISOString().split('T')[0] }
+          params: { date: currentDate }
         });
       } else {
         next();

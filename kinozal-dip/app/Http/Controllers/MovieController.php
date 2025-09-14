@@ -10,23 +10,23 @@ class MovieController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-      // return Movie::all();
+      return Movie::all();
       //  return response()->json(Movie::all()); // альтернативный вариант
 
-
-      $date = $request->input('date');
+      // вариант с обработкой date
+      // $date = $request->input('date');
     
-      // Здесь можно добавить фильтрацию по дате
-      $movies = Movie::all();
+      // // Здесь можно добавить фильтрацию по дате
+      // $movies = Movie::all();
       
-      if ($date) {
-          // Пример фильтрации (предполагается, что в модели Movie есть поле date)
-          $movies = Movie::whereDate('date', $date)->get();
-      }
+      // if ($date) {
+      //     // Пример фильтрации (предполагается, что в модели Movie есть поле date)
+      //     $movies = Movie::whereDate('date', $date)->get();
+      // }
       
-      return response()->json($movies);
+      // return response()->json($movies);
     }
 
     /**
