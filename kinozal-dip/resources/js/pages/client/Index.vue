@@ -48,7 +48,8 @@ export default {
     // получение всех фильмов
     async getMovies() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/movies');
+        // const params = this.selectedDate ? { date: this.formatDate(this.selectedDate) } : {};
+        const response = await axios.get('http://127.0.0.1:8000/movies/');
         this.movies = response.data;
         // await this.filterMoviesByDate(this.formatDate(this.selectedDate));
       } catch (error) {
@@ -79,7 +80,7 @@ export default {
       // Запускаем интервал опроса
       this.pollInterval = setInterval(() => {
         this.fetchHalls();
-      }, 5000); // Каждые 5 секунд
+      }, 5000); // Каждые 4 секунд
     },
     stopPolling() {
       // Очищаем интервал
@@ -99,7 +100,7 @@ export default {
         this.getMovies();
         this.getSessions();
         this.getHalls();
-        console.log("fetchHalls Успешное обновление!");
+        // console.log("fetchHalls Успешное обновление!");
                
       } catch (error) {
         console.error('Ошибка при получении данных:', error);
@@ -146,8 +147,20 @@ export default {
     // генерация календаря на неделю
     generateDaysOfWeek() {
       try {
-        const startDate = new Date();
         const today = new Date();
+        // Находим дату понедельника текущей недели
+        const startDate = new Date(today);
+        // startDate.setDate(startDate.getDate() - startDate.getDay());
+        
+        const dayOfWeek = startDate.getDay();
+        
+
+        // Вычисляем дату понедельника текущей недели
+        // Если сегодня воскресенье (0), то нужно отнять 6 дней
+        // Если сегодня понедельник (1), то отнимать ничего не нужно
+        // startDate.setDate(startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+        startDate.setDate(startDate.getDate() + dayOfWeek);
+                
         const days = [];
         
         for (let i = 0; i < 7; i++) {
@@ -162,7 +175,6 @@ export default {
             isToday: this.isSameDay(date, today) // может и не нужна
           });
         }
-        console.log('Текущая дата:', this.date, typeof this.date);
         
         this.daysOfWeek = days;
       } catch (error) {
@@ -188,7 +200,7 @@ export default {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     },
     getWeekday(date) {
-      const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+      const weekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', ];
       return weekdays[date.getDay()];
     },
     isWeekend(date) {
@@ -298,6 +310,7 @@ export default {
     }
     
     this.selectedDate = to.params.date;
+    console.log('beforeRouteUpdate this.selectedDate', this.selectedDate);
     this.fetchMovies();
     next();
   },
@@ -313,12 +326,11 @@ export default {
   //       this.updateBodyClasses('admin');
   //     } else {
   //       this.updateBodyClasses('client');
-      // }
+  //     }
   //   }
   // },
   mounted() {
     document.body.classList.add('page-client');
-    console.log('Текущая дата:', this.date, typeof this.date);
     
     // Преобразуем строковую дату в объект Date
     this.selectedDate = this.formatDate(this.isValidDate(this.date) ? new Date(this.date) : new Date());
@@ -330,22 +342,13 @@ export default {
       this.selectedDate = this.getCurrentDate();
     }
     this.fetchData();
-    console.log('Текущая дата:', this.date, typeof this.date);
+    // console.log('Текущая дата:', this.date, typeof this.date);
 
     this.startPolling(); // обновляет информацию о залах, кино, сеансах
     this.getMovies();
     this.getSessions();
     this.getHalls();
 
-    // Получаем QR-код с сервера  
-    // fetch('http://127.0.0.1:8000/get-qr-code')
-    // .then(res => res.json())
-    // .then(data => {
-    //   this.qrCodeData = data.qr_code; 
-    // })
-    // .catch(error => {
-    //     console.error(error);
-    //   });
   }
 }
 </script>
@@ -354,40 +357,6 @@ export default {
   <header class="page-header">
     <h1 class="page-header__title">Идём<span>в</span>кино</h1>
   </header>
-
-  <!-- <Head title="Welcome">
-    <link rel="preconnect" href="https://rsms.me/" />
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-  </Head> -->
-
-  <!-- <header class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl">
-    <nav class="flex items-center justify-end gap-4 movie-seances__time">
-      <Link v-if="$page.props.auth.user" :href="route('dashboard')"
-        class="movie-seances__time inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
-      Dashboard
-      </Link>
-      <template v-else>
-        <Link :href="route('login')"
-          class="movie-seances__time inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]">
-        Log in
-        </Link>
-        <Link :href="route('register')"
-          class="movie-seances__time inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]">
-        Register
-        </Link>
-      </template>
-    </nav>
-  </header> -->
-
-  <!-- <Link :href="route('login')"
-    class="movie-seances__time link_color">
-  Log in login Link
-  </Link> -->
-  <!-- <Link :href="route('register')"
-    class="movie-seances__time link_color">
-  Register Link
-  </Link> -->
-  
 
   <nav class="page-nav">
     <router-link 
@@ -408,9 +377,17 @@ export default {
   </nav>
   
   <nav class="page-nav">  
-    <router-link :to="{ name: 'Admin' }" class="link_color" @click.native="logRoute('Admin')">
+    <!-- <router-link :to="{ name: 'Admin' }" class="link_color" @click.native="logRoute('Admin')">
       Вход в административную панель
-    </router-link>
+    </router-link> -->
+    <!-- альтернативная кнопка перехода -->
+    <a 
+      href="/admin" 
+      class="link_color" 
+      @click="logRoute('Admin')"
+    >
+      Вход в административную панель
+    </a>
     <!-- <router-link :to="{ name: 'Login' }" class="link_color" @click.native="logRoute('Login')">
       Login for Login
     </router-link> -->

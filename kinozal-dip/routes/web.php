@@ -47,13 +47,16 @@ Route::get('/ticket', function () {
 })->name('ticket');
 
 // маршруты для администрации:
-Route::get('dashboard', function () {
+Route::get('/dashboard', function () {
     return Inertia::render('admin/Index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/admin', function () {
     return Inertia::render('admin/Index');
 })->middleware(['auth', 'verified'])->name('admin.login');
-Route::get('admin/login', function () {
+Route::get('/admin', function () {
+    return Inertia::render('admin/Index');
+})->name('admin.login2');
+Route::get('/admin/login', function () {
     return Inertia::render('admin/Login');
 })->middleware(['auth', 'verified'])->name('loginAdmin');
 
@@ -95,7 +98,7 @@ Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // �
 Route::post('/movies/update/{id}', [MovieController::class, 'update']); // редактирование кино
 Route::post('/movies/session/create', [KinoSessionController::class, 'create']); // созданиие сессии кино
 Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
-Route::get('/movies/{date}', [MovieController::class, 'index'])->name('movies');
+Route::get('/movies/{date?}', [MovieController::class, 'index'])->name('movies');
 
 Route::post('/admin/sales/open-all', [SessionController::class, 'openAllSales'])->name('admin.sales.openAll');
 Route::post('/admin/sales/close-all', [SessionController::class, 'closeAllSales'])->name('admin.sales.closeAll');

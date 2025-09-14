@@ -25,6 +25,7 @@ const routes = [
   // admin
   { path: '/admin', name: 'Admin', component: AdminLogin2, meta: { requiresAuth: true } },
   { path: '/dashboard', component: AdminIndex, meta: { requiresAuth: true } },
+  { path: '/index', component: AdminIndex, meta: { requiresAuth: true } },
   { path: '/admin/login', name: 'Login',component: AdminLogin },
   {
     path: '/logout',

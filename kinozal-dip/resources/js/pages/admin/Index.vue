@@ -543,13 +543,14 @@ export default {
         const rowSeats = [];
 
         for (let j = 1; j <= this.hallConfig.seatsPerRow; j++) {
-          const seatKey = this.getSeatKey(i, j);
+          const seatKey = this.getSeatKey(i, j);          
 
           // Добавляем логирование для отладки
           // console.log(`Проверяем ключ: ${seatKey}`);
           // console.log(`Значение по ключу:`, apiSeats[seatKey]);
 
-          const seat = apiSeats[seatKey];
+          // const seat = apiSeats[seatKey];
+          const seat = apiSeats[seatKey] || apiSeats.find(s => s.row === i && s.number === j);          
 
           // Добавляем проверку на существование места
           if (seat) {
@@ -579,6 +580,7 @@ export default {
       // console.log(`Вычисляем ключ: (${row-1}) * ${this.hallConfig.seatsPerRow} + (${number-1})`);
 
       // return (row - 1) * this.hallConfig.seatsPerRow + (number - 1); // начальный вариант
+      
       return (row - 1) * this.hallConfig.seatsPerRow * 5 + (number - 1) * 5;
     },
 
@@ -860,6 +862,12 @@ export default {
     <button @click="logout" class="link_exit">
       Exit
     </button>
+    <!-- <a 
+      class="link_exit" 
+      @click="logout"
+    >
+      Выход
+    </a> -->
   </nav>
 
   <main class="conf-steps">

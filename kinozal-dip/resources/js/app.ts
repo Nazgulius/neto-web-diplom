@@ -7,6 +7,7 @@ import { initializeTheme } from './composables/useAppearance';
 import axios from 'axios';
 
 import router from './router/index'; // добавил, и обновил /index
+import { createRouter, createWebHistory } from 'vue-router';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -32,8 +33,8 @@ createInertiaApp({
     try {
       createApp({ render: () => h(App, props) })
       .use(plugin)
-      .use(ZiggyVue)
       .use(router) // добавил для новых машрутов кинотеатра
+      .use(ZiggyVue)      
       .mount(el);
     } catch (e) {
       console.log(e);
