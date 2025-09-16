@@ -36,7 +36,7 @@ const routes = [
         
         // Возврат на главную страницу
         next('/'); // или 
-        // this.$router.push('/');
+        // this.$router.push('/'); // Устарелый вариант, может не сработать
       } catch (e) {
         console.error(e);
         next('/');
@@ -56,7 +56,7 @@ const routes = [
       if (!isValidDate) {
         const currentDate = new Date().toISOString().split('T')[0];
         next({
-          name: 'movies',
+          name: 'movies', 
           params: { date: currentDate }
         });
       } else {

@@ -50,10 +50,10 @@ export default {
         amountVip: 0,
       }, // содержит данные для сохранения нового Hall
       popupHidden: true, // попап скрыт по умолчанию
-      popupHiddenAM: true, // попап скрыт по умолчанию
+      isVisible: false, // попап скрыт по умолчанию
+      popupHiddenAM: false, // попап скрыт по умолчанию
       popupHiddenEM: true, // попап скрыт по умолчанию
       popupHiddenAddSessionMovie: true, // попап скрыт по умолчанию
-      isVisible: false,
       formMovieData: {
         title: '', // название
         description: '', // описание
@@ -126,21 +126,6 @@ export default {
     toglePopupHall() {
       this.popupHidden = !this.popupHidden;
     },
-    toglePopupAddMovie() {
-      this.popupHiddenAM = !this.popupHiddenAM;
-    },
-    // тогл для открытия редактирования
-    toglePopupEditMovie(movieID) {
-      this.popupHiddenEM = !this.popupHiddenEM;
-      this.editMovieID = movieID;
-    },
-    // тогл для закрытия редактирования
-    toglePopupEditMovieClose() {
-      this.popupHiddenEM = !this.popupHiddenEM;
-    },
-    toglePopupAddSessionMovie() {
-      this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
-    },
     openPopup() {
       this.isVisible = true;
     },
@@ -157,6 +142,38 @@ export default {
         amountVip: '',
       };
     },
+    // вкл/выкл попап кино
+    toglePopupAddMovie() {
+      this.popupHiddenAM = !this.popupHiddenAM;
+    },
+    openPopupAddMovie() {
+      this.popupHiddenAM = true;
+    },
+    closePopupAddMovie() {
+      this.popupHiddenAM = false;
+      this.resetForm();
+    },
+    resetFormAddMovie() {
+      this.formHallData = { // поля заменить на киношные
+        title: '', // название
+        description: '', // описание
+        duration: '', // минуты
+        country: '', // страна
+        image_url: "/src/client/poster1.jpg", // пока как заглушка
+      };
+    },
+    // тогл для открытия редактирования
+    toglePopupEditMovie(movieID) {
+      this.popupHiddenEM = !this.popupHiddenEM;
+      this.editMovieID = movieID;
+    },
+    // тогл для закрытия редактирования
+    toglePopupEditMovieClose() {
+      this.popupHiddenEM = !this.popupHiddenEM;
+    },
+    toglePopupAddSessionMovie() {
+      this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
+    },
 
     // добавление Hall 
     submitFormHalls() {
@@ -172,7 +189,7 @@ export default {
 
         axios.post('http://127.0.0.1:8000/hall/create', data)
           .then(response => {
-            this.$emit('hall-created', this.formHallData);
+            // this.$emit('hall-created', this.formHallData);
             this.closePopup();
             console.log('Успех:', response.data);
             this.getHalls(); // Перезагружаем список залов
@@ -191,7 +208,7 @@ export default {
       }
 
     },
-    emits: ['hall-created'],
+    // emits: ['hall-created'],
 
     // удаление Hall
     btnHallDel(hallID) {
@@ -213,8 +230,20 @@ export default {
     },
     // добавление кино
     submitFormAddMovie() {
-      axios.post('http://127.0.0.1:8000/movies/create', this.formMovieData)
+      try {
+        // Добавляем типы полей согласно валидации
+        const data = {
+          title: this.formMovieData.title,
+          description: this.formMovieData.description,
+          duration: parseInt(this.formMovieData.duration),
+          country: this.formMovieData.country,
+          image_url: parseInt(this.formMovieData.image_url)
+        };
+
+      axios.post('http://127.0.0.1:8000/movies/create', data)
         .then(response => {
+          // this.$emit('movie-created', this.formMovieData);
+          this.closePopupAddMovie();
           console.log('Успех:', response.data);
           this.getMovies(); // Перезагружаем список залов
         })
@@ -226,7 +255,14 @@ export default {
             console.error(error);
           }
         });
+
+      } catch (error) {
+        console.error('Ошибка при создании кино:', error);
+        this.$toast.error('Произошла ошибка при создании кино');
+      }
     },
+    // emits: ['movie-created'],
+
     // удаление кино
     btnMovieDel(movieID) {
       this.toglePopupAddSessionMovie(); // закрывает форму
@@ -754,16 +790,16 @@ export default {
         console.error('Ошибка закрытия глобальных продаж', e);
       }
     },
-    // для попап
-    handleScroll() {
-      const scrollTop = window.scrollY;
-      if (!this.popupHidden || !this.popupHiddenAM || !this.popupHiddenEM || !this.popupHiddenAddSessionMovie) {
-        this.$refs.popup1.style.top = `${scrollTop + 10}px`;
-        this.$refs.popup2.style.top = `${scrollTop + 10}px`;
-        this.$refs.popup3.style.top = `${scrollTop + 10}px`;
-        this.$refs.popup4.style.top = `${scrollTop + 10}px`;
-      }
-    },
+    // скролл для попап
+    // handleScroll() {
+    //   const scrollTop = window.scrollY;
+    //   if (!this.popupHidden || this.popupHiddenAM || !this.popupHiddenEM || !this.popupHiddenAddSessionMovie) {
+    //     this.$refs.popup1.style.top = `${scrollTop + 10}px`;
+    //     this.$refs.popup2.style.top = `${scrollTop + 10}px`;
+    //     this.$refs.popup3.style.top = `${scrollTop + 10}px`;
+    //     this.$refs.popup4.style.top = `${scrollTop + 10}px`;
+    //   }
+    // },
     async logout() {
       try {
         // Получаем CSRF токен
@@ -824,13 +860,13 @@ export default {
   //   }
   // },
   beforeDestroy() {
-    window.removeEventListener('scroll', this.handleScroll);
+    // window.removeEventListener('scroll', this.handleScroll);
   },
   mounted() {
     // fetch данных о зале 
     document.body.classList.add('page-admin');
     document.body.classList.add('page-admin-index');
-    window.addEventListener('scroll', this.handleScroll); // для скролла попап
+    // window.addEventListener('scroll', this.handleScroll); // для скролла попап
 
     this.getHalls();
     this.getMovies();
@@ -858,8 +894,8 @@ export default {
   </header>
 
   <!-- <router-link :to="{ name: 'Logout' }" class="link_exit">Exit</router-link> logout-->.
-  <nav class="page-nav">
-    <button @click="logout" class="link_exit">
+  <nav class="page-nav ">
+    <button @click="logout" class="link_exit btn btn--primary">
       Exit
     </button>
     <!-- <a 
@@ -985,7 +1021,7 @@ export default {
       </header>
       <div class="conf-step__wrapper">
         <p class="conf-step__paragraph">
-          <button class="conf-step__button conf-step__button-accent" @click="toglePopupAddMovie">Добавить фильм</button>
+          <button class="conf-step__button conf-step__button-accent" @click="openPopupAddMovie">Добавить фильм</button>
         </p>
         <div class="conf-step__movies">
           <div v-for="movie in movies" :key="movie" class="conf-step__movie" @click="toglePopupEditMovie(movie?.id)">
@@ -1086,8 +1122,8 @@ export default {
   </div> -->
 
   <!-- popup add movie -->
-  <div class="popup" ref="popup3" :class="{ 'popup__invisiblAM': popupHiddenAM }">
-    <!-- в форм: method="post" autocomplete="on" -->
+  <!-- в форм: method="post" autocomplete="on" -->
+  <!-- <div class="popup" ref="popup3" :class="{ 'popup__invisiblAM': popupHiddenAM }">
     <form @submit.prevent="submitFormAddMovie" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
         <h1 class="popup__title">Add Movie</h1>
@@ -1116,7 +1152,7 @@ export default {
         </div>
       </div>
     </form>
-  </div>
+  </div> -->
 
 
   <!-- popup edit movie -->
@@ -1252,6 +1288,52 @@ export default {
             Создать зал
           </button>
           <button type="button" class="btn btn--secondary" @click="closePopup">
+            Отмена
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- обновлённый попап добавление кино -->
+  <div class="popup" :class="{ 'popup--visible': popupHiddenAM }">
+    <div class="popup__overlay" @click="closePopupAddMovie"></div>
+    <div class="popup__content">
+      <button class="popup__close" @click="closePopupAddMovie">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+      <h2 class="popup__title">Добавление фильма</h2>
+      <form class="popup__form" @submit.prevent="submitFormAddMovie">
+        <div class="popup__fields">
+          <div class="form-group">
+            <label for="title">Название фильма</label>
+            <input type="text" id="title" v-model="formHallData.title" required>
+          </div>
+          <div class="form-group">
+            <label for="description">Описание</label>
+            <input type="text" id="description" v-model="formHallData.description" required>
+          </div>
+          <div class="form-group">
+            <label for="duration">Продолжительность</label>
+            <input type="number" id="duration" v-model="formHallData.duration" required>
+          </div>
+          <div class="form-group">
+            <label for="country">Страна</label>
+            <input type="text" id="country" v-model="formHallData.country" required>
+          </div>
+          <div class="form-group">
+            <label for="image_url">Постер к фильму</label>
+            <input type="text" id="image_url" v-model="formHallData.image_url" required>
+          </div>
+        </div>
+        <div class="popup__actions">
+          <button type="submit" class="btn btn--primary">
+            Создать фильм
+          </button>
+          <button type="button" class="btn btn--secondary" @click="closePopupAddMovie">
             Отмена
           </button>
         </div>
@@ -2324,13 +2406,13 @@ input[type="number"] {
 }
 
 .btn--primary {
-  background-color: #007bff;
+  background-color: #16A6AF;
   color: #fff;
   border: none;
 }
 
 .btn--primary:hover {
-  background-color: #0056b3;
+  background-color: #16A6AF;
 }
 
 .btn--secondary {
