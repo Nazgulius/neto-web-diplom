@@ -1253,7 +1253,7 @@ export default {
             Обновить фильм
           </button>
           <button type="button" class="btn btn--secondary" @click="btnMovieDel">
-            Удалить кино
+            Удалить фильм
           </button>
           <button type="button" class="btn btn--secondary" @click="openPopupAddSessionMovie">
             Добавить сессию

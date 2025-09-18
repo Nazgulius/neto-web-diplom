@@ -63,9 +63,13 @@ Route::get('/admin/login', function () {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
 Route::get('/movies', [MovieController::class, 'index']);
 Route::get('/sessions', [KinoSessionController::class, 'index']);
 Route::get('/seats/index', [SeatController::class, 'index']);
+Route::get('/hall/create', [HallController::class, 'index']); // проверка зала
+Route::get('/hall/index', [HallController::class, 'index']);
+Route::get('/movies/{date?}', [MovieController::class, 'index'])->name('movies');
 
 Route::post('/block-seats', [SeatController::class, 'blockSeats']); // блокирует места
 Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']); // бронирует места
@@ -87,24 +91,20 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
   ->middleware('auth')
   ->name('logout');
 
-Route::post('/hall/create', [HallController::class, 'create']); // создание зала
-Route::get('/hall/create', [HallController::class, 'index']); // проверка зала
-Route::get('/hall/index', [HallController::class, 'index']);
 Route::get('/halls/{hallId}/config', [HallController::class, 'getHallConfig'])->name('hall.config');
-
+Route::post('/hall/create', [HallController::class, 'create']); // создание зала
 Route::post('/movies/create', [MovieController::class, 'create']); // создание кино
 Route::post('/movies/update/{id}', [MovieController::class, 'update']); // редактирование кино
 Route::post('/movies/session/create', [KinoSessionController::class, 'create']); // созданиие сессии кино
-Route::get('/movies/{date?}', [MovieController::class, 'index'])->name('movies');
 
 Route::delete('/hall/destroy/{id}', [HallController::class, 'destroy']); // удаление зала
 Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
 Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
 Route::delete('/movie/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
 
+Route::get('/admin/sales/status', [SessionController::class, 'status'])->name('admin.sales.status');
 Route::post('/admin/sales/open-all', [SessionController::class, 'openAllSales'])->name('admin.sales.openAll');
 Route::post('/admin/sales/close-all', [SessionController::class, 'closeAllSales'])->name('admin.sales.closeAll');
-Route::get('/admin/sales/status', [SessionController::class, 'status'])->name('admin.sales.status');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
