@@ -39,6 +39,7 @@ export default {
       sessions: [],
       globalSalesOpen: true,
       editMovieID: null,
+      editSessionMovieID: null,
       editingMovie: {
         title: '',
         description: '',
@@ -60,7 +61,7 @@ export default {
       isVisible: false, // попап скрыт по умолчанию
       popupHiddenAM: false, // попап скрыт по умолчанию
       popupHiddenEM: false, // попап скрыт по умолчанию
-      popupHiddenAddSessionMovie: true, // попап скрыт по умолчанию
+      popupHiddenAddSessionMovie: false, // попап скрыт по умолчанию
       formMovieData: {
         title: '', // название
         description: '', // описание
@@ -193,6 +194,17 @@ export default {
       this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
     },
 
+    openPopupAddSessionMovie() {
+      this.editSessionMovieID = this.editMovieID - 1;
+      this.popupHiddenAddSessionMovie = true;  
+      console.log('openPopupAddSessionMovie this.editSessionMovieID', this.editSessionMovieID);
+    },
+    closePopupAddSessionMovie() {
+      this.editSessionMovieID = this.editMovieID + 1;
+      this.popupHiddenAddSessionMovie = false;
+      console.log('closePopupAddSessionMovie this.editSessionMovieID', this.editSessionMovieID);
+    },
+
     // добавление Hall 
     submitFormHalls() {
       try {
@@ -283,9 +295,10 @@ export default {
 
     // удаление кино
     btnMovieDel(movieID) {
-      this.toglePopupAddSessionMovie(); // закрывает форму
+       // закрывает форму
       axios.delete('http://127.0.0.1:8000/movie/destroy/' + movieID)
         .then(response => {
+          this.closePopupEditMovie();
           // удалить из локального списка
           this.movies = this.movies.filter(h => h.id !== movieID);
           console.log('Кино удалено, список обновлён локально');
@@ -301,8 +314,6 @@ export default {
     },
     //редактирование кино
     submitFormEditMovie() {
-
-
       // axios.post('http://127.0.0.1:8000/movies/update/' + movie.id, this.formMovieData)
       axios.post(`http://127.0.0.1:8000/movies/update/${this.editMovieID}`, this.editingMovie)
         .then(response => {
@@ -333,7 +344,7 @@ export default {
 
       // Формируем данные для отправки
       const dataToSend = {
-        movie_id: this.editMovieID + 1,
+        movie_id: this.editMovieID,
         hall_id: Number(this.formMovieSessionData.hall_id) || 0,
         start_datetime: this.formattedDateTime
       };
@@ -341,7 +352,8 @@ export default {
       console.log('this.formMovieSessionData: ', dataToSend);
 
       axios.post('http://127.0.0.1:8000/movies/session/create', dataToSend)
-        .then(response => {
+        .then(response => {          
+          this.closePopupAddSessionMovie();
           console.log('Успех:', response.data);
           this.getSessions(); // Перезагружаем список сессий
         })
@@ -736,7 +748,7 @@ export default {
     },
     sessionsByMovie() {
       // console.log('editMovieID ' + this.editMovieID);
-      return this.sessions.filter(s => s.movie_id === (this.editMovieID + 1));
+      return this.sessions.filter(s => s.movie_id === (this.editMovieID ));
     },
     // openSales(sessionId) {  
     //   console.log('Открыта продажа билетов');
@@ -1383,7 +1395,7 @@ export default {
           </div>
         </div>
 
-        <h3>Sessions</h3>
+        <h3>Сессии выбранного кино:</h3>
         <ul class="conf-step__selectors-box">
           <li v-for="session in sessionsByMovie()" :key="session" class="session">
             <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время
@@ -1399,10 +1411,77 @@ export default {
           <button type="button" class="btn btn--secondary" @click="btnMovieDel">
             Удалить кино
           </button>
-          <button type="button" class="btn btn--secondary" @click="toglePopupAddSessionMovie">
+          <button type="button" class="btn btn--secondary" @click="openPopupAddSessionMovie">
             Добавить сессию
           </button>
           <button type="button" class="btn btn--secondary" @click="closePopupEditMovie">
+            Отмена
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- обновлённый попап добавление сессии для кино -->
+  <div class="popup" :class="{ 'popup--visible': popupHiddenAddSessionMovie }">
+    <div class="popup__overlay" @click="closePopupAddSessionMovie"></div>
+    <div class="popup__content">
+      <button class="popup__close" @click="closePopupAddSessionMovie">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+      <h2 class="popup__title">Добавление сессии для кино</h2>
+      <span class="conf-step__paragraph">ID кино: {{ editSessionMovieID }} - {{ movies[editSessionMovieID]?.title }}</span><br>
+      <span >Время работы от {{ timelineStart }} до {{ timelineEnd }} (учитывайте продолжительность фильма)</span>
+      <form class="popup__form" @submit.prevent="submitFormAddSessionMovie">
+        <div class="popup__fields form-group-centr">
+          <div class="form-group">
+            <label for="hall_id" class="conf-step__paragraph">Номер зала</label>
+            <input type="text" id="hall_id" v-model="formMovieSessionData.hall_id" required>
+          </div>
+          <div class="form-group">
+            <input type="date" class="form-group-margin5" v-model="formMovieSessionData.selectedDate" required> <!-- Поле для выбора даты -->
+            <input type="time" class="form-group-margin5" v-model="formMovieSessionData.selectedTime" required> <!-- Поле для выбора времени -->
+            <input type="text" class="form-group-margin5" id="start_datetime" v-model="formattedDateTime" required>
+          </div> 
+
+          <div class="form-group">            
+            <h3>Доступные залы:</h3>
+            <ul class="conf-step__selectors-box">
+              <div v-for="hall in halls" :key="hall?.id" class="session">
+                <li>
+                  <span>ID {{ hall?.id }}, Название: {{ hall?.name }}</span>              
+                </li>
+              </div>
+            </ul>
+          </div>
+
+          <!-- Скрытое поле для финального datetime -->
+          <div class="form-group">
+            <input type="hidden" name="start_datetime" :value="formattedDateTime">
+          </div>
+        </div>
+        
+        <h3>Сессии выбранного кино:</h3>
+        <ul class="conf-step__selectors-box">
+          <div v-for="session in sessionsByMovie()" :key="session?.id" class="session">
+            <li>
+              <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время
+                сеанса {{ session?.start_datetime }}</span>
+              <button class="conf-step__button conf-step__button-trash conf-step__button__close" @click="btnSessionDel(session?.id)"></button>
+            </li>
+          </div>
+        </ul>
+
+        
+
+        <div class="popup__actions">
+          <button type="submit" class="btn btn--primary" :disabled="!formattedDateTime">
+            Создать сессию для кино
+          </button>
+          <button type="button" class="btn btn--secondary" @click="closePopupAddSessionMovie">
             Отмена
           </button>
         </div>
@@ -2530,6 +2609,14 @@ input[type="number"] {
 .form-group input:focus {
   border-color: #007bff;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-group-margin5 {
+  margin: 5px 5px 0 0;
+}
+
+.form-group-centr {
+  align-items: flex-end;
 }
 
 .radio-group {
