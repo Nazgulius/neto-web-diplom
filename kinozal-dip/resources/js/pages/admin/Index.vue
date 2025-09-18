@@ -39,6 +39,13 @@ export default {
       sessions: [],
       globalSalesOpen: true,
       editMovieID: null,
+      editingMovie: {
+        title: '',
+        description: '',
+        duration: '',
+        country: '',
+        image_url: ''
+      },
       timelineStart: '09:00', // например
       timelineEnd: '23:00', // например
       timelineWidth: 720, // ширина шкалы в пикселях
@@ -52,7 +59,7 @@ export default {
       popupHidden: true, // попап скрыт по умолчанию
       isVisible: false, // попап скрыт по умолчанию
       popupHiddenAM: false, // попап скрыт по умолчанию
-      popupHiddenEM: true, // попап скрыт по умолчанию
+      popupHiddenEM: false, // попап скрыт по умолчанию
       popupHiddenAddSessionMovie: true, // попап скрыт по умолчанию
       formMovieData: {
         title: '', // название
@@ -154,7 +161,7 @@ export default {
       this.resetForm();
     },
     resetFormAddMovie() {
-      this.formHallData = { // поля заменить на киношные
+      this.formMovieData = { // поля заменить на киношные
         title: '', // название
         description: '', // описание
         duration: '', // минуты
@@ -166,11 +173,22 @@ export default {
     toglePopupEditMovie(movieID) {
       this.popupHiddenEM = !this.popupHiddenEM;
       this.editMovieID = movieID;
+      
     },
     // тогл для закрытия редактирования
     toglePopupEditMovieClose() {
       this.popupHiddenEM = !this.popupHiddenEM;
     },
+    openPopupEditMovie(movieID) {
+      this.popupHiddenEM = true;
+      this.editMovieID = movieID;
+      const movie = this.movies.find(m => m.id === movieID);
+      this.editingMovie = { ...movie }; 
+    },
+    closePopupEditMovie() {
+      this.popupHiddenEM = false;
+    },
+
     toglePopupAddSessionMovie() {
       this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
     },
@@ -237,7 +255,7 @@ export default {
           description: this.formMovieData.description,
           duration: parseInt(this.formMovieData.duration),
           country: this.formMovieData.country,
-          image_url: parseInt(this.formMovieData.image_url)
+          image_url: this.formMovieData.image_url
         };
 
       axios.post('http://127.0.0.1:8000/movies/create', data)
@@ -283,22 +301,12 @@ export default {
     },
     //редактирование кино
     submitFormEditMovie() {
-      // Проверяем, что форма заполнена
-      if (!this.formMovieData.title || !this.formMovieData.duration) {
-        alert('Заполните все обязательные поля');
-        return;
-      }
-      console.log('submitFormEditMovie editMovieID ', this.editMovieID);
 
-      // Проверяем, что editMovieID существует и является числом
-      if (!this.editMovieID || isNaN(this.editMovieID)) {
-        console.error('Неверный ID фильма:', this.editMovieID);
-        return;
-      }
 
       // axios.post('http://127.0.0.1:8000/movies/update/' + movie.id, this.formMovieData)
-      axios.post(`http://127.0.0.1:8000/movies/update/${this.editMovieID}`, this.formMovieData)
+      axios.post(`http://127.0.0.1:8000/movies/update/${this.editMovieID}`, this.editingMovie)
         .then(response => {
+          this.closePopupEditMovie();
           console.log('Успех:', response.data);
           this.getMovies(); // Перезагружаем список залов
         })
@@ -1024,7 +1032,7 @@ export default {
           <button class="conf-step__button conf-step__button-accent" @click="openPopupAddMovie">Добавить фильм</button>
         </p>
         <div class="conf-step__movies">
-          <div v-for="movie in movies" :key="movie" class="conf-step__movie" @click="toglePopupEditMovie(movie?.id)">
+          <div v-for="movie in movies" :key="movie" class="conf-step__movie" @click="openPopupEditMovie(movie?.id)">
             <img class="conf-step__movie-poster" alt="poster" :src=movie?.image_url>
             <h3 class="conf-step__movie-title">{{ movie?.title }}</h3>
             <p class="conf-step__movie-duration">{{ movie?.duration }} минут</p>
@@ -1156,8 +1164,8 @@ export default {
 
 
   <!-- popup edit movie -->
-  <div class="popup" ref="popup1" :class="{ 'popup__invisiblEM': popupHiddenEM }">
-    <!-- в форм: method="post" autocomplete="on" -->
+  <!-- в форм: method="post" autocomplete="on" -->
+  <!-- <div class="popup" ref="popup1" :class="{ 'popup__invisiblEM': popupHiddenEM }">
     <form @submit.prevent="submitFormEditMovie" class="popup__form popup__container" method="post" autocomplete="on">
       <div class="popup__header">
         <h1 class="popup__title">Edit Movie</h1>
@@ -1170,8 +1178,9 @@ export default {
         <div class="popup__container__cont">
           <span class="conf-step__paragraph">Name: {{ movies[editMovieID]?.title }} </span>
           <input type="text" class="c" placeholder="Big Kino" name="title" id="title" v-model="formMovieData.title">
-          <label for="description" class="conf-step__paragraph">description: {{ movies[editMovieID]?.description
-          }}</label>
+          <label for="description" class="conf-step__paragraph">
+            description: {{ movies[editMovieID]?.description }}
+          </label>
           <input type="text" class="c" placeholder="description" name="description" id="description"
             v-model="formMovieData.description">
           <label for="duration" class="conf-step__paragraph">duration: {{ movies[editMovieID]?.duration }}</label>
@@ -1185,13 +1194,11 @@ export default {
 
           <h3>Sessions</h3>
           <ul class="conf-step__selectors-box">
-            <!-- <div v-for="session in sessionsByMovie()" :key="session" class="session">  -->
             <li v-for="session in sessionsByMovie()" :key="session" class="session">
               <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время
                 сеанса {{ session?.start_datetime }}</span>
               <button class="conf-step__button conf-step__button-trash" @click="btnSessionDel(session?.id)"></button>
             </li>
-            <!-- </div>  -->
           </ul>
 
           <button class="btnPopupHalls" @click="toglePopupAddSessionMovie">Add session movie</button>
@@ -1201,7 +1208,7 @@ export default {
         </div>
       </div>
     </form>
-  </div>
+  </div> -->
 
   <!-- popup add sessios movie -->
   <div class="popup popup__plus" ref="popup2" :class="{ 'popup__invisiblAddSessionMovie': popupHiddenAddSessionMovie }">
@@ -1249,7 +1256,7 @@ export default {
     </form>
   </div>
 
-  <!-- обновлённый попап hall -->
+  <!-- обновлённый попап добавление зала - hall -->
   <div class="popup" :class="{ 'popup--visible': isVisible }">
     <div class="popup__overlay" @click="closePopup"></div>
     <div class="popup__content">
@@ -1310,23 +1317,23 @@ export default {
         <div class="popup__fields">
           <div class="form-group">
             <label for="title">Название фильма</label>
-            <input type="text" id="title" v-model="formHallData.title" required>
+            <input type="text" id="title" v-model="formMovieData.title" required>
           </div>
           <div class="form-group">
             <label for="description">Описание</label>
-            <input type="text" id="description" v-model="formHallData.description" required>
+            <input type="text" id="description" v-model="formMovieData.description" required>
           </div>
           <div class="form-group">
             <label for="duration">Продолжительность</label>
-            <input type="number" id="duration" v-model="formHallData.duration" required>
+            <input type="number" id="duration" v-model="formMovieData.duration" required>
           </div>
           <div class="form-group">
             <label for="country">Страна</label>
-            <input type="text" id="country" v-model="formHallData.country" required>
+            <input type="text" id="country" v-model="formMovieData.country" required>
           </div>
           <div class="form-group">
             <label for="image_url">Постер к фильму</label>
-            <input type="text" id="image_url" v-model="formHallData.image_url" required>
+            <input type="text" id="image_url" v-model="formMovieData.image_url" required>
           </div>
         </div>
         <div class="popup__actions">
@@ -1340,6 +1347,69 @@ export default {
       </form>
     </div>
   </div>
+
+  <!-- обновлённый попап редактирование кино -->
+  <div class="popup" :class="{ 'popup--visible': popupHiddenEM }">
+    <div class="popup__overlay" @click="closePopupEditMovie"></div>
+    <div class="popup__content">
+      <button class="popup__close" @click="closePopupEditMovie">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+      <h2 class="popup__title">Редактирование фильма</h2>
+      <form class="popup__form" @submit.prevent="submitFormEditMovie">
+        <div class="popup__fields">
+          <div class="form-group">
+            <label for="title">Название фильма</label>
+            <input type="text" id="title" v-model="editingMovie.title" required>
+          </div>
+          <div class="form-group">
+            <label for="description">Описание</label>
+            <input type="text" id="description" v-model="editingMovie.description" required>
+          </div>
+          <div class="form-group">
+            <label for="duration">Продолжительность</label>
+            <input type="number" id="duration" v-model="editingMovie.duration" required>
+          </div>
+          <div class="form-group">
+            <label for="country">Страна</label>
+            <input type="text" id="country" v-model="editingMovie.country" required>
+          </div>
+          <div class="form-group">
+            <label for="image_url">Постер к фильму</label>
+            <input type="text" id="image_url" v-model="editingMovie.image_url" required>
+          </div>
+        </div>
+
+        <h3>Sessions</h3>
+        <ul class="conf-step__selectors-box">
+          <li v-for="session in sessionsByMovie()" :key="session" class="session">
+            <span class="conf-step__selector">Session ID {{ session?.id }}, Hall ID: {{ session?.hall_id }}, Время
+              сеанса {{ session?.start_datetime }}</span>
+            <button class="conf-step__button conf-step__button-trash conf-step__button__close" @click="btnSessionDel(session?.id)"></button>
+          </li>
+        </ul>
+
+        <div class="popup__actions">
+          <button type="submit" class="btn btn--primary">
+            Обновить фильм
+          </button>
+          <button type="button" class="btn btn--secondary" @click="btnMovieDel">
+            Удалить кино
+          </button>
+          <button type="button" class="btn btn--secondary" @click="toglePopupAddSessionMovie">
+            Добавить сессию
+          </button>
+          <button type="button" class="btn btn--secondary" @click="closePopupEditMovie">
+            Отмена
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </template>
 
 <style>
@@ -1685,6 +1755,14 @@ select {
   background-position: -12px 0;
 }
 
+.conf-step__button__close {
+  position: absolute;
+  background: none;
+  border: none;
+  cursor: pointer;
+ 
+}
+
 .conf-step__legend {
   color: #848484;
   font-size: 1.4rem;
@@ -1781,8 +1859,9 @@ select {
   /* margin-bottom: 15px; */
 
   display: flex;
+  flex-wrap: wrap;
   gap: 5px;
-  margin: 0;
+  margin: 0 0 20px 0;
 }
 
 .conf-step__selectors-box li {
@@ -1834,6 +1913,10 @@ select {
 
 .conf-step__selectors-box .conf-step__radio:hover+.conf-step__selector {
   background-color: rgba(255, 255, 255, 0.9);
+}
+
+.session {
+  width: 100%;
 }
 
 .conf-step__selector {
