@@ -92,13 +92,15 @@ Route::get('/hall/create', [HallController::class, 'index']); // проверк�
 Route::get('/hall/index', [HallController::class, 'index']);
 Route::get('/halls/{hallId}/config', [HallController::class, 'getHallConfig'])->name('hall.config');
 
-Route::delete('/hall/destroy/{id}', [HallController::class, 'destroy']); // удаление зала
 Route::post('/movies/create', [MovieController::class, 'create']); // создание кино
-Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
 Route::post('/movies/update/{id}', [MovieController::class, 'update']); // редактирование кино
 Route::post('/movies/session/create', [KinoSessionController::class, 'create']); // созданиие сессии кино
-Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
 Route::get('/movies/{date?}', [MovieController::class, 'index'])->name('movies');
+
+Route::delete('/hall/destroy/{id}', [HallController::class, 'destroy']); // удаление зала
+Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
+Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
+Route::delete('/movie/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
 
 Route::post('/admin/sales/open-all', [SessionController::class, 'openAllSales'])->name('admin.sales.openAll');
 Route::post('/admin/sales/close-all', [SessionController::class, 'closeAllSales'])->name('admin.sales.closeAll');

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\KinoSession;
 use App\Models\Seat;
+use App\Models\Hall;
+use Illuminate\Support\Facades\Log;
 
 class KinoSessionController extends Controller
 {
@@ -41,13 +43,49 @@ class KinoSessionController extends Controller
         'start_datetime' => $validated['start_datetime'],
       ]);
 
-      // Связываем места с конкретным сеансом
-      $seats = Seat::where('hall_id', $validated['hall_id'])->get();
-      foreach ($seats as $seat) {
-          $seat->update(['session_id' => $kinoSession->id]);
-      }
+      // Связываем места с конкретным сеансом . обработка с отправлением по одному запросу к БД
+      // $seats = Seat::where('hall_id', $validated['hall_id'])->get();
+      // foreach ($seats as $seat) {
+      //     Log::info('Создание места:', [
+      //       'seat' => $seat,
+      //     ]);
+      //     $seat->update(['session_id' => $kinoSession->id]);
+      // }
 
-      return response()->json(['success' => true, 'kinoSession' => $kinoSession], 201);
+      $hall = Hall::find($validated['hall_id']);
+      $hall_config = [
+        'rows' => $hall->rows, // количество рядов
+        'seats_per_row' => $hall->seats_per_row // количество мест в ряду
+      ];
+
+      // Создание новых мест
+      $seatsData = [];
+      for ($row = 1; $row <= $hall_config['rows']; $row++) {
+        for ($number = 1; $number <= $hall_config['seats_per_row']; $number++) {
+          $seatsData[] = [
+            'hall_id' => $validated['hall_id'],
+            'session_id' => $kinoSession->id,
+            'row' => $row,
+            'number' => $number,
+            'type' => 'standart',
+            'taken' => 0,
+            'status' => 'available'
+          ];          
+        }
+      }
+      Seat::insert($seatsData); // массосое добавление сидений
+
+      return response()->json(['success' => true, 'kinoSession' => $kinoSession, 'message' => 'Сессия успешно создана'], status: 201);
+      // return response()->json([
+      //   'success' => true,
+      //     'data' => [
+      //       'id' => $kinoSession->id,
+      //       'movie_id' => $kinoSession->movie_id,
+      //       'hall_id' => $kinoSession->hall_id,
+      //       'start_datetime' => $kinoSession->start_datetime
+      //     ]
+      // ], 201);
+      
     }
 
     /**
