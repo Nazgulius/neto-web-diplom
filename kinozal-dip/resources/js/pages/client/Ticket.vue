@@ -168,7 +168,6 @@ body.page-client {
   background-position: right;
   background-blend-mode: multiply;  
   counter-reset: num;
-  height: 100vh;
 }
 
 .page-header {

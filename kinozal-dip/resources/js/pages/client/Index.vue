@@ -29,9 +29,10 @@ export default {
   },
   created() {
     this.fetchStatus();
+    
   },
   data() {
-    return {       
+    return {
       movies: [],
       sessions: [],
       halls: [],
@@ -39,7 +40,7 @@ export default {
       qrCodeData: 'тест qr кода',
       pollInterval: null,
       isFetching: false,
-      selectedDate: null,
+      selectedDate: this.getCurrentDate(),
       daysOfWeek: [],
       filteredMovies: [],
     }
@@ -47,67 +48,87 @@ export default {
   methods: {
     // получение всех фильмов
     async getMovies() {
-      try {
-        // const params = this.selectedDate ? { date: this.formatDate(this.selectedDate) } : {};
+      try {        
         const response = await axios.get('http://127.0.0.1:8000/movies/');
-        this.movies = response.data;
-        // await this.filterMoviesByDate(this.formatDate(this.selectedDate));
+        if (Array.isArray(response.data)) {
+          this.movies = response.data;
+        } else {
+          throw new Error('Неверный формат данных');
+        }
       } catch (error) {
         console.error('Ошибка при получении фильмов:', error);
       }
     },
     // получение всех сеансов
-    getSessions() {
-      axios.get('http://127.0.0.1:8000/sessions')
-        .then(response => {
-          this.sessions = response.data;
-          // console.log('sessions: ', this.sessions);
-        });
+    async getSessions() {
+      try {
+        const response = await axios.get('http://127.0.1:8000/sessions');
+        if (Array.isArray(response.data)) {
+          this.sessions = response.data.filter(session => {
+            // Проверяем, что дата в сессии валидна
+            return !isNaN(new Date(session.start_datetime).getTime());
+          });
+        } else {
+          throw new Error('Неверный формат данных');
+        }
+      } catch (error) {
+        console.error('Ошибка при получении сеансов:', error);
+      }
     },
     // получение всех Hall
-    getHalls() {
-    axios.get('http://127.0.0.1:8000/hall/index')
-      .then(response => {
-        this.halls = response.data;
-        // console.log('halls: ', this.halls);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    async getHalls() {
+      try {
+        const response = await axios.get('http://127.0.1:8000/hall/index');
+        if (Array.isArray(response.data)) {
+          this.halls = response.data;
+        } else {
+          throw new Error('Неверный формат данных');
+        }
+      } catch (error) {
+        console.error('Ошибка при получении залов:', error);
+      }
     },
     // периодическое обновление залов, кино, сессий
     startPolling() {
-      // Запускаем интервал опроса
       this.pollInterval = setInterval(() => {
-        this.fetchHalls();
-      }, 5000); // Каждые 4 секунд
+        if (!this.isFetching) {
+          this.fetchData()
+                .catch(() => {
+                    console.error('Ошибка при обновлении данных');
+                });
+        }
+      }, 5000); // Каждые 5 секунд
     },
     stopPolling() {
       // Очищаем интервал
       clearInterval(this.pollInterval);
     },
-    async fetchHalls() {
-      try {
-        // Проверяем, не выполняется ли уже запрос
-        if (this.isFetching) return;
-        if (!this.isValidDate(this.date)) {
-          this.date = this.getDefaultDate();
-        }
+    // async fetchHalls() {
+    //   try {
+    //     // Проверяем, не выполняется ли уже запрос
+    //     if (this.isFetching) return;
+    //     if (!this.isValidDate(this.date)) {
+    //       // this.date = this.getDefaultDate();
+    //       this.date = this.getCurrentDate();
+    //     }
         
-        this.isFetching = true;
+    //     this.isFetching = true;
         
-         // Обновляем данные
-        this.getMovies();
-        this.getSessions();
-        this.getHalls();
-        // console.log("fetchHalls Успешное обновление!");
-               
-      } catch (error) {
-        console.error('Ошибка при получении данных:', error);
-      } finally {
-        this.isFetching = false;
-      }
-    },
+    //     // Обновляем данные
+    //     await Promise.all([
+    //       this.getMovies(),
+    //       this.getSessions(),
+    //       this.getHalls()
+    //     ]);
+    //     // console.log("fetchHalls Успешное обновление!");
+        
+    //     await this.filterMoviesByDate(this.selectedDate);
+    //   } catch (error) {
+    //     console.error('Ошибка при получении данных:', error);
+    //   } finally {
+    //     this.isFetching = false;
+    //   }
+    // },
 
     proceedToBooking() {
       this.checkGlobalOpen();
@@ -148,33 +169,50 @@ export default {
     generateDaysOfWeek() {
       try {
         const today = new Date();
-        // Находим дату понедельника текущей недели
-        const startDate = new Date(today);
-        // startDate.setDate(startDate.getDate() - startDate.getDay());
-        
-        const dayOfWeek = startDate.getDay();
-        
-
-        // Вычисляем дату понедельника текущей недели
-        // Если сегодня воскресенье (0), то нужно отнять 6 дней
-        // Если сегодня понедельник (1), то отнимать ничего не нужно
-        // startDate.setDate(startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-        startDate.setDate(startDate.getDate() + dayOfWeek);
-                
         const days = [];
-        
+
+        // Генерируем даты от текущей до +6 дней
         for (let i = 0; i < 7; i++) {
-          const date = new Date(startDate);
-          date.setDate(date.getDate() + i);
+          const date = new Date(today);
+          date.setDate(date.getDate() + i); // добавляем i дней к текущей дате
+          
           days.push({
             date: this.formatDate(date),
             weekday: this.getWeekday(date),
             day: date.getDate(),
             month: date.getMonth() + 1,
             year: date.getFullYear(),
-            isToday: this.isSameDay(date, today) // может и не нужна
+            isToday: this.isSameDay(date, today)
           });
         }
+
+        // Находим дату понедельника текущей недели
+      //  const startDate = new Date(today);
+        // startDate.setDate(startDate.getDate() - startDate.getDay());
+        
+      //  const dayOfWeek = startDate.getDay();
+        
+
+        // Вычисляем дату понедельника текущей недели
+        // Если сегодня воскресенье (0), то нужно отнять 6 дней
+        // Если сегодня понедельник (1), то отнимать ничего не нужно
+        // startDate.setDate(startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+      //  startDate.setDate(startDate.getDate() + dayOfWeek);
+                
+        
+        
+        // for (let i = 0; i < 7; i++) {
+        //   const date = new Date(startDate);
+        //   date.setDate(date.getDate() + i);
+        //   days.push({
+        //     date: this.formatDate(date),
+        //     weekday: this.getWeekday(date),
+        //     day: date.getDate(),
+        //     month: date.getMonth() + 1,
+        //     year: date.getFullYear(),
+        //     isToday: this.isSameDay(date, today) // может и не нужна
+        //   });
+        // }
         
         this.daysOfWeek = days;
       } catch (error) {
@@ -194,7 +232,8 @@ export default {
         date = new Date(date);
       }
       if (isNaN(date)) {
-        return new Date().toISOString().split('T')[0];
+        //return new Date().toISOString().split('T')[0];
+        return this.getCurrentDate();
       }
 
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -218,18 +257,45 @@ export default {
     },
     handleDateClick(date) {
       try {
-        this.selectedDate = date;
-        this.filterMoviesByDate(date);
+        // Преобразуем дату в строку
+        const formattedDate = String(date).trim();
+        
+        // Проверяем формат
+        if (/^\d{4}-\d{2}-\d{2}$/.test(formattedDate)) {
+          this.$router.push({
+            name: 'Index',
+            state: { 
+              date: formattedDate 
+            }
+          });
+        
+        this.selectedDate = formattedDate;
+        this.filterMoviesByDate(formattedDate);
+        this.fetchData();
+        } else {
+          console.error('Неверный формат даты:', date);
+        }
+
       } catch (error) {
         console.error('Ошибка при выборе даты:', error);
       }
     },
     async filterMoviesByDate(date) {
       try {
+        // Проверяем формат даты
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          throw new Error('Неверный формат даты');
+        }
+
         // Преобразуем дату в начало и конец дня
         const startOfDay = new Date(date);
         const endOfDay = new Date(date);
         endOfDay.setHours(23, 59, 59);
+
+        // Убедимся, что даты корректны
+        if (isNaN(startOfDay.getTime()) || isNaN(endOfDay.getTime())) {
+          throw new Error('Некорректная дата');
+        }
 
         // Собираем movie_id всех сеансов, которые попадают в выбранный день
         const movieIdsForDate = new Set(
@@ -251,9 +317,11 @@ export default {
       }
     },    
     getCurrentDate() {
-      let a = this.formatDate(new Date());
-      console.log('getCurrentDate a Текущая дата:', a, typeof a);
-      return a;
+      // let a = this.formatDate(new Date());
+      // console.log('getCurrentDate a Текущая дата:', a, typeof a);
+      // return a;
+      const date = new Date();
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     },
     fetchMovies() {
       this.getMovies();
@@ -268,20 +336,35 @@ export default {
       
       return `${hours}:${minutes}`;
     },
-    isValidDate(dateString) {
-      return /^\d{4}-\d{2}-\d{2}$/.test(dateString) && !isNaN(new Date(dateString));
+    isValidDate(date) {
+      // return /^\d{4}-\d{2}-\d{2}$/.test(dateString) && !isNaN(new Date(dateString).getTime()); // добавил .getTime()
+
+      return (
+        typeof date === 'string' &&
+        /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+        !isNaN(new Date(date).getTime())
+      );
     },
     getDefaultDate() {
       return new Date().toISOString().split('T')[0];
     },
     async fetchData() {
       try {
-        await this.getMovies();
-        await this.getSessions();
-        await this.getHalls();
+        if (!this.isValidDate(this.selectedDate)) {
+          this.selectedDate = this.getCurrentDate();
+        }
+        this.isFetching = true;
+
+        await Promise.all([
+          this.getMovies(),
+          this.getSessions(),
+          this.getHalls()
+        ]);
         await this.filterMoviesByDate(this.selectedDate);
       } catch (error) {
         console.error('Ошибка при загрузке данных:', error);
+      } finally {
+        this.isFetching = false;
       }
     },
     logRoute(routeName) {
@@ -290,20 +373,24 @@ export default {
     updateBodyClasses(type) {
       if (type === 'admin') {
         document.body.classList.remove('page-client');
+        document.body.classList.remove('page-client-index');
         document.body.classList.add('page-admin');
         document.body.classList.add('page-admin-index');
       } else if (type === 'client') {
         document.body.classList.remove('page-admin');
         document.body.classList.remove('page-admin-index');
         document.body.classList.add('page-client');
+        document.body.classList.add('page-client-index');
       }
     },
   },
   beforeRouteUpdate(to, from, next) {
+    console.log('beforeRouteUpdate: new date', to.params.date);
+
     // Проверяем валидность даты
     if (!this.isValidDate(to.params.date)) {
       next({
-        name: 'movies',
+        name: 'MoviesByDate',
         params: { date: this.getDefaultDate() }
       });
       return;
@@ -314,41 +401,81 @@ export default {
     this.fetchMovies();
     next();
   },
-  // beforeRouteEnter(to, from, next) {
+  beforeRouteEnter(to, from, next) {
+    // защита от некорректных параметров
+    // const date = to.params.date;
+    // Проверяем формат даты
+    // if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date).getTime())) {
+    //   const currentDate = new Date().toISOString().split('T')[0];
+    //   return next({
+    //     name: 'MoviesByDate',
+    //     params: { date: currentDate }
+    //   });
+    // }
+    
+    // Если дата валидная - продолжаем навигацию
+    // next();
+
   //   document.body.classList.remove('page-admin');
   //   document.body.classList.remove('page-admin-index');
   //   document.body.classList.add('page-client');
   //   next();
-  // },
-  // watch: {
-  //   $route() {
-  //     if (this.$route.meta.isAdmin) {
-  //       this.updateBodyClasses('admin');
-  //     } else {
-  //       this.updateBodyClasses('client');
-  //     }
-  //   }
-  // },
+  
+  },
+  beforeEnter(to, from, next) {
+    const date = to.params.date;
+    
+    if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      next();
+    } else {
+      const currentDate = this.getCurrentDate();
+      next({
+        name: 'Index',
+        params: { date: currentDate }
+      });
+    }
+    
+  },
+  watch: {
+    // selectedDate(newDate) {
+    //   console.log('selectedDate изменилась:', newDate);
+    //   this.filterMoviesByDate(newDate);
+    // },
+    $route() {
+      if (this.$route.meta.isAdmin) {
+        this.updateBodyClasses('admin');
+      } else {
+        this.updateBodyClasses('client');
+      }
+    }    
+  },
   mounted() {
     document.body.classList.add('page-client');
+    document.body.classList.add('page-client-index');
+    //this.date = this.$route.params.date;
+
+    // console.log('mounted: selectedDate', this.selectedDate);
+    // console.log('mounted: date from route', this.$route.params.date);
+
+    // Если дата пришла через пропс или маршрут - используем её
+    // if (this.date) {
+    //   this.selectedDate = this.date;
+    // } else if (this.$route.params.date) {
+    //   this.selectedDate = this.$route.params.date;
+    // }
     
-    // Преобразуем строковую дату в объект Date
-    this.selectedDate = this.formatDate(this.isValidDate(this.date) ? new Date(this.date) : new Date());
+    // console.log('mounted: selectedDate после установки', this.selectedDate);
+    
+    // // Проверяем валидность
+    // if (!this.isValidDate(this.selectedDate)) {
+    //   this.selectedDate = this.getCurrentDate();
+    // }
+
+    this.selectedDate = this.getCurrentDate();
+    
     this.generateDaysOfWeek();
-    this.fetchMovies();
-
-    // Проверяем валидность даты
-    if (!this.isValidDate(this.selectedDate)) {
-      this.selectedDate = this.getCurrentDate();
-    }
     this.fetchData();
-    // console.log('Текущая дата:', this.date, typeof this.date);
-
-    this.startPolling(); // обновляет информацию о залах, кино, сеансах
-    this.getMovies();
-    this.getSessions();
-    this.getHalls();
-
+    this.startPolling();
   }
 }
 </script>
@@ -363,13 +490,13 @@ export default {
       v-for="(day, index) in daysOfWeek" 
       :key="index" 
       class="page-nav__day"
-      :to="{ name: 'Index', params: { date: day.date } }"
+      :to="{ name: 'Index', state: { date: day.date } }"
       :class="{
         'page-nav__day_today': isToday(day.date),
         'page-nav__day_chosen': selectedDate === day.date,
         'page-nav__day_weekend': isWeekend(day.date),        
       }"
-      @click.native="handleDateClick(day.date)"
+      @click="handleDateClick(day.date)"
     >
       <span class="page-nav__day-week">{{ day.weekday }}</span>
       <span class="page-nav__day-number">{{ day.day }}</span>
@@ -460,6 +587,10 @@ body.page-client {
   background-position: right; 
   background-blend-mode: multiply;  
   counter-reset: num;
+}
+
+body.page-client-index {
+  height: 100%;
 }
 
 .page-header {

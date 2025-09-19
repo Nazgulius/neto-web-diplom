@@ -69,7 +69,7 @@ Route::get('/sessions', [KinoSessionController::class, 'index']);
 Route::get('/seats/index', [SeatController::class, 'index']);
 Route::get('/hall/create', [HallController::class, 'index']); // проверка зала
 Route::get('/hall/index', [HallController::class, 'index']);
-Route::get('/movies/{date?}', [MovieController::class, 'index'])->name('movies');
+// Route::get('/movies/{date?}', [MovieController::class, 'index'])->name('movies');
 
 Route::post('/block-seats', [SeatController::class, 'blockSeats']); // блокирует места
 Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']); // бронирует места

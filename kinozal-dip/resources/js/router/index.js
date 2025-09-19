@@ -8,7 +8,14 @@ import AdminLogin2 from '@/pages/auth/Login.vue';
 import AdminLogin from '@/pages/admin/Login.vue';
 
 const routes = [
-  { path: '/', component: IndexPage, name: 'Index' },
+  { path: '/', component: IndexPage, name: 'Index', 
+    props: true, 
+    params: {
+      date: String,
+      validator: (value) => /^\d{4}-\d{2}-\d{2}$/.test(value),
+    }, 
+    meta: { requiresAuth: false }
+  },
   { path: '/hall/:id', component: HallPage },
   { path: '/hall', name: 'hall',component: HallPage },
   {
@@ -45,7 +52,7 @@ const routes = [
   },
   {
     path: '/movies/:date',
-    name: 'movies',
+    name: 'MoviesByDate',
     component: IndexPage,
     props: true,
     beforeEnter: (to, from, next) => {
@@ -56,7 +63,7 @@ const routes = [
       if (!isValidDate) {
         const currentDate = new Date().toISOString().split('T')[0];
         next({
-          name: 'movies', 
+          name: 'MoviesByDate', 
           params: { date: currentDate }
         });
       } else {
@@ -67,8 +74,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  routes,
   history: createWebHistory(), // обновлено, было "process.env.BASE_URL" с ()
+  routes,
 })
 
 export default router;
