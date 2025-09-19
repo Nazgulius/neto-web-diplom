@@ -63,7 +63,7 @@ export default {
     // получение всех сеансов
     async getSessions() {
       try {
-        const response = await axios.get('http://127.0.1:8000/sessions');
+        const response = await axios.get('http://127.0.0.1:8000/sessions');
         if (Array.isArray(response.data)) {
           this.sessions = response.data.filter(session => {
             // Проверяем, что дата в сессии валидна
@@ -79,7 +79,7 @@ export default {
     // получение всех Hall
     async getHalls() {
       try {
-        const response = await axios.get('http://127.0.1:8000/hall/index');
+        const response = await axios.get('http://127.0.0.1:8000/hall/index');
         if (Array.isArray(response.data)) {
           this.halls = response.data;
         } else {
@@ -386,53 +386,17 @@ export default {
       if (type === 'admin') {
         document.body.classList.remove('page-client');
         document.body.classList.remove('page-client-index');
+        document.body.classList.remove('page-client-hall');
         document.body.classList.add('page-admin');
         document.body.classList.add('page-admin-index');
       } else if (type === 'client') {
+        document.body.classList.remove('page-client-hall');
         document.body.classList.remove('page-admin');
         document.body.classList.remove('page-admin-index');
         document.body.classList.add('page-client');
         document.body.classList.add('page-client-index');
       }
     },
-  },
-  beforeRouteUpdate(to, from, next) {
-    console.log('beforeRouteUpdate: new date', to.params.date);
-
-    // Проверяем валидность даты
-    if (!this.isValidDate(to.params.date)) {
-      next({
-        name: 'MoviesByDate',
-        params: { date: this.getDefaultDate() }
-      });
-      return;
-    }
-    
-    this.selectedDate = to.params.date;
-    console.log('beforeRouteUpdate this.selectedDate', this.selectedDate);
-    this.fetchMovies();
-    next();
-  },
-  beforeRouteEnter(to, from, next) {
-    // защита от некорректных параметров
-    // const date = to.params.date;
-    // Проверяем формат даты
-    // if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date).getTime())) {
-    //   const currentDate = new Date().toISOString().split('T')[0];
-    //   return next({
-    //     name: 'MoviesByDate',
-    //     params: { date: currentDate }
-    //   });
-    // }
-    
-    // Если дата валидная - продолжаем навигацию
-    // next();
-
-  //   document.body.classList.remove('page-admin');
-  //   document.body.classList.remove('page-admin-index');
-  //   document.body.classList.add('page-client');
-  //   next();
-  
   },
   beforeEnter(to, from, next) {
     const date = to.params.date;
@@ -464,6 +428,7 @@ export default {
   mounted() {
     document.body.classList.add('page-client');
     document.body.classList.add('page-client-index');
+
     //this.date = this.$route.params.date;
 
     // console.log('mounted: selectedDate', this.selectedDate);
@@ -548,9 +513,8 @@ export default {
           </p>
         </div>
       </div>
-      <router-view></router-view>
 
-      <div v-if="filteredMovies.length > 0">
+      <div v-if="filteredMovies.length > 0 && halls.length > 0">
         <div v-for="hall in halls" :key="hall.id" class="movie-seances__hall">
           <h3 class="movie-seances__hall-title">Зал {{ hall.id }} {{ hall.name }}</h3>
   

@@ -3,25 +3,9 @@
     <!-- <Index /> -->
 
     <!-- <router-view></router-view> -->
-    <!-- <router-view v-slot="{ Component }">
-      <suspense>
-        <template #default>
-          <component :is="Component" v-bind="$route.params" />
-        </template>
-        <template #fallback>
-          <div>Загрузка...</div>
-        </template>
-      </suspense>
-    </router-view> -->
+    
     <router-view v-slot="{ Component }">
-      <suspense>
-        <template #default>
-          <component :is="Component" v-bind="$route.params" />
-        </template>
-        <template #fallback>
-          <div>Загрузка...</div>
-        </template>
-      </suspense>
+      <component :is="Component" v-bind="$route.params" />
     </router-view>
   </div>
 </template>

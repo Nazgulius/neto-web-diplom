@@ -56,7 +56,7 @@ export default {
           // Сброс статуса выделения
           this.seatsForPayment.forEach(s => { s.selected = false; });
           this.seatsForPayment = [];
-          alert('Бронирование успешно!');          
+          // alert('Бронирование успешно!');          
         } else {
           alert('Ошибка при обработке ответа сервера');
         }
@@ -92,7 +92,7 @@ export default {
     const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
     
     this.seatsForPayment = payload?.seats ?? {};
-    console.log('this.seatsForPayment ', this.seatsForPayment);
+    // console.log('this.seatsForPayment ', this.seatsForPayment);
     this.movieForPayment = payload?.movie ?? {};
     
     this.sumTotalPrice(); 
@@ -172,7 +172,7 @@ export default {
   </main>
 </template>
 
-<style>
+<style >
 @charset "UTF-8";
 
 * {

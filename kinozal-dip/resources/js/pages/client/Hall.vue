@@ -185,7 +185,7 @@ export default {
       // Запускаем интервал опроса
       this.pollInterval = setInterval(() => {
         this.fetchHalls();
-      }, 2000); // Каждые 2 секунд
+      }, 5000); // Каждые 5 секунд
     },
     stopPolling() {
       // Очищаем интервал
@@ -200,7 +200,7 @@ export default {
         
          // Обновляем данные
         this.getSeats();
-        console.log("fetchHalls Успешное обновление!");
+        console.log("fetchHalls Hall Успешное обновление!");
                
       } catch (error) {
         console.error('Ошибка при получении данных:', error);
@@ -221,14 +221,15 @@ export default {
   },
   mounted() {
     document.body.classList.add('page-client');
+    document.body.classList.add('page-client-hall');
 
     this.startPolling(); // обновляет информацию
     
-    console.log('sessionId=', this.sessionId);
-    console.log('Hall ID:', this.hallId);
+    // console.log('sessionId=', this.sessionId);
+    // console.log('Hall ID:', this.hallId);
 
     const route = this.$route;
-    console.log('route params:', route.params);
+    // console.log('route params:', route.params);
     const sess = route.params.sessionId || this.sessionId;
     const hall = route.params.hallId || this.hallId;
 
@@ -337,6 +338,10 @@ body.page-client {
   background-position: right;
   background-blend-mode: multiply;  
   counter-reset: num;
+}
+
+body.page-client-hall{
+  height: 100vh;
 }
 
 .page-header {

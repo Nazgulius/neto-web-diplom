@@ -27,8 +27,8 @@ axios.interceptors.request.use(config => {
 });
 
 createInertiaApp({
-  title: (title) => (title ? `${title} - ${appName}` : appName),
-  resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
+  title: title => (title ? `${title} - ${appName}` : appName),
+  resolve: name => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
   setup({ el, App, props, plugin }) {
     try {
       createApp({ render: () => h(App, props) })

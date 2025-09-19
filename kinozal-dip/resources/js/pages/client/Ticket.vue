@@ -66,7 +66,7 @@ export default {
         //   text: this.editDataForQR, // читаемая строка
         //   // seats: this.seatsForPayment.map(s => s.id)
         // };        
-        console.log('payloadForServer перед отправкой:', payloadForServer);
+        // console.log('payloadForServer перед отправкой:', payloadForServer);
         const seatsData = JSON.stringify(payloadForServer);
 
         const response = await axios.post('http://127.0.0.1:8000/get-qr-code', { seats: seatsData });
@@ -90,11 +90,13 @@ export default {
   },
   mounted() {
     document.body.classList.add('page-client');
+    document.body.classList.add('page-client-hall');
+
     const payloadRaw = this.$route.query.payload;
     const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
 
     this.seatsForPayment = payload?.seats ?? {};
-    console.log('this.seatsForPayment ', this.seatsForPayment);
+    // console.log('this.seatsForPayment ', this.seatsForPayment);
     this.movieForPayment = payload?.movie ?? {};
 
     this.sumTotalPrice();
@@ -147,7 +149,7 @@ export default {
 
 </template>
 
-<style>
+<style >
 @charset "UTF-8";
 
 * {
@@ -168,6 +170,10 @@ body.page-client {
   background-position: right;
   background-blend-mode: multiply;  
   counter-reset: num;
+}
+
+body.page-client-hall{
+  height: 100vh;
 }
 
 .page-header {

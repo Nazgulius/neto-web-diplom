@@ -16,7 +16,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 // пути для Inertia
 Route::get('/', function () {
-    return Inertia::render('client/Index');
+    return Inertia::render('App');
 })->name('app'); // обновлён переход. Начало в App vue, и в нём уже будут открываться другие страницы приложения.
 
 // // маршруты для клиента:

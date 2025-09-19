@@ -6,22 +6,24 @@ import TicketPage from '@/pages/client/Ticket.vue';
 import AdminIndex from '@/pages/admin/Index.vue';
 import AdminLogin2 from '@/pages/auth/Login.vue';
 import AdminLogin from '@/pages/admin/Login.vue';
+import App from '@/pages/App.vue';
 
 const routes = [
-  { path: '/', component: IndexPage, name: 'Index', 
+  { path: '/', component: IndexPage, 
+    name: 'Index', 
     props: true, 
-    params: {
-      date: String,
-      validator: (value) => /^\d{4}-\d{2}-\d{2}$/.test(value),
-    }, 
-    meta: { requiresAuth: false },
+    // params: {
+    //   date: String,
+    //   validator: (value) => /^\d{4}-\d{2}-\d{2}$/.test(value),
+    // }, 
+    // meta: { requiresAuth: false },
   },
-  // {
-  //   path: '/index',
-  //   name: 'home',
-  //   component: IndexPage,
-  //   props: true
-  // },
+  {
+    path: '/index',
+    name: 'home',
+    component: IndexPage,
+    props: true
+  },
   { path: '/hall/:id', component: HallPage },
   { path: '/hall', name: 'hallmain',component: HallPage },
   {
