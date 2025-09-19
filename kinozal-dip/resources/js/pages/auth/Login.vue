@@ -6,8 +6,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  // Добавьте другие поля вашего пользователя
+}
 
 defineProps<{
     status?: string;
@@ -22,9 +30,20 @@ const form = useForm({
 
 const submit = () => {
     form.post(route('login'), {
-        onFinish: () => form.reset('password'),
+        onFinish: () => {
+            form.reset('password');            
+            localStorage.setItem('auth', 'true');
+        },
     });
 };
+
+
+// первый вариант
+// const submit = () => {
+//     form.post(route('login'), {
+//         onFinish: () => form.reset('password'),
+//     });
+// };
 
 </script>
 

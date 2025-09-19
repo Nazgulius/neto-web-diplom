@@ -43,6 +43,7 @@ export default {
       selectedDate: this.getCurrentDate(),
       daysOfWeek: [],
       filteredMovies: [],
+      auth: false,
     }
   },  
   methods: {
@@ -369,6 +370,17 @@ export default {
     },
     logRoute(routeName) {
       console.log(`Переход по маршруту: ${routeName}`);
+
+      //this.changeUserState();
+    },
+    changeUserState (){
+      if (this.auth) {
+        localStorage.removeItem('auth');
+        this.$router.push({ name: 'Index'});
+      } else {
+        localStorage.setItem('auth', true);
+        this.auth = true;
+      }
     },
     updateBodyClasses(type) {
       if (type === 'admin') {
@@ -536,6 +548,7 @@ export default {
           </p>
         </div>
       </div>
+      <router-view></router-view>
 
       <div v-if="filteredMovies.length > 0">
         <div v-for="hall in halls" :key="hall.id" class="movie-seances__hall">
@@ -544,8 +557,13 @@ export default {
           <div v-if="globalSalesOpen" >
             <ul class="movie-seances__list">          
               <li v-for="session in sessions" :key="session.id" class="movie-seances__time-block">
-                <router-link v-if="session.movie_id === movie.id && session.hall_id === hall.id" 
-                  :to="{ name: 'Hall', params: { hallId: hallId, sessionId: session.id } }" 
+                <router-link 
+                  v-if="session.movie_id === movie.id && session.hall_id === hall.id" 
+                  :to="{ 
+                    name: 'Hall', 
+                    params: { hallId: hall.id, sessionId: session.id } 
+                  }"
+                  @click="logRoute('Hall')" 
                   class="movie-seances__time">
                   {{ formatTime(session.start_datetime) }}
                 </router-link>

@@ -78,11 +78,13 @@ export default {
       selectedTime: '',  // HH:mm
       movie_id: null,
       hall_id: null,
+      auth: null,
     }
   },
   created() {
     this.fetchStatus();
     this.fetchHalls();
+    this.auth = localStorage.getItem('auth') !== null;
   },
   computed: {
     totalTimelineMinutes() {
@@ -116,6 +118,16 @@ export default {
     }
   },
   methods: {
+    changeUserState() {
+
+      if (localStorage.getItem('auth') == true) {
+        localStorage.removeItem('auth');
+        this.$router.push({ name: 'Index'});
+      } else {
+        localStorage.setItem('auth', true);
+        this.auth = true;
+      }
+    },
     computeLeft(start_datetime) {
       // Преобразуем строку в Date объект
       const date = new Date(start_datetime);
@@ -847,6 +859,8 @@ export default {
 
         // Перенаправляем на главную через Inertia
         this.$inertia.get('/'); // используем Inertia для перенаправления
+        
+        this.changeUserState(); // разлогин по localStorage переменной auth
       } catch (error) {
         console.error('Ошибка при выходе:', error);
         this.$router.push('/');

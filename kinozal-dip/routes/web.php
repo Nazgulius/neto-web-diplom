@@ -14,28 +14,25 @@ use App\Http\Controllers\SessionController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
-
+// пути для Inertia
 Route::get('/', function () {
     return Inertia::render('client/Index');
 })->name('app'); // обновлён переход. Начало в App vue, и в нём уже будут открываться другие страницы приложения.
 
-// маршруты для клиента:
+// // маршруты для клиента:
 Route::get('/index', function () { // поменял с / на / index 
     return Inertia::render('client/Index');
 })->name('home');
 
 Route::get('/hall', function () {
     return Inertia::render('client/Hall');
-})->name('hall');
+})->name('hall.main');
 Route::get('/hall/{hallId}/session/{sessionId}', function ($hallId, $sessionId) {
-    return Inertia::render('client/Hall',[
+    return Inertia::render('client/Hall', props: [
         'hallId' => $hallId,
         'sessionId' => $sessionId,
     ]);
-})->name('hall.id');
-Route::get('/hall/add', [HallController::class, 'index']);
-Route::post('/halls/update-prices', [HallController::class, 'updatePrices']);
-Route::post('/halls/hall/update-seats', [HallController::class, 'updateSeats']);
+})->name('hallsession');
 
 
 Route::get('/payment', function () {
@@ -60,6 +57,10 @@ Route::get('/admin/login', function () {
     return Inertia::render('admin/Login');
 })->middleware(['auth', 'verified'])->name('loginAdmin');
 
+// пути для сервера
+Route::get('/hall/add', [HallController::class, 'index']);
+Route::post('/halls/update-prices', [HallController::class, 'updatePrices']);
+Route::post('/halls/hall/update-seats', [HallController::class, 'updateSeats']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

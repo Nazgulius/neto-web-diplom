@@ -14,23 +14,42 @@ const routes = [
       date: String,
       validator: (value) => /^\d{4}-\d{2}-\d{2}$/.test(value),
     }, 
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: false },
   },
+  // {
+  //   path: '/index',
+  //   name: 'home',
+  //   component: IndexPage,
+  //   props: true
+  // },
   { path: '/hall/:id', component: HallPage },
-  { path: '/hall', name: 'hall',component: HallPage },
+  { path: '/hall', name: 'hallmain',component: HallPage },
   {
     path: '/hall/:hallId/session/:sessionId',
     name: 'Hall',
     component: HallPage,
     props: true,
   },
-  { path: '/payment', name: 'payment', component: PaymentPage },
-  { path: '/ticket', name: 'ticket', component: TicketPage },
+  { path: '/payment', name: 'payment', component: PaymentPage, props: true },
+  { path: '/ticket', name: 'ticket', component: TicketPage, props: true },
   // admin
   { path: '/admin', name: 'Admin', component: AdminLogin2, meta: { requiresAuth: true } },
-  { path: '/dashboard', component: AdminIndex, meta: { requiresAuth: true } },
-  { path: '/index', component: AdminIndex, meta: { requiresAuth: true } },
-  { path: '/admin/login', name: 'Login',component: AdminLogin },
+  
+  // попытка сделать авторизацию через localStorage
+  // { path: '/admin', name: 'Admin', component: AdminIndex, 
+  //   beforeEnter: (to, from, next) => {
+  //     if(localStorage.getItem('auth')) {
+  //       next();
+  //     } else {
+  //       next({ name: 'AdminLogin2' });
+  //     }
+  //   },
+  // },
+
+  { path: '/dashboard', name: 'dashboard', component: AdminIndex, meta: { requiresAuth: true } },
+  { path: '/admin/index', name: 'admin.index',component: AdminIndex, meta: { requiresAuth: true } },
+  { path: '/admin/login', name: 'Login',component: AdminLogin, meta: { requiresAuth: true } }, // возможно не нужна meta: { requiresAuth: true }
+  { path: '/login', component: AdminLogin2, name: 'AdminLogin2'},
   {
     path: '/logout',
     name: 'Logout',
