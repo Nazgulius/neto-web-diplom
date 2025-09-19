@@ -859,8 +859,9 @@ export default {
 
         // Перенаправляем на главную через Inertia
         this.$inertia.get('/'); // используем Inertia для перенаправления
+        // this.$inertia.get({ name: 'app' }); // используем Inertia для перенаправления
         
-        this.changeUserState(); // разлогин по localStorage переменной auth
+        // this.changeUserState(); // разлогин по localStorage переменной auth
       } catch (error) {
         console.error('Ошибка при выходе:', error);
         this.$router.push('/');

@@ -34,6 +34,7 @@ const routes = [
   },
   { path: '/payment', name: 'payment', component: PaymentPage, props: true },
   { path: '/ticket', name: 'ticket', component: TicketPage, props: true },
+  
   // admin
   { path: '/admin', name: 'Admin', component: AdminLogin2, meta: { requiresAuth: true } },
   

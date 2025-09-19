@@ -34,7 +34,6 @@ Route::get('/hall/{hallId}/session/{sessionId}', function ($hallId, $sessionId) 
     ]);
 })->name('hallsession');
 
-
 Route::get('/payment', function () {
     return Inertia::render('client/Payment');
 })->name('payment');
@@ -44,18 +43,20 @@ Route::get('/ticket', function () {
 })->name('ticket');
 
 // маршруты для администрации:
-Route::get('/dashboard', function () {
-    return Inertia::render('admin/Index');
-})->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/admin', function () {
-    return Inertia::render('admin/Index');
-})->middleware(['auth', 'verified'])->name('admin.login');
-Route::get('/admin', function () {
+// Route::get('/dashboard', function () {
+//     return Inertia::render('admin/Index');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/admin', function () {
+//     return Inertia::render('auth/Login', [
+//       'canResetPassword' => true, // или false
+//   ]);
+// })->middleware(['auth', 'verified'])->name('admin.login');
+Route::get('/admin/index', function () {
     return Inertia::render('admin/Index');
 })->name('admin.login2');
-Route::get('/admin/login', function () {
-    return Inertia::render('admin/Login');
-})->middleware(['auth', 'verified'])->name('loginAdmin');
+// Route::get('/admin/login', function () {
+//     return Inertia::render('admin/Login');
+// })->middleware(['auth', 'verified'])->name('loginAdmin');
 
 // пути для сервера
 Route::get('/hall/add', [HallController::class, 'index']);

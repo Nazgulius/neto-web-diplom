@@ -486,7 +486,7 @@ export default {
     </router-link> -->
     <!-- альтернативная кнопка перехода -->
     <a 
-      href="/admin" 
+      href="/admin/index" 
       class="link_color" 
       @click="logRoute('Admin')"
     >
