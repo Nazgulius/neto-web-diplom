@@ -9,7 +9,8 @@ import AdminLogin from '@/pages/admin/Login.vue';
 import App from '@/pages/App.vue';
 
 const routes = [
-  { path: '/', component: IndexPage, 
+  { path: '/', 
+    component: IndexPage, 
     name: 'Index', 
     props: true, 
     // params: {

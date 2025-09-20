@@ -30,6 +30,10 @@ Route::post('/logout', function (Request $request) {
   $request->user()->tokens()->delete();
   return response('Successfully logged out.', 200);
 });
+Route::post('/api/logout', [AuthController::class, 'logout'])
+    ->middleware('auth:sanctum');
+Route::post('/api/login', [AuthController::class, 'login']);
+Route::post('/api/register', [AuthController::class, 'register']);
 
 Route::put('/halls/{hall}/seats/types', [SeatController::class, 'updateSeatTypes']);
 // Route::get('/movies', [MovieController::class, 'index']);

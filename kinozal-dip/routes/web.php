@@ -53,38 +53,23 @@ Route::get('/ticket', function () {
 // })->middleware(['auth', 'verified'])->name('admin.login');
 Route::get('/admin/index', function () {
     return Inertia::render('admin/Index');
-})->name('admin.login2');
+})->middleware(['auth', 'verified'])->name('admin.login2');
 // Route::get('/admin/login', function () {
 //     return Inertia::render('admin/Login');
 // })->middleware(['auth', 'verified'])->name('loginAdmin');
 
 // пути для сервера
 Route::get('/hall/add', [HallController::class, 'index']);
+Route::get('/hall/create', [HallController::class, 'index']); // проверка зала
+Route::get('/hall/index', [HallController::class, 'index']);
+Route::get('/hall/hall/{id}', [HallController::class, 'show']);
 Route::post('/halls/update-prices', [HallController::class, 'updatePrices']);
 Route::post('/halls/hall/update-seats', [HallController::class, 'updateSeats']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-
-Route::get('/movies', [MovieController::class, 'index']);
-Route::get('/sessions', [KinoSessionController::class, 'index']);
-Route::get('/seats/index', [SeatController::class, 'index']);
-Route::get('/hall/create', [HallController::class, 'index']); // проверка зала
-Route::get('/hall/index', [HallController::class, 'index']);
-// Route::get('/movies/{date?}', [MovieController::class, 'index'])->name('movies');
-
-Route::post('/block-seats', [SeatController::class, 'blockSeats']); // блокирует места
-Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']); // бронирует места
-Route::post('/censel-block-seats', [SeatController::class, 'censelBlockSeats']); // отмена блокирования места
-
-Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book');
-Route::get('/ticket/{uuid}', [TicketController::class, 'show'])->name('ticket.show');
-Route::get('/hall/sessions/{id}', [KinoSessionController::class, 'show']);
-Route::get('/hall/hall/{id}', [HallController::class, 'show']);
-Route::get('/hall/movie/{id}', [MovieController::class, 'show']);
-Route::get('/get-qr-code', [TicketController::class, 'getQrCode']);
-Route::post('/get-qr-code', [TicketController::class, 'getQrCode']);
-Route::post('/api/logout', [AuthController::class, 'logout']);
+Route::post('/api/logout', [AuthController::class, 'logout'])
+  ->middleware('auth:sanctum');
 // Route::post('/logout', function (Request $request) {
 //   $request->user()->tokens()->delete();
 //   return response('Successfully logged out.', 200);
@@ -92,6 +77,22 @@ Route::post('/api/logout', [AuthController::class, 'logout']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
   ->middleware('auth')
   ->name('logout');
+
+Route::get('/movies', [MovieController::class, 'index']);
+Route::get('/hall/movie/{id}', [MovieController::class, 'show']);
+// Route::get('/movies/{date?}', [MovieController::class, 'index'])->name('movies');
+
+Route::get('/seats/index', [SeatController::class, 'index']);
+Route::post('/block-seats', [SeatController::class, 'blockSeats']); // блокирует места
+Route::post('/reserve-seats', [SeatController::class, 'reserveSeats']); // бронирует места
+Route::post('/censel-block-seats', [SeatController::class, 'censelBlockSeats']); // отмена блокирования места
+
+Route::get('/sessions', [KinoSessionController::class, 'index']);
+Route::get('/hall/sessions/{id}', [KinoSessionController::class, 'show']);
+Route::post('/api/book', [TicketController::class, 'book'])->name('tickets.book');
+Route::get('/ticket/{uuid}', [TicketController::class, 'show'])->name('ticket.show');
+Route::get('/get-qr-code', [TicketController::class, 'getQrCode']);
+Route::post('/get-qr-code', [TicketController::class, 'getQrCode']);
 
 Route::get('/halls/{hallId}/config', [HallController::class, 'getHallConfig'])->name('hall.config');
 Route::post('/hall/create', [HallController::class, 'create']); // создание зала
@@ -101,8 +102,8 @@ Route::post('/movies/session/create', [KinoSessionController::class, 'create']);
 
 Route::delete('/hall/destroy/{id}', [HallController::class, 'destroy']); // удаление зала
 Route::delete('/movies/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
-Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
 Route::delete('/movie/destroy/{id}', [MovieController::class, 'destroy']); // удаление кино
+Route::delete('/movies/session/destroy/{id}', [KinoSessionController::class, 'destroy']); // удаление сессии кино
 
 Route::get('/admin/sales/status', [SessionController::class, 'status'])->name('admin.sales.status');
 Route::post('/admin/sales/open-all', [SessionController::class, 'openAllSales'])->name('admin.sales.openAll');

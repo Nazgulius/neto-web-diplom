@@ -840,31 +840,35 @@ export default {
     // },
     async logout() {
       try {
-        // Получаем CSRF токен
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        // Отправляем запрос на выход
-        await fetch('/logout', { // используем относительный путь
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-          },
-          credentials: 'include'
-        });
-
-        // Очищаем локальные данные
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
-
-        // Перенаправляем на главную через Inertia
-        this.$inertia.get('/'); // используем Inertia для перенаправления
-        // this.$inertia.get({ name: 'app' }); // используем Inertia для перенаправления
         
-        // this.changeUserState(); // разлогин по localStorage переменной auth
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            withCredentials: true
+        };
+
+        await axios.post('/api/logout', {}, config);
+
+        // Очищаем все данные
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Полное обновление состояния
+        this.$store.commit('auth/SET_USER', null);
+        this.$store.commit('auth/SET_TOKEN', null);
+
+        // Перенаправление через Inertia
+        this.$inertia.visit('/', {
+            preserveState: false,
+            only: []
+        });
       } catch (error) {
         console.error('Ошибка при выходе:', error);
-        this.$router.push('/');
+        // this.$router.push('/');
+        this.$inertia.visit('/');
       }
       this.updateBodyClasses('client');
     },

@@ -33,7 +33,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.login', absolute: false));
+        return redirect()->intended(route('admin.login2', absolute: false))
+            ->with('success', 'Вы успешно вошли в систему');
     }
 
     /**
@@ -46,6 +47,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')->with('success', 'Вы вышли из системы');
     }
 }
