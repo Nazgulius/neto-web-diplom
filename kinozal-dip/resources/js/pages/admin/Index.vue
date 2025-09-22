@@ -1,7 +1,8 @@
 <script>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref } from 'vue';
+// import store from '@/store';
 
 export default {
   name: 'IndexAdmin',
@@ -839,36 +840,47 @@ export default {
     //   }
     // },
     async logout() {
+      console.log('Начат выход из администраторской!');
       try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        // Проверяем наличие токена
+        const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+        if (!csrfTokenElement) {
+        throw new Error('CSRF token not found');
+        }
         
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            withCredentials: true
-        };
+        const csrfToken = csrfTokenElement.getAttribute('content');
 
-        await axios.post('/api/logout', {}, config);
+        // const config = {
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'X-CSRF-TOKEN': csrfToken,
+        //         'Accept': 'application/json'
+        //     },
+        //     withCredentials: true,
+        //     // timeout: 5000
+        // };
+
+        await axios.post('http://127.0.0.1:8000/logout');
+        // await axios.post('http://127.0.0.1:8000/logout', {}, config);
+        
 
         // Очищаем все данные
         localStorage.clear();
         sessionStorage.clear();
-
-        // Полное обновление состояния
-        this.$store.commit('auth/SET_USER', null);
-        this.$store.commit('auth/SET_TOKEN', null);
+        // this.$store.commit('auth/SET_USER', null);
+        // this.$store.commit('auth/SET_TOKEN', null);
 
         // Перенаправление через Inertia
-        this.$inertia.visit('/', {
-            preserveState: false,
-            only: []
-        });
+        // this.$inertia.visit('/', {
+        //     preserveState: false,
+        //     only: [],
+        //     replace: true
+        // });
+        window.location.href = '/'; // перезапускаем и переходим на основную страницу
       } catch (error) {
         console.error('Ошибка при выходе:', error);
         // this.$router.push('/');
-        this.$inertia.visit('/');
+        // this.$inertia.visit('/');
       }
       this.updateBodyClasses('client');
     },
@@ -948,7 +960,7 @@ export default {
       @click="logout"
     >
       Выход
-    </a> -->
+    </a> -->    
   </nav>
 
   <main class="conf-steps">

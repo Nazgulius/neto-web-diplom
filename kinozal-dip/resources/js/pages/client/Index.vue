@@ -478,24 +478,31 @@ export default {
       <span class="page-nav__day-week">{{ day.weekday }}</span>
       <span class="page-nav__day-number">{{ day.day }}</span>
     </router-link>
-  </nav>
-  
-  <nav class="page-nav">  
-    <!-- <router-link :to="{ name: 'Admin' }" class="link_color" @click.native="logRoute('Admin')">
-      Вход в административную панель
-    </router-link> -->
-    <!-- альтернативная кнопка перехода -->
     <a 
       href="/admin/index" 
-      class="link_color" 
+      class="link_login" 
       @click="logRoute('Admin')"
     >
       Вход в административную панель
     </a>
-    <!-- <router-link :to="{ name: 'Login' }" class="link_color" @click.native="logRoute('Login')">
+  </nav>
+  
+  <!-- <nav class="page-nav">   -->
+    <!-- <router-link :to="{ name: 'Admin' }" class="link_login" @click.native="logRoute('Admin')">
+      Вход в административную панель
+    </router-link> -->
+    <!-- альтернативная кнопка перехода -->
+    <!-- <a 
+      href="/admin/index" 
+      class="link_login" 
+      @click="logRoute('Admin')"
+    >
+      Вход в административную панель
+    </a> -->
+    <!-- <router-link :to="{ name: 'Login' }" class="link_login" @click.native="logRoute('Login')">
       Login for Login
     </router-link> -->
-  </nav>
+  <!-- </nav> -->
 
   <main>
 
@@ -761,7 +768,7 @@ body.page-client-index {
   font-size: 1.5rem;
 }
 
-.link_color {  
+.link_login {  
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
   border-radius: 2px;
   background-color: #FFFFFF;
@@ -771,9 +778,10 @@ body.page-client-index {
   padding: 2px;
   margin: 10px;  
   align-items: center;    
+  width: 13rem;
 }
 
-.link_color:hover, .link_color:active {
+.link_login:hover, .link_login:active {
   background-color: #000000;
   color: #FFFFFF;
 }

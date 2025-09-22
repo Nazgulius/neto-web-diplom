@@ -42,11 +42,21 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+      try {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        // Удаляем токены, если используется Sanctum
+        if ($request->user()) {
+          $request->user()->tokens()->delete();
+        }
+
         return redirect('/')->with('success', 'Вы вышли из системы');
+      } catch (\Exception $e) {
+        return redirect('/')->with('error', 'Ошибка при выходе из системы');
+      }
+      
     }
 }

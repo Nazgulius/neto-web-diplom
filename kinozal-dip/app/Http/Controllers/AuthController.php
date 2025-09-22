@@ -55,14 +55,14 @@ class AuthController extends Controller
     return redirect()->route('/admin/index');
   }
 
-  public function logout(Request $request)
-  {
-    // echo 'Auth Logout';
-    $request->user()->tokens()->delete();
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+  // public function logout(Request $request)
+  // {
+  //   // echo 'Auth Logout';
+  //   $request->user()->tokens()->delete();
+  //   Auth::logout();
+  //   $request->session()->invalidate();
+  //   $request->session()->regenerateToken();
 
-    return response()->json(['message' => 'Logged out']);
-  }
+  //   return response()->json(['message' => 'Logged out']);
+  // }
 }

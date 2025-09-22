@@ -54,25 +54,25 @@ const routes = [
   { path: '/admin/index', name: 'admin.index',component: AdminIndex, meta: { requiresAuth: true } },
   { path: '/admin/login', name: 'Login',component: AdminLogin, meta: { requiresAuth: true } }, // возможно не нужна meta: { requiresAuth: true }
   { path: '/login', component: AdminLogin2, name: 'AdminLogin2'},
-  {
-    path: '/logout',
-    name: 'Logout',
-    beforeEnter: async (to, from, next) => {
-      try {
-        await fetch('/logout', { method: 'POST', credentials: 'include' });
-        // Очистка локальных данных
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
+  // {
+  //   path: '/logout',
+  //   name: 'Logout',
+  //   beforeEnter: async (to, from, next) => {
+  //     try {
+  //       await fetch('/logout', { method: 'POST', credentials: 'include' });
+  //       // Очистка локальных данных
+  //       localStorage.removeItem('access_token');
+  //       localStorage.removeItem('user');
         
-        // Возврат на главную страницу
-        next('/'); // или 
-        // this.$router.push('/'); // Устарелый вариант, может не сработать
-      } catch (e) {
-        console.error(e);
-        next('/');
-      }
-    }
-  },
+  //       // Возврат на главную страницу
+  //       next('/'); // или 
+  //       // this.$router.push('/'); // Устарелый вариант, может не сработать
+  //     } catch (e) {
+  //       console.error(e);
+  //       next('/');
+  //     }
+  //   }
+  // },
   {
     path: '/movies/:date',
     name: 'MoviesByDate',
