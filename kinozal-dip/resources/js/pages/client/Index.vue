@@ -43,6 +43,7 @@ export default {
       selectedDate: this.getCurrentDate(),
       daysOfWeek: [],
       filteredMovies: [],
+      filteredSessions: [],
       auth: false,
     }
   },  
@@ -298,29 +299,32 @@ export default {
           throw new Error('Некорректная дата');
         }
 
-        // Собираем movie_id всех сеансов, которые попадают в выбранный день
-        const movieIdsForDate = new Set(
-          this.sessions.filter(session => {
+        // Фильтруем фильмы, оставляя только те, у которых есть сеансы в выбранную дату
+        this.filteredMovies = this.movies.filter(movie => {
+          // Находим все сеансы для текущего фильма
+          const movieSessions = this.sessions.filter(session => session.movie_id === movie.id);
+          
+          // Проверяем, есть ли среди них сеансы в выбранную дату
+          return movieSessions.some(session => {
             const sessionDate = new Date(session.start_datetime);
-            return (
-              sessionDate >= startOfDay &&
-              sessionDate <= endOfDay
-            );
-          }).map(session => session.movie_id)
-        );
-
-        // Фильтруем фильмы по собранным ID
-        this.filteredMovies = this.movies.filter(movie => 
-          movieIdsForDate.has(movie.id)
-        );
+            return sessionDate >= startOfDay && sessionDate <= endOfDay;
+          });
+        });
       } catch (error) {
         console.error('Ошибка при фильтрации фильмов:', error);
       }
-    },    
-    getCurrentDate() {
-      // let a = this.formatDate(new Date());
-      // console.log('getCurrentDate a Текущая дата:', a, typeof a);
-      // return a;
+    },
+    // Фильтруем по сегодняшней дате
+    isSessionInSelectedDate(sessionDate) {
+      const startOfDay = new Date(this.selectedDate);
+      const endOfDay = new Date(this.selectedDate);
+      endOfDay.setHours(23, 59, 59);
+      
+      const sessionDateTime = new Date(sessionDate);
+      
+      return sessionDateTime >= startOfDay && sessionDateTime <= endOfDay;
+    },
+    getCurrentDate() {      
       const date = new Date();
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     },
@@ -337,9 +341,7 @@ export default {
       
       return `${hours}:${minutes}`;
     },
-    isValidDate(date) {
-      // return /^\d{4}-\d{2}-\d{2}$/.test(dateString) && !isNaN(new Date(dateString).getTime()); // добавил .getTime()
-
+    isValidDate(date) {     
       return (
         typeof date === 'string' &&
         /^\d{4}-\d{2}-\d{2}$/.test(date) &&
@@ -412,11 +414,7 @@ export default {
     }
     
   },
-  watch: {
-    // selectedDate(newDate) {
-    //   console.log('selectedDate изменилась:', newDate);
-    //   this.filterMoviesByDate(newDate);
-    // },
+  watch: {   
     $route() {
       if (this.$route.meta.isAdmin) {
         this.updateBodyClasses('admin');
@@ -428,25 +426,6 @@ export default {
   mounted() {
     document.body.classList.add('page-client');
     document.body.classList.add('page-client-index');
-
-    //this.date = this.$route.params.date;
-
-    // console.log('mounted: selectedDate', this.selectedDate);
-    // console.log('mounted: date from route', this.$route.params.date);
-
-    // Если дата пришла через пропс или маршрут - используем её
-    // if (this.date) {
-    //   this.selectedDate = this.date;
-    // } else if (this.$route.params.date) {
-    //   this.selectedDate = this.$route.params.date;
-    // }
-    
-    // console.log('mounted: selectedDate после установки', this.selectedDate);
-    
-    // // Проверяем валидность
-    // if (!this.isValidDate(this.selectedDate)) {
-    //   this.selectedDate = this.getCurrentDate();
-    // }
 
     this.selectedDate = this.getCurrentDate();
     
@@ -506,28 +485,36 @@ export default {
 
   <main>
 
-    <section v-for="movie in movies" :key="movie.id" class="movie">
-      <div class="movie__info">
-        <div class="movie__poster">
-          <img class="movie__poster-image" alt="Звёздные войны постер" :src=movie?.image_url>
+    <div v-if="filteredMovies.length > 0 && halls.length > 0">
+      <section v-for="movie in filteredMovies" :key="movie.id" class="movie">
+        <div class="movie__info">
+          <div class="movie__poster">
+            <img class="movie__poster-image" alt="Звёздные войны постер" :src=movie?.image_url>
+          </div>
+          <div class="movie__description">
+            <h2 class="movie__title">{{ movie?.title }}</h2>
+            <p class="movie__synopsis">{{ movie?.description }}</p>
+            <p class="movie__data">
+              <span class="movie__data-duration">{{ movie?.duration }} минут </span>
+              <span class="movie__data-origin">{{ movie?.country }}</span>
+            </p>
+          </div>
         </div>
-        <div class="movie__description">
-          <h2 class="movie__title">{{ movie?.title }}</h2>
-          <p class="movie__synopsis">{{ movie?.description }}</p>
-          <p class="movie__data">
-            <span class="movie__data-duration">{{ movie?.duration }} минут </span>
-            <span class="movie__data-origin">{{ movie?.country }}</span>
-          </p>
-        </div>
-      </div>
-
-      <div v-if="filteredMovies.length > 0 && halls.length > 0">
+        
         <div v-for="hall in halls" :key="hall.id" class="movie-seances__hall">
           <h3 class="movie-seances__hall-title">Зал {{ hall.id }} {{ hall.name }}</h3>
   
           <div v-if="globalSalesOpen" >
             <ul class="movie-seances__list">          
-              <li v-for="session in sessions" :key="session.id" class="movie-seances__time-block">
+              <li 
+                v-for="session in sessions.filter(s => 
+                  s.movie_id === movie.id && 
+                  s.hall_id === hall.id &&
+                  isSessionInSelectedDate(s.start_datetime)
+                )" 
+                :key="session.id" 
+                class="movie-seances__time-block"
+              >
                 <router-link 
                   v-if="session.movie_id === movie.id && session.hall_id === hall.id" 
                   :to="{ 
@@ -545,13 +532,17 @@ export default {
             <h2>Продажи {{ globalSalesOpen ? 'открыты' : 'закрыты' }}</h2>
           </div>        
         </div>
-      </div>
-      <div v-else>
-        Сеансов на выбранную дату нет.
-      </div>
-    </section>
 
+      </section>
+    </div>
+    <div v-else class="no-session_container">
+      <h1 class="no-session_title">Сеансов на выбранную дату нет.</h1>
+    </div>
   </main>
+
+  <footer class="footer">
+
+  </footer>
 </template>
 
 <style>
@@ -580,6 +571,7 @@ body.page-client {
 
 body.page-client-index {
   height: 100%;
+  min-height: 100vh;
 }
 
 .page-header {
@@ -784,6 +776,19 @@ body.page-client-index {
 .link_login:hover, .link_login:active {
   background-color: #000000;
   color: #FFFFFF;
+}
+
+.no-session_container {
+  text-align: left;
+}
+
+.no-session_title {
+  color: rgb(0, 0, 0);
+  font-size: 3rem;
+}
+
+.footer {
+  height: 50px;
 }
 
 @media screen and (min-width: 479px) {
