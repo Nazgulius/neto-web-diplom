@@ -156,35 +156,44 @@ class HallController extends Controller
 
       // Логика сохранения конфигурации мест
       // Получаем все существующие места для зала
-      // $existingSeats = $hall->seats->keyBy('id');
       $existingSeats = $hall->seats->keyBy(function($seat) {
         return $seat->row . '-' . $seat->number; // уникальный ключ
       });
       Log::debug('Существующие места:', ['existingSeats' => $existingSeats->toArray()]);
 
-      // Массив для хранения обновленных мест
-      $updatedSeats = [];
-
-      // Обновляем существующие или создаем новые места
+      $newTypes = [];
       foreach ($request->seats as $seatData) {
-          Log::error('место на обновление ', ['$request->seats' => $request->seats, '$seatData' => $seatData]);
-          $searchKey = $seatData['row'] . '-' . $seatData['seat'];
-
-          $existingSeat = $existingSeats[$searchKey] ?? null;
-
-          Log::error('Нашли существующее место для обновления ', [$existingSeat]);
-
-          if ($existingSeat) {
-              // Обновляем существующее место
-              $existingSeat->update([
-                  'type' => $seatData['type'],
-                  'status' => 'available'
-              ]);
-              $updatedSeats[] = $existingSeat->id;
-          } 
+        $newTypes[$seatData['row'] . '-' . $seatData['seat']] = $seatData['type'];
       }
 
-      // Удаляем места, которые больше не были обновлены ---
+      // Обновляем все места для зала
+      $hall->seats->each(function ($seat) use ($newTypes) {
+        $key = $seat->row . '-' . $seat->number;
+        if (array_key_exists($key, $newTypes)) {
+            $seat->update([
+                'type' => $newTypes[$key]
+            ]);
+        }
+      });
+
+      // Обновляем существующие или создаем новые места в одном зале, последнем
+      // foreach ($request->seats as $seatData) {
+      //     Log::error('место на обновление ', ['$request->seats' => $request->seats, '$seatData' => $seatData]);
+      //     $searchKey = $seatData['row'] . '-' . $seatData['seat'];
+
+      //     $existingSeat = $existingSeats[$searchKey] ?? null;
+
+      //     Log::error('Нашли существующее место для обновления ', [$existingSeat]);
+
+      //     if ($existingSeat) {
+      //         // Обновляем существующее место
+      //         $existingSeat->update([
+      //             'type' => $seatData['type'],
+      //         ]);
+      //     } 
+      // }
+
+      // --- Удаляем места, которые больше не были обновлены ---
       // $existingSeats->each(function ($seat) use ($updatedSeats) {
       //     if (!in_array($seat->id, $updatedSeats)) {
       //         $seat->delete();
