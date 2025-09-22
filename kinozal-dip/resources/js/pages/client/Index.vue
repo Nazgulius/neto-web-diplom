@@ -567,12 +567,14 @@ body.page-client {
   background-position: right; 
   background-blend-mode: multiply;  
   counter-reset: num;
-}
-
-body.page-client-index {
   height: 100%;
   min-height: 100vh;
 }
+
+/* body.page-client-index {
+  height: 100%;
+  min-height: 100vh;
+} */
 
 .page-header {
   padding: 1.4rem;

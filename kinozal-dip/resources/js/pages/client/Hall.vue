@@ -52,11 +52,13 @@ export default {
     isSelected(seat) {
       return this.selectedSeats.some(s => s.id === seat.id);
     },
-    getSeatClass(seat) {      
+    getSeatClass(seat) {  
+      console.log('getSeatClass(seat) ', seat);    
       const classes = [
         'buying-scheme__chair',
         seat.type === 'standart' ? 'buying-scheme__chair_standart' : '',
         seat.type === 'vip' ? 'buying-scheme__chair_vip' : '',
+        seat.type === 'disabled' ? 'buying-scheme__chair_disabled' : '',
         seat.status === 'blocked' ? 'blocked' : '',
         seat.status === 'booked' ? 'occupied' : '',
         this.isSelected(seat) ? 'selected' : '',
@@ -260,7 +262,7 @@ export default {
 
   <main>
     <nav class="page-nav">  
-      <router-link :to="{ name: 'Index' }" class="link_color">
+      <router-link :to="{ name: 'Index' }" class="link_login">
         Home
       </router-link>
     </nav>
@@ -461,6 +463,7 @@ body.page-client-hall{
   border-radius: 4px;
   background-color: #FFFFFF;
 }
+.buying-scheme__chair { background: #ffffff; border-color: #525252; }
 
 .buying-scheme__chair:not(:first-of-type) {
   margin-left: 4px;
@@ -479,11 +482,14 @@ body.page-client-hall{
 }
 
 .buying-scheme__chair_block {
-  background-color: #7e7d7d;
+  background-color: #000;
 }
 
 .buying-scheme__chair_vip {
   background-color: #F9953A;
+}
+.buying-scheme__chair_disabled {
+  background-color: #dbdbdb;
 }
 
 .buying-scheme__chair_selected {
@@ -506,13 +512,13 @@ body.page-client-hall{
   background-color: #2c8;
 }
 
-.buying-scheme__chair { background: #ffffff; border-color: #525252; }
 .buying-scheme__chair_standart { background: #fff; }
 .buying-scheme__chair_vip { background: #F9953A; }
+.buying-scheme__chair_disabled { background: #000; opacity: 1; }
 .buying-scheme__chair_selected { background: #25C4CE; box-shadow: 0 0 4px #16A6AF; transform: scale(1.2); }
 .blocked { background: #7e7d7d ; }          /*!important осторожно: !important временно для теста */
 .occupied { background: rgb(0,0,0) ; cursor: not-allowed; } /*!important */
-.selected { background-color: #2c8; }               /* ваш стиль для выбранного, если применимо */
+.selected { background-color: #25C4CE; }               /* ваш стиль для выбранного, если применимо */
 
 .buying-scheme__legend {
   padding-top: 3rem;

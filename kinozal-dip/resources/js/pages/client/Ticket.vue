@@ -115,7 +115,7 @@ export default {
   </header>
 
   <nav class="page-nav">  
-    <router-link :to="{ name: 'Index' }" class="link_color">
+    <router-link :to="{ name: 'Index' }" class="link_login">
       Home
     </router-link>
   </nav>

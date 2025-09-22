@@ -535,10 +535,10 @@ export default {
         hall_id: this.selectedHall,
         rows: this.hallConfig.rows,
         seats_per_row: this.hallConfig.seatsPerRow,
-        seats: this.hallConfig.seats.map(row =>
+        seats: this.hallConfig.seats.flatMap(row =>
           row.map(seat => ({
             row: seat.row,
-            seat: seat.seat,
+            seat: seat.number,
             type: seat.type
           }))
         )
@@ -568,9 +568,11 @@ export default {
       }
     },
     async loadHallConfig(hallId) {
+      console.log('loadHallConfig(hallId) ', hallId);
       try {
         const response = await axios.get(`http://127.0.0.1:8000/halls/${hallId}/config`);
-        // console.log("loadHallConfig response ", response);
+        console.log("loadHallConfig response ", response);
+
         this.hallConfig = {
           rows: response.data.rows,
           seatsPerRow: response.data.seats_per_row,
@@ -590,55 +592,61 @@ export default {
       }
     },
     formatSeats(apiSeats) {
-      // console.log('formatSeats apiSeats ', apiSeats);
+      console.log('formatSeats apiSeats ', apiSeats);
       // console.log('formatSeats this.hallConfig.seatsPerRow ', this.hallConfig.seatsPerRow);
 
-      // Добавляем проверку корректности входных данных
-      if (!apiSeats || typeof apiSeats !== 'object') {
-        console.error('Некорректные входные данные apiSeats');
-        return [];
-      }
-
-      if (!this.hallConfig.rows || !this.hallConfig.seatsPerRow) {
-        console.error('Некорректная конфигурация зала');
-        return [];
-      }
-
-      if (!apiSeats || Object.keys(apiSeats).length === 0) {
-        return []; // Возвращаем пустой массив, если данные отсутствуют
-      }
       // Преобразуем плоские данные в вложенный массив
       const seats = [];
+      // Преобразуем объект в массив
+      const seatsArray = Object.values(apiSeats);
+      // const formattedSeats = seatsArray.map(seat => {
+      //   return {
+      //     row: seat.row,
+      //     number: seat.number,
+      //     type: seat.type
+      //   };
+      // });
+      seatsArray.sort((a, b) => a.number - b.number);
 
       for (let i = 1; i <= this.hallConfig.rows; i++) {
         const rowSeats = [];
 
         for (let j = 1; j <= this.hallConfig.seatsPerRow; j++) {
-          const seatKey = this.getSeatKey(i, j);          
+          // const seatKey = this.getSeatKey(i, j); 
+          const seat = seatsArray.find(s => s.row === i && s.number === j);
 
-          // Добавляем логирование для отладки
-          // console.log(`Проверяем ключ: ${seatKey}`);
-          // console.log(`Значение по ключу:`, apiSeats[seatKey]);
-
-          // const seat = apiSeats[seatKey];
-          const seat = apiSeats[seatKey] || apiSeats.find(s => s.row === i && s.number === j);          
-
-          // Добавляем проверку на существование места
           if (seat) {
             rowSeats.push({
               row: seat.row,
               number: seat.number,
-              type: seat.type || 'standart' // Устанавливаем тип по умолчанию
+              type: seat.type
             });
           } else {
-            console.warn(`Место не найдено для ключа ${seatKey}`);
+            // Если место не найдено, создаём стандартное место
+            rowSeats.push({
+              row: i,
+              number: j,
+              type: 'standart'
+            });
           }
+
+          // const seat = apiSeats[seatKey] || formattedSeats.find(s => s.row === i && s.number === j);          
+
+          // // Добавляем проверку на существование места
+          // if (seat) {
+          //   rowSeats.push({
+          //     row: seat.row,
+          //     number: seat.number,
+          //     type: seat.type || 'standart' // Устанавливаем тип по умолчанию
+          //   });
+          // } else {
+          //   console.warn(`Место не найдено для ключа ${seatKey}`);
+          // }
         }
 
         seats.push(rowSeats);
       }
 
-      // console.log('formatSeats по итогу seats ', seats);
       return seats;
     },
     getSeatKey(row, number) {
@@ -829,16 +837,6 @@ export default {
         console.error('Ошибка закрытия глобальных продаж', e);
       }
     },
-    // скролл для попап
-    // handleScroll() {
-    //   const scrollTop = window.scrollY;
-    //   if (!this.popupHidden || this.popupHiddenAM || !this.popupHiddenEM || !this.popupHiddenAddSessionMovie) {
-    //     this.$refs.popup1.style.top = `${scrollTop + 10}px`;
-    //     this.$refs.popup2.style.top = `${scrollTop + 10}px`;
-    //     this.$refs.popup3.style.top = `${scrollTop + 10}px`;
-    //     this.$refs.popup4.style.top = `${scrollTop + 10}px`;
-    //   }
-    // },
     async logout() {
       console.log('Начат выход из администраторской!');
       try {
@@ -916,14 +914,11 @@ export default {
   //     immediate: true
   //   }
   // },
-  beforeDestroy() {
-    // window.removeEventListener('scroll', this.handleScroll);
-  },
+  
   mounted() {
-    // fetch данных о зале 
     document.body.classList.add('page-admin');
     document.body.classList.add('page-admin-index');
-    // window.addEventListener('scroll', this.handleScroll); // для скролла попап
+    
 
     this.getHalls();
     this.getMovies();

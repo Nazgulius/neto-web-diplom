@@ -124,8 +124,19 @@ class HallController extends Controller
       'hall_id' => 'required|exists:halls,id',
       'rows' => 'required|integer|min:1',
       'seats_per_row' => 'required|integer|min:1',
-      'seats' => 'required|array'
+      'seats' => 'required|array',
     ]);
+
+    Log::error('Данные на обновление после валидации', [$validatedData]);
+
+    // Валидация каждого элемента массива seats
+    foreach ($request->seats as $key => $seat) {
+      $request->validate([
+          "seats.{$key}.row" => 'required|integer|min:1',
+          "seats.{$key}.seat" => 'required|integer|min:1',
+          "seats.{$key}.type" => 'required|in:standart,vip,disabled'
+      ]);
+    }
 
     try {
       $hall = Hall::find($request->hall_id);
@@ -136,20 +147,56 @@ class HallController extends Controller
           'error' => 'Зал не найден'
         ], 404);
       }
-
+      
       // Сохранение конфигурации
       $hall->update([
         'rows' => $request->rows,
-        'seats_per_row' => $request->seats_per_row
+        'seats_per_row' => $request->seats_per_row,
       ]);
 
       // Логика сохранения конфигурации мест
-      // ...
+      // Получаем все существующие места для зала
+      // $existingSeats = $hall->seats->keyBy('id');
+      $existingSeats = $hall->seats->keyBy(function($seat) {
+        return $seat->row . '-' . $seat->number; // уникальный ключ
+      });
+      Log::debug('Существующие места:', ['existingSeats' => $existingSeats->toArray()]);
+
+      // Массив для хранения обновленных мест
+      $updatedSeats = [];
+
+      // Обновляем существующие или создаем новые места
+      foreach ($request->seats as $seatData) {
+          Log::error('место на обновление ', ['$request->seats' => $request->seats, '$seatData' => $seatData]);
+          $searchKey = $seatData['row'] . '-' . $seatData['seat'];
+
+          $existingSeat = $existingSeats[$searchKey] ?? null;
+
+          Log::error('Нашли существующее место для обновления ', [$existingSeat]);
+
+          if ($existingSeat) {
+              // Обновляем существующее место
+              $existingSeat->update([
+                  'type' => $seatData['type'],
+                  'status' => 'available'
+              ]);
+              $updatedSeats[] = $existingSeat->id;
+          } 
+      }
+
+      // Удаляем места, которые больше не были обновлены ---
+      // $existingSeats->each(function ($seat) use ($updatedSeats) {
+      //     if (!in_array($seat->id, $updatedSeats)) {
+      //         $seat->delete();
+      //     }
+      // });
 
       return response()->json([
         'message' => 'Конфигурация сохранена'
       ], 200);
     } catch (\Exception $e) {
+      Log::error('Произошла ошибка', [$e]);
+      Log::error('Произошла ошибка', ['error' => $e->getMessage()]);
       return response()->json([
         'error' => 'Произошла ошибка при сохранении',
         'message' => $e->getMessage()
