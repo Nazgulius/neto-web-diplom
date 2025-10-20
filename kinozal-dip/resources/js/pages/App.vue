@@ -1,9 +1,5 @@
 <template>
-  <div id="app">
-    <!-- <Index /> -->
-
-    <!-- <router-view></router-view> -->
-    
+  <div id="app">    
     <router-view v-slot="{ Component }">
       <component :is="Component" v-bind="$route.params" />
     </router-view>

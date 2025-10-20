@@ -6,18 +6,12 @@ import TicketPage from '@/pages/client/Ticket.vue';
 import AdminIndex from '@/pages/admin/Index.vue';
 import AdminLogin2 from '@/pages/auth/Login.vue';
 import AdminLogin from '@/pages/admin/Login.vue';
-import App from '@/pages/App.vue';
 
 const routes = [
   { path: '/', 
     component: IndexPage, 
     name: 'Index', 
-    props: true, 
-    // params: {
-    //   date: String,
-    //   validator: (value) => /^\d{4}-\d{2}-\d{2}$/.test(value),
-    // }, 
-    // meta: { requiresAuth: false },
+    props: true,     
   },
   {
     path: '/index',
@@ -38,41 +32,10 @@ const routes = [
   
   // admin
   { path: '/admin', name: 'Admin', component: AdminLogin2, meta: { requiresAuth: true } },
-  
-  // попытка сделать авторизацию через localStorage
-  // { path: '/admin', name: 'Admin', component: AdminIndex, 
-  //   beforeEnter: (to, from, next) => {
-  //     if(localStorage.getItem('auth')) {
-  //       next();
-  //     } else {
-  //       next({ name: 'AdminLogin2' });
-  //     }
-  //   },
-  // },
-
   { path: '/dashboard', name: 'dashboard', component: AdminIndex, meta: { requiresAuth: true } },
   { path: '/admin/index', name: 'admin.index',component: AdminIndex, meta: { requiresAuth: true } },
   { path: '/admin/login', name: 'Login',component: AdminLogin, meta: { requiresAuth: true } }, // возможно не нужна meta: { requiresAuth: true }
-  { path: '/login', component: AdminLogin2, name: 'AdminLogin2'},
-  // {
-  //   path: '/logout',
-  //   name: 'Logout',
-  //   beforeEnter: async (to, from, next) => {
-  //     try {
-  //       await fetch('/logout', { method: 'POST', credentials: 'include' });
-  //       // Очистка локальных данных
-  //       localStorage.removeItem('access_token');
-  //       localStorage.removeItem('user');
-        
-  //       // Возврат на главную страницу
-  //       next('/'); // или 
-  //       // this.$router.push('/'); // Устарелый вариант, может не сработать
-  //     } catch (e) {
-  //       console.error(e);
-  //       next('/');
-  //     }
-  //   }
-  // },
+  { path: '/login', component: AdminLogin2, name: 'AdminLogin2'},  
   {
     path: '/movies/:date',
     name: 'MoviesByDate',
@@ -93,7 +56,39 @@ const routes = [
         next();
       }
     }
-  }
+  },
+
+  // попытка сделать авторизацию через localStorage
+  // { path: '/admin', name: 'Admin', component: AdminIndex, 
+  //   beforeEnter: (to, from, next) => {
+  //     if(localStorage.getItem('auth')) {
+  //       next();
+  //     } else {
+  //       next({ name: 'AdminLogin2' });
+  //     }
+  //   },
+  // },
+
+  // попытка сделать logout через localStorage
+  // {
+  //   path: '/logout',
+  //   name: 'Logout',
+  //   beforeEnter: async (to, from, next) => {
+  //     try {
+  //       await fetch('/logout', { method: 'POST', credentials: 'include' });
+  //       // Очистка локальных данных
+  //       localStorage.removeItem('access_token');
+  //       localStorage.removeItem('user');
+        
+  //       // Возврат на главную страницу
+  //       next('/'); // или 
+  //       // this.$router.push('/'); // Устарелый вариант, может не сработать
+  //     } catch (e) {
+  //       console.error(e);
+  //       next('/');
+  //     }
+  //   }
+  // },
 ]
 
 const router = createRouter({

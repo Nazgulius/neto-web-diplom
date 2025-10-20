@@ -6,7 +6,7 @@ export default {
   
 
   data() {
-    return { // тут состояние 
+    return {
       seats: [], 
       seatsForPayment: [], // данные о местах
       movieForPayment: [], // данные о зале и кино
@@ -55,8 +55,7 @@ export default {
         if (response.status === 200 || response.status === 201) {
           // Сброс статуса выделения
           this.seatsForPayment.forEach(s => { s.selected = false; });
-          this.seatsForPayment = [];
-          // alert('Бронирование успешно!');          
+          this.seatsForPayment = [];        
         } else {
           alert('Ошибка при обработке ответа сервера');
         }
@@ -92,12 +91,11 @@ export default {
     const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
     
     this.seatsForPayment = payload?.seats ?? {};
-    // console.log('this.seatsForPayment ', this.seatsForPayment);
     this.movieForPayment = payload?.movie ?? {};
     
     this.sumTotalPrice(); 
      
-    // this.blockedSeats();
+    // this.blockedSeats(); // для просмотра забронированных мест
 
     // это про принятие параметров по ссылке перехода (<router-link ...)
     // const seatsParam = this.$route.query.seats;

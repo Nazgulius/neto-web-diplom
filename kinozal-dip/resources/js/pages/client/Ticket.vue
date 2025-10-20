@@ -27,7 +27,7 @@ export default {
     return { ticket, qrCodeUrl };
   },
   data() {
-    return { // тут состояние 
+    return { 
       qrCodeData: '',
       seats: [],
       seatsForPayment: [], // данные о местах
@@ -57,16 +57,16 @@ export default {
           console.log('забронированные места:', this.seats);
         });
     },
-    // новый вариант генерации qr кода
+
+    // генерация qr кода
     async generateQrWithSeats() {
       try {
-
         const payloadForServer = this.editDataForQR;
         // const payloadForServer = {
         //   text: this.editDataForQR, // читаемая строка
         //   // seats: this.seatsForPayment.map(s => s.id)
-        // };        
-        // console.log('payloadForServer перед отправкой:', payloadForServer);
+        // };
+
         const seatsData = JSON.stringify(payloadForServer);
 
         const response = await axios.post('http://127.0.0.1:8000/get-qr-code', { seats: seatsData });
@@ -96,15 +96,12 @@ export default {
     const payload = payloadRaw ? JSON.parse(payloadRaw) : null;
 
     this.seatsForPayment = payload?.seats ?? {};
-    // console.log('this.seatsForPayment ', this.seatsForPayment);
     this.movieForPayment = payload?.movie ?? {};
 
     this.sumTotalPrice();
-    
     this.generateQrWithSeats();
-    
 
-    // this.blockedSeats(); // получаем список забранированных сидений
+    // this.blockedSeats(); // для получения списка забронированных сидений
   },
 }
 </script>

@@ -40,7 +40,6 @@ export default {
   mounted() {
     document.body.classList.add('page-admin');   
     document.body.classList.add('page-admin-login');  
-     
   }
 }
 </script>
@@ -160,8 +159,6 @@ button, select {
   letter-spacing: 0.46em;
 }
 
-
-
 .login__button {
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.24), 0px 0px 3px rgba(0, 0, 0, 0.12);
   border-radius: 3px;
@@ -217,7 +214,6 @@ button, select {
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);
 }
 
-
 .login {
   width: 480px;
   margin: 0 auto;
@@ -256,10 +252,7 @@ button, select {
   width: 100%;
 }
 
-
 /*==================================*/
-
-
 
 .trash-seance {
   width: 40px;
@@ -275,6 +268,5 @@ button, select {
   color: #ff0000;
   font-weight: 600;
 }
-
 
 </style>

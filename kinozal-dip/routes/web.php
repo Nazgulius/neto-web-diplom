@@ -70,10 +70,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/api/logout', [AuthController::class, 'logout'])
   ->middleware('auth:sanctum');
-// Route::post('/logout', function (Request $request) {
-//   $request->user()->tokens()->delete();
-//   return response('Successfully logged out.', 200);
-// });
+
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
   ->middleware('auth')
   ->name('logout');

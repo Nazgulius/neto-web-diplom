@@ -6,18 +6,17 @@ import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 import axios from 'axios';
 
-import router from './router/index'; // добавил, и обновил /index
+import router from './router/index'; 
 import { createRouter, createWebHistory } from 'vue-router';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 // Общие настройки
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://127.0.0.1:8000/';
-// axios.defaults.baseURL = 'https://127.0.0.1:8000/';
 
 axios.interceptors.request.use(config => {
-  // Например, добавлять токен авторизации из хранилища
-  const token = localStorage.getItem('token'); // или через Vuex/Pinia
+  // токен авторизации из хранилища
+  const token = localStorage.getItem('token'); 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

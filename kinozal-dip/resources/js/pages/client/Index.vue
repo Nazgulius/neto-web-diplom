@@ -105,33 +105,6 @@ export default {
       // Очищаем интервал
       clearInterval(this.pollInterval);
     },
-    // async fetchHalls() {
-    //   try {
-    //     // Проверяем, не выполняется ли уже запрос
-    //     if (this.isFetching) return;
-    //     if (!this.isValidDate(this.date)) {
-    //       // this.date = this.getDefaultDate();
-    //       this.date = this.getCurrentDate();
-    //     }
-        
-    //     this.isFetching = true;
-        
-    //     // Обновляем данные
-    //     await Promise.all([
-    //       this.getMovies(),
-    //       this.getSessions(),
-    //       this.getHalls()
-    //     ]);
-    //     // console.log("fetchHalls Успешное обновление!");
-        
-    //     await this.filterMoviesByDate(this.selectedDate);
-    //   } catch (error) {
-    //     console.error('Ошибка при получении данных:', error);
-    //   } finally {
-    //     this.isFetching = false;
-    //   }
-    // },
-
     proceedToBooking() {
       this.checkGlobalOpen();
       const session = this.sessions.find(s => s.id === this.selectedSessionId);
@@ -153,7 +126,7 @@ export default {
       const idx = this.sessions.findIndex(s => s.id === updatedSession.id);
       if (idx !== -1) {
         this.$set(this.sessions, idx, updatedSession); // Vue 2
-        // В Vue 3 можно напрямую: this.sessions[idx] = updatedSession;
+        // альтернативно, в Vue 3 можно напрямую: this.sessions[idx] = updatedSession;
       } else {
         this.sessions.push(updatedSession);
       }
@@ -187,34 +160,6 @@ export default {
             isToday: this.isSameDay(date, today)
           });
         }
-
-        // Находим дату понедельника текущей недели
-      //  const startDate = new Date(today);
-        // startDate.setDate(startDate.getDate() - startDate.getDay());
-        
-      //  const dayOfWeek = startDate.getDay();
-        
-
-        // Вычисляем дату понедельника текущей недели
-        // Если сегодня воскресенье (0), то нужно отнять 6 дней
-        // Если сегодня понедельник (1), то отнимать ничего не нужно
-        // startDate.setDate(startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-      //  startDate.setDate(startDate.getDate() + dayOfWeek);
-                
-        
-        
-        // for (let i = 0; i < 7; i++) {
-        //   const date = new Date(startDate);
-        //   date.setDate(date.getDate() + i);
-        //   days.push({
-        //     date: this.formatDate(date),
-        //     weekday: this.getWeekday(date),
-        //     day: date.getDate(),
-        //     month: date.getMonth() + 1,
-        //     year: date.getFullYear(),
-        //     isToday: this.isSameDay(date, today) // может и не нужна
-        //   });
-        // }
         
         this.daysOfWeek = days;
       } catch (error) {
@@ -233,8 +178,7 @@ export default {
       if (!(date instanceof Date)) {
         date = new Date(date);
       }
-      if (isNaN(date)) {
-        //return new Date().toISOString().split('T')[0];
+      if (isNaN(date)) {        
         return this.getCurrentDate();
       }
 
@@ -465,26 +409,8 @@ export default {
       Вход в административную панель
     </a>
   </nav>
-  
-  <!-- <nav class="page-nav">   -->
-    <!-- <router-link :to="{ name: 'Admin' }" class="link_login" @click.native="logRoute('Admin')">
-      Вход в административную панель
-    </router-link> -->
-    <!-- альтернативная кнопка перехода -->
-    <!-- <a 
-      href="/admin/index" 
-      class="link_login" 
-      @click="logRoute('Admin')"
-    >
-      Вход в административную панель
-    </a> -->
-    <!-- <router-link :to="{ name: 'Login' }" class="link_login" @click.native="logRoute('Login')">
-      Login for Login
-    </router-link> -->
-  <!-- </nav> -->
 
   <main>
-
     <div v-if="filteredMovies.length > 0 && halls.length > 0">
       <section v-for="movie in filteredMovies" :key="movie.id" class="movie">
         <div class="movie__info">
@@ -570,11 +496,6 @@ body.page-client {
   height: 100%;
   min-height: 100vh;
 }
-
-/* body.page-client-index {
-  height: 100%;
-  min-height: 100vh;
-} */
 
 .page-header {
   padding: 1.4rem;

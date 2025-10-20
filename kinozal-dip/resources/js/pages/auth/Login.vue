@@ -14,7 +14,6 @@ interface User {
   id: number;
   name: string;
   email: string;
-  // Добавьте другие поля вашего пользователя
 }
 
 defineProps<{
@@ -36,14 +35,6 @@ const submit = () => {
         },
     });
 };
-
-
-// первый вариант
-// const submit = () => {
-//     form.post(route('login'), {
-//         onFinish: () => form.reset('password'),
-//     });
-// };
 
 </script>
 
@@ -156,7 +147,6 @@ body {
   height: 100vh;
 }
 
-
 input[type='radio'],
 input[type='submit'],
 button, select {
@@ -195,8 +185,6 @@ button, select {
   font-size: 1rem;
   letter-spacing: 0.46em;
 }
-
-
 
 .login__button {
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.24), 0px 0px 3px rgba(0, 0, 0, 0.12);
@@ -253,7 +241,6 @@ button, select {
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);
 }
 
-
 .login {
   width: 480px;
   margin: 0 auto;
@@ -292,10 +279,7 @@ button, select {
   width: 100%;
 }
 
-
 /*==================================*/
-
-
 
 .trash-seance {
   width: 40px;
@@ -311,6 +295,5 @@ button, select {
   color: #ff0000;
   font-weight: 600;
 }
-
 
 </style>

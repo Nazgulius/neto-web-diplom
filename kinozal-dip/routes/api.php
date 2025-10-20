@@ -36,7 +36,6 @@ Route::post('/api/login', [AuthController::class, 'login']);
 Route::post('/api/register', [AuthController::class, 'register']);
 
 Route::put('/halls/{hall}/seats/types', [SeatController::class, 'updateSeatTypes']);
-// Route::get('/movies', [MovieController::class, 'index']);
 
 // Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {

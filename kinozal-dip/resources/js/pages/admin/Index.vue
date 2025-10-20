@@ -48,8 +48,8 @@ export default {
         country: '',
         image_url: ''
       },
-      timelineStart: '09:00', // например
-      timelineEnd: '23:00', // например
+      timelineStart: '09:00', // Начало дня, например
+      timelineEnd: '23:00', // Конец дня, например
       timelineWidth: 720, // ширина шкалы в пикселях
       formHallData: {
         name: '',
@@ -91,11 +91,6 @@ export default {
     totalTimelineMinutes() {
       return this.timeToMinutes(this.timelineEnd) - this.timeToMinutes(this.timelineStart);
     },
-    // можно вернуть ширину на основe CSS
-
-    // currentSession() {
-    //   return this.sessionsOpen.find(s => s.id === this.activeSessionId) || null;
-    // },
     isValid() {
       return (
         this.selectedHall &&
@@ -103,7 +98,6 @@ export default {
         this.hallConfig.seatsPerRow > 0 &&
         this.hallConfig.seats.length > 0
       );
-
     },
     totalSeats() {
       return this.hallConfig.rows * this.hallConfig.seatsPerRow;
@@ -120,7 +114,6 @@ export default {
   },
   methods: {
     changeUserState() {
-
       if (localStorage.getItem('auth') == true) {
         localStorage.removeItem('auth');
         this.$router.push({ name: 'Index'});
@@ -182,40 +175,28 @@ export default {
         country: '', // страна
         image_url: "/src/client/poster1.jpg", // пока как заглушка
       };
-    },
-    // тогл для открытия редактирования
-    toglePopupEditMovie(movieID) {
-      this.popupHiddenEM = !this.popupHiddenEM;
-      this.editMovieID = movieID;
-      
-    },
-    // тогл для закрытия редактирования
-    toglePopupEditMovieClose() {
-      this.popupHiddenEM = !this.popupHiddenEM;
-    },
+    },    
+    // для открытия редактирования
     openPopupEditMovie(movieID) {
       this.popupHiddenEM = true;
       this.editMovieID = movieID;
       const movie = this.movies.find(m => m.id === movieID);
       this.editingMovie = { ...movie }; 
     },
+    // для закрытия редактирования
     closePopupEditMovie() {
       this.popupHiddenEM = false;
     },
-
-    toglePopupAddSessionMovie() {
-      this.popupHiddenAddSessionMovie = !this.popupHiddenAddSessionMovie;
-    },
-
+    // для открытия добавление сессии
     openPopupAddSessionMovie() {
       this.editSessionMovieID = this.editMovieID - 1;
       this.popupHiddenAddSessionMovie = true;  
     },
+    // для закрытия добавление сессии
     closePopupAddSessionMovie() {
       this.editSessionMovieID = this.editMovieID + 1;
       this.popupHiddenAddSessionMovie = false;
     },
-
     // добавление Hall 
     submitFormHalls() {
       try {
@@ -237,7 +218,6 @@ export default {
           })
           .catch(error => {
             if (error.response) {
-              // Ответ сервера с кодом ошибки
               console.error('Ошибка сервера:', error.response.data);
             } else {
               console.error(error);
@@ -247,7 +227,6 @@ export default {
         console.error('Ошибка при создании зала:', error);
         this.$toast.error('Произошла ошибка при создании зала');
       }
-
     },
     // emits: ['hall-created'],
 
@@ -255,14 +234,12 @@ export default {
     btnHallDel(hallID) {
       axios.delete('http://127.0.0.1:8000/hall/destroy/' + hallID)
         .then(response => {
-          // console.log('Успех:', response.data);
           // удалить из локального списка
           this.halls = this.halls.filter(h => h.id !== hallID);
           console.log('Зал удалён, список обновлён локально');
         })
         .catch(error => {
           if (error.response) {
-            // Ответ сервера с кодом ошибки
             console.error('Ошибка сервера:', error.response.data);
           } else {
             console.error(error);
@@ -290,7 +267,6 @@ export default {
         })
         .catch(error => {
           if (error.response) {
-            // Ответ сервера с кодом ошибки
             console.error('Ошибка сервера:', error.response.data);
           } else {
             console.error(error);
@@ -319,7 +295,6 @@ export default {
         })
         .catch(error => {
           if (error.response) {
-            // Ответ сервера с кодом ошибки
             console.error('Ошибка сервера:', error.response.data);
           } else {
             console.error(error);
@@ -328,7 +303,6 @@ export default {
     },
     //редактирование кино
     submitFormEditMovie() {
-      // axios.post('http://127.0.0.1:8000/movies/update/' + movie.id, this.formMovieData)
       axios.post(`http://127.0.0.1:8000/movies/update/${this.editMovieID}`, this.editingMovie)
         .then(response => {
           this.closePopupEditMovie();
@@ -337,7 +311,6 @@ export default {
         })
         .catch(error => {
           if (error.response) {
-            // Ответ сервера с кодом ошибки
             console.error('Ошибка сервера:', error.response.data);
           } else {
             console.error(error);
@@ -360,8 +333,6 @@ export default {
         start_datetime: this.formattedDateTime
       };
 
-      console.log('this.formMovieSessionData: ', dataToSend);
-
       axios.post('http://127.0.0.1:8000/movies/session/create', dataToSend, {
           headers: {
               'Content-Type': 'application/json'
@@ -374,7 +345,6 @@ export default {
         })
         .catch(error => {
           if (error.response) {
-            // Ответ сервера с кодом ошибки
             console.error('Ошибка сервера:', error.response.data);
           } else {
             console.error(error);
@@ -404,7 +374,6 @@ export default {
         })
         .catch(error => {
           if (error.response) {
-            // Ответ сервера с кодом ошибки
             console.error('Ошибка сервера:', error.response.data);
           } else {
             console.error(error);
@@ -438,7 +407,6 @@ export default {
     },
     resetSeats() {
       this.seats = [];
-      // Дополнительно можно очистить другие связанные данные
     },
     // метод для отризоваки сетки зала по ручному вводу рядов и мест
     generateSeats() {
@@ -459,7 +427,7 @@ export default {
       this.hallConfig.seats = seats;
 
     },
-    // Новый метод для обновления рассадки автоматичнский
+    //  метод для обновления рассадки, автоматичнский
     updateSeatsLayout() {
       // Если есть сохраненные данные из API, используем их
       if (
@@ -467,10 +435,8 @@ export default {
         this.hallConfig.seats &&
         (this.hallConfig.seats.length > 0 || Object.keys(this.hallConfig.seats).length > 0)
       ) {
-        // console.log("updateSeatsLayout this.hallConfig ", this.hallConfig);
         this.hallConfig.seats = this.formatSeats(this.hallConfig.seats);
       } else {
-        // console.log("updateSeatsLayout 1 вариант не прошёл, это стандартная сетка ", this.hallConfig.seats);
         // Если данных нет, генерируем стандартную рассадку
         this.hallConfig.seats = this.generateDefaultSeats();
       }
@@ -499,18 +465,6 @@ export default {
       const currentIndex = this.seatTypes.indexOf(seat.type);
       const nextIndex = (currentIndex + 1) % this.seatTypes.length;
       seat.type = this.seatTypes[nextIndex];
-      // находим индекс ряда
-      // const rowIndex = this.hallConfig.seats.findIndex(row => 
-      //   row.find(s => s.number === seat.number && s.row === seat.row)
-      // );
-
-      // // находим индекс места в ряду
-      // const seatIndex = this.hallConfig.seats[rowIndex].findIndex(s => 
-      //   s.number === seat.number && s.row === seat.row
-      // );
-
-      // // меняем тип места
-      // this.hallConfig.seats[rowIndex][seatIndex].type = this.currentSeatType;
     },
     btnCenselHallSeats() {
       console.log('Cansel Hall seats');
@@ -568,20 +522,20 @@ export default {
       }
     },
     async loadHallConfig(hallId) {
-      console.log('loadHallConfig(hallId) ', hallId);
+      console.log('loadHallConfig(hallId) ', hallId); // логируем
       try {
         const response = await axios.get(`http://127.0.0.1:8000/halls/${hallId}/config`);
-        console.log("loadHallConfig response ", response);
+        console.log("loadHallConfig response ", response); // логируем
 
         this.hallConfig = {
           rows: response.data.rows,
           seatsPerRow: response.data.seats_per_row,
+
           // seats: this.generateSeats(response.data.seats)
           // seats: response.data.seats
           // seats: this.formatSeats(response.data.seats) // Используем форматирование
           seats: response.data.seats || {} // Добавляем проверку на существование
         };
-        // console.log('loadHallConfig дошли до updateSeatsLayout');
         this.updateSeatsLayout(); // Обновляем рассадку после загрузки
       } catch (error) {
         console.error('Ошибка при загрузке конфигурации зала:', error);
@@ -593,7 +547,6 @@ export default {
     },
     formatSeats(apiSeats) {
       console.log('formatSeats apiSeats ', apiSeats);
-      // console.log('formatSeats this.hallConfig.seatsPerRow ', this.hallConfig.seatsPerRow);
 
       // Преобразуем плоские данные в вложенный массив
       const seats = [];
@@ -653,28 +606,13 @@ export default {
       if (!this.hallConfig || !this.hallConfig.seatsPerRow) {
         return 0;
       }
-      // Возвращает ключ для доступа к объекту места
-      // Добавляем логирование для отладки
-      // console.log(`getSeatKey: row=${row}, number=${number}`);
-      // console.log(`Вычисляем ключ: (${row-1}) * ${this.hallConfig.seatsPerRow} + (${number-1})`);
-
-      // return (row - 1) * this.hallConfig.seatsPerRow + (number - 1); // начальный вариант
-      
+     
       return (row - 1) * this.hallConfig.seatsPerRow * 5 + (number - 1) * 5;
     },
 
     selectHall(hallId) {
       this.selectedHall = hallId;
-      this.loadHallConfig(hallId);
-      // this.loadHallConfig(hallId)
-      //   .then(() => {
-      //       this.updateSeatsLayout();
-      //   })
-      //   .catch(error => {
-      //       console.error('Ошибка при выборе зала:', error);
-      //   });
-      // this.generateSeats();
-      // this.updateSeatsLayout();
+      this.loadHallConfig(hallId);      
     },
     selectHallPrise(hallId) {
       const selectedHallP = this.halls.filter(h => h.id === hallId);
@@ -712,24 +650,20 @@ export default {
           alert('Ошибка при сохранении цен');
         });
     },
-    btnEditKino(movie) {
-      console.log('Add Edit Kino', movie.title);
-    },
+   
+    // законовки обработчиков кнопок, были по проекту
     btnCanselKinoSession() {
       console.log('Cansel Kino Session');
     },
     btnSaveKinoSession() {
       console.log('Save Kino Session');
-    },
-    btnOpenShopKino() {
-      console.log('Open shop Kino');
-    },
+    },    
+
     // получение всех Hall
     getHalls() {
       axios.get('http://127.0.0.1:8000/hall/index')
         .then(response => {
           this.halls = response.data;
-          // console.log('halls: ', this.halls);
         })
         .catch(error => {
           console.error(error);
@@ -740,7 +674,6 @@ export default {
       axios.get('http://127.0.0.1:8000/movies')
         .then(response => {
           this.movies = response.data;
-          // console.log('movies: ', this.movies);
         })
         .catch(error => {
           console.error(error);
@@ -751,7 +684,6 @@ export default {
       axios.get('http://127.0.0.1:8000/sessions')
         .then(response => {
           this.sessions = response.data;
-          // console.log('sessions: ', this.sessions);
         })
         .catch(error => {
           console.error(error);
@@ -777,40 +709,7 @@ export default {
       const date = new Date(sessionDate);
       return date.toTimeString().split(' ')[0];
     },
-    // openSales(sessionId) {  
-    //   console.log('Открыта продажа билетов');
-    //   axios.post(`http://127.0.0.1:8000/sessions/${sessionId}/open`, {}, {  
-    //     preserveScroll: true,  
-    //     onSuccess: (resp) => {  
-    //       // обновить локальные данные сессии  
-    //       const updated = resp.props?.session;  
-    //       // this.updateSessionInList(updated);  
-    //     }  
-    //   });  
-    // },  
-    // closeSales(sessionId) {
-    //   console.log('Закрыта продажа билетов');  
-    //   axios.post(`http://127.0.0.1:8000/sessions/${sessionId}/close`, {}, {  
-    //     preserveScroll: true,  
-    //     onSuccess: (resp) => {  
-    //       const updated = resp.props?.session;  
-    //       // this.updateSessionInList(updated);  
-    //     }  
-    //   });  
-    // },
-    // updateSessionInList(updatedSession) {
-    //   if (!updatedSession) return;
-
-    //   // Если есть локальный массив this.sessionsOpen
-    //   const idx = this.sessionsOpen.findIndex(s => s.id === updatedSession.id);
-    //   if (idx !== -1) {
-    //     // заменить элемент
-    //     this.$set(this.sessionsOpen, idx, updatedSession);
-    //   } else {
-    //     // если сессия еще не была в списке, можно добавить
-    //     this.sessionsOpen.push(updatedSession);
-    //   }
-    // },
+    
     async fetchStatus() {
       try {
         const res = await axios.get('http://127.0.0.1:8000/admin/sales/status');
@@ -846,7 +745,7 @@ export default {
         throw new Error('CSRF token not found');
         }
         
-        const csrfToken = csrfTokenElement.getAttribute('content');
+        // const csrfToken = csrfTokenElement.getAttribute('content');
 
         // const config = {
         //     headers: {
@@ -877,6 +776,7 @@ export default {
         window.location.href = '/'; // перезапускаем и переходим на основную страницу
       } catch (error) {
         console.error('Ошибка при выходе:', error);
+        // доп переходы в случае ошибки:
         // this.$router.push('/');
         // this.$inertia.visit('/');
       }
@@ -893,28 +793,7 @@ export default {
         document.body.classList.add('page-client');
       }
     },
-  },
-
-  // watch: {  
-  //   'hallConfig.rows': {
-  //     handler(newValue) {
-  //       if (newValue > 0) {
-  //         this.generateSeats();
-  //       }
-  //     },
-  //     immediate: true
-  //   },
-
-  //   'hallConfig.seatsPerRow': {
-  //     handler(newValue) {
-  //       if (newValue > 0) {
-  //         this.generateSeats();
-  //       }
-  //     },
-  //     immediate: true
-  //   }
-  // },
-  
+  },  
   mounted() {
     document.body.classList.add('page-admin');
     document.body.classList.add('page-admin-index');
@@ -923,7 +802,7 @@ export default {
     this.getHalls();
     this.getMovies();
     this.getSessions();
-    // this.fetchHalls();
+    // this.fetchHalls(); // выполняется в created
     // this.generateSeats();
     this.updateSeatsLayout();
 
@@ -945,17 +824,11 @@ export default {
     <span class="page-header__subtitle">Администраторррская</span>
   </header>
 
-  <!-- <router-link :to="{ name: 'Logout' }" class="link_exit">Exit</router-link> logout-->.
   <nav class="page-nav ">
+    <!-- logout / выход -->
     <button @click="logout" class="link_exit btn btn--primary">
       Exit
     </button>
-    <!-- <a 
-      class="link_exit" 
-      @click="logout"
-    >
-      Выход
-    </a> -->    
   </nav>
 
   <main class="conf-steps">
@@ -1098,11 +971,12 @@ export default {
           </div>
         </div>
 
-        <fieldset class="conf-step__buttons text-center">
+        <!-- законовки кнопок, были по проекту -->
+        <!-- <fieldset class="conf-step__buttons text-center">
           <button class="conf-step__button conf-step__button-regular" @click="btnCanselKinoSession">Отмена</button>
           <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent"
             @click="btnSaveKinoSession">
-        </fieldset>
+        </fieldset> -->
       </div>
     </section>
 
@@ -1111,13 +985,7 @@ export default {
       <header class="conf-step__header conf-step__header_opened">
         <h2 class="conf-step__title">Открыть продажи</h2>
       </header>
-      <!-- <div class="conf-step__wrapper text-center">
-        <p class="conf-step__paragraph">Всё готово, теперь можно:</p>
-        <button class="conf-step__button conf-step__button-accent" @click="btnOpenShopKino">Открыть продажу
-          билетов</button>
-      </div> -->
-
-      <!-- новая кнопка для открытия продаж -->
+      <!-- кнопка для открытия/закрытия продаж билетов -->
       <div class="conf-step__wrapper text-center">
         <section class="admin-settings conf-step__paragraph">
           <h2>Глобальные продажи</h2>
@@ -1138,7 +1006,7 @@ export default {
   </main>
 
 
-  <!-- обновлённый попап добавление зала - hall -->
+  <!-- попап добавление зала - hall -->
   <div class="popup" :class="{ 'popup--visible': isVisible }">
     <div class="popup__overlay" @click="closePopup"></div>
     <div class="popup__content">
@@ -1184,7 +1052,7 @@ export default {
     </div>
   </div>
 
-  <!-- обновлённый попап добавление кино -->
+  <!-- попап добавление кино -->
   <div class="popup" :class="{ 'popup--visible': popupHiddenAM }">
     <div class="popup__overlay" @click="closePopupAddMovie"></div>
     <div class="popup__content">
@@ -1230,7 +1098,7 @@ export default {
     </div>
   </div>
 
-  <!-- обновлённый попап редактирование кино -->
+  <!-- попап редактирование кино -->
   <div class="popup" :class="{ 'popup--visible': popupHiddenEM }">
     <div class="popup__overlay" @click="closePopupEditMovie"></div>
     <div class="popup__content">
@@ -1292,7 +1160,7 @@ export default {
     </div>
   </div>
 
-  <!-- обновлённый попап добавление сессии для кино -->
+  <!-- попап добавление сессии для кино -->
   <div class="popup" :class="{ 'popup--visible': popupHiddenAddSessionMovie }">
     <div class="popup__overlay" @click="closePopupAddSessionMovie"></div>
     <div class="popup__content">

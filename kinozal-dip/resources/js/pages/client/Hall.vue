@@ -32,11 +32,7 @@ export default {
     // this.loadSession(sessionId);
   },
   computed: {
-    // rows() {
-    //   // Получим уникальные номера рядов        
-    //   const uniqueRows = new Set(this.seats.map(seat => seat.row));
-    //   return Array.from(uniqueRows).sort((a, b) => a - b);
-    // },
+    
   },
   methods: {    
     // Возвращает сидения в заданном ряду для текущего активного зала
@@ -95,19 +91,15 @@ export default {
         this.selectedSeats = this.selectedSeats.filter(s => s.id !== seat.id);        
       }
     },
-    
 
     // Проверка доступности места
     isSeatAvailable(seat) {
-      // console.log('isSeatAvailable ', seat);
-      // console.log('isSeatAvailable ', seat.status);
       return seat.status === 'available' || seat.status === 'blocked';
     },
     getSeats() {
       axios.get('http://127.0.0.1:8000/seats/index')
         .then(response => {
           this.seats = response.data;
-          // console.log('getSeats response: ', response);
         })
         .catch(error => {
           console.error(error);
@@ -227,11 +219,7 @@ export default {
 
     this.startPolling(); // обновляет информацию
     
-    // console.log('sessionId=', this.sessionId);
-    // console.log('Hall ID:', this.hallId);
-
     const route = this.$route;
-    // console.log('route params:', route.params);
     const sess = route.params.sessionId || this.sessionId;
     const hall = route.params.hallId || this.hallId;
 
