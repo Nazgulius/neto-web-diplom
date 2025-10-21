@@ -16,10 +16,5 @@ class SessionGlobalOpenTableSeeder extends Seeder
       'key' => 'sales_globally_open',
       'value' => true,
     ]);  
-
-    // DB::table('settings')->updateOrInsert(  
-    //   ['key' => 'sales_globally_open'],  
-    //   ['value' => true, 'updated_at' => now(), 'created_at' => now()]  
-    // );  
-  }  
+  } 
 }

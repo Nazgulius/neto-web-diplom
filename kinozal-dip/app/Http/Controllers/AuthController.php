@@ -41,8 +41,7 @@ class AuthController extends Controller
 
     $user = User::where('email', $request->email)->first();
 
-    if (!$user || !Hash::check($request->password, $user->password)) {
-      // return response()->json(['message' => 'Invalid credentials'], 401);
+    if (!$user || !Hash::check($request->password, $user->password)) {      
       return redirect()->route('login')->withErrors(['message' => 'Неверные учетные данные']);
     }
 
@@ -51,7 +50,6 @@ class AuthController extends Controller
     // Сохранение токена в сессии для Inertia
     $request->session()->put('access_token', $token);
 
-    // return response()->json(['user' => $user, 'access_token' => $token, 'token_type' => 'Bearer']);
     return redirect()->route('/admin/index');
   }
 

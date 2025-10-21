@@ -52,10 +52,6 @@ class SeatController extends Controller
       return response()->json(null, 204);
     }
 
-   
-
-    
-
     public function reserveSeats(Request $request)
     {
         $seats = $request->input('seats'); // массив сидений
@@ -73,17 +69,7 @@ class SeatController extends Controller
             'success' => false,
             'message' => 'Ошибка бронирования'
           ], 400);
-        }
-      
-        // foreach ($seats as $seatId) {
-        //     $seat = Seat::find($seatId);
-        //     if ($seat && $seat->status === 'blocked' || $seat->status === 'available') {  
-        //         $seat->status = 'booked';
-        //         $seat->save();
-        //     }
-        // }
-
-        // return response()->json(['success' => true]);
+        }      
     }
     public function blockSeats(Request $request)
     {      
@@ -97,23 +83,6 @@ class SeatController extends Controller
       } catch (\Exception $e) {
           return response()->json(['error' => 'Failed to reserve seats'], 500);
       }
-
-        // $seats = $request->input('seats'); // массив сидений
-        // echo 'blockSeats'.$seats."\n";
-        // echo 'blockSeats'.$seats[0]."\n";
-        // echo 'blockSeats'.$seats[1]."\n";
-       
-
-        // foreach ($seats as $seatId) {
-        //   echo 'blockSeats'.$seatId."\n";
-        //     $seat = Seat::find($seatId);
-        //     if ($seat && $seat->status === 'available') {
-        //         $seat->status = 'blocked ';
-        //         $seat->save();
-        //     }
-        // }
-
-        // return response()->json(['success' => true]);
     }
 
     // отмена блокирования, присвоение available
@@ -128,35 +97,33 @@ class SeatController extends Controller
           return response()->json(['message' => 'Reservation cancelled']);
       } catch (\Exception $e) {
           return response()->json(['error' => 'Failed to reservation cancelled seats'], 500);
-      }
-        
+      }        
     }
 
     public function updateSeatTypes(Request $request)
-{
-    $validated = $request->validate([
+    {
+      $validated = $request->validate([
         'hall_id' => 'required|integer',
         'seat_types' => 'required|array',
         'seat_types.*.row' => 'required|integer',
         'seat_types.*.number' => 'required|integer',
         'seat_types.*.type' => 'required|in:standart,vip,disabled'
-    ]);
+      ]);
 
-    DB::beginTransaction();
-    try {
+      DB::beginTransaction();
+      try {
         foreach ($validated['seat_types'] as $seat) {
-            Seat::where('hall_id', $validated['hall_id'])
-                ->where('row', $seat['row'])
-                ->where('number', $seat['number'])
-                ->update(['type' => $seat['type']]);
+          Seat::where('hall_id', $validated['hall_id'])
+            ->where('row', $seat['row'])
+            ->where('number', $seat['number'])
+            ->update(['type' => $seat['type']]);
         }
         DB::commit();
         
         return response()->json(['success' => true], 200);
-    } catch (\Throwable $e) {
+      } catch (\Throwable $e) {
         DB::rollBack();
         return response()->json(['error' => 'Ошибка при обновлении типов мест'], 500);
-    }
-}
-    
+      }
+    } 
 }

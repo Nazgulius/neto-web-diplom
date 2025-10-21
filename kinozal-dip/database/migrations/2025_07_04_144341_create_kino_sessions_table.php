@@ -16,7 +16,6 @@ return new class extends Migration
       $table->integer('movie_id');
       $table->integer('hall_id');
       $table->datetime('start_datetime');
-      // $table->time('end_time'); // времяокончания пока не нужно
       $table->timestamps();
 
       $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');

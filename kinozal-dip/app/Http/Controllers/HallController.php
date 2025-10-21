@@ -74,13 +74,6 @@ class HallController extends Controller
       return response()->json(['error' => 'Не удалось заполнить сидения'], 500);
     }
 
-    // Возвращаем созданный зал и количество созданных сидений
-    // $totalSeats = $rows * $seatsPerRow;
-    // return response()->json([
-    //   'hall' => $hall,
-    //   'created_seats' => $totalSeats,
-    // ], 201);
-
     return response()->json(['success' => true, 'hall' => $hall], 201);
   }
 
@@ -176,30 +169,6 @@ class HallController extends Controller
         }
       });
 
-      // Обновляем существующие или создаем новые места в одном зале, последнем
-      // foreach ($request->seats as $seatData) {
-      //     Log::error('место на обновление ', ['$request->seats' => $request->seats, '$seatData' => $seatData]);
-      //     $searchKey = $seatData['row'] . '-' . $seatData['seat'];
-
-      //     $existingSeat = $existingSeats[$searchKey] ?? null;
-
-      //     Log::error('Нашли существующее место для обновления ', [$existingSeat]);
-
-      //     if ($existingSeat) {
-      //         // Обновляем существующее место
-      //         $existingSeat->update([
-      //             'type' => $seatData['type'],
-      //         ]);
-      //     } 
-      // }
-
-      // --- Удаляем места, которые больше не были обновлены ---
-      // $existingSeats->each(function ($seat) use ($updatedSeats) {
-      //     if (!in_array($seat->id, $updatedSeats)) {
-      //         $seat->delete();
-      //     }
-      // });
-
       return response()->json([
         'message' => 'Конфигурация сохранена'
       ], 200);
@@ -213,32 +182,6 @@ class HallController extends Controller
     }
   }
 
-  // В контроллере
-  // public function getHallConfig(Request $request, $hallId)
-  // {
-  //   try {
-  //     $hall = Hall::findOrFail($hallId);
-
-  //     $config = [
-  //         'rows' => $hall->rows,
-  //         'seats_per_row' => $hall->seats_per_row,
-  //         'seats' => $hall->seats->map(function ($seat) {
-  //             return [
-  //                 'row' => $seat->row,
-  //                 'number' => $seat->number,
-  //                 'type' => $seat->type
-  //             ];
-  //         })->toArray()
-  //     ];
-
-
-  //     return response()->json($config, 200);
-  //   } catch (ModelNotFoundException $e) {
-  //     return response()->json(['error' => 'Зал не найден'], 404);
-  //   } catch (\Exception $e) {
-  //     return response()->json(['error' => 'Произошла ошибка'], 500);
-  //   }
-  // }
   public function getHallConfig(Request $request, $hallId)
   {
     try {
@@ -284,8 +227,6 @@ class HallController extends Controller
     // 204 No Content без тела
     return response()->json(null, 204);
 
-    // Hall::destroy($id);
-    // return response()->json(null, 204);
   }
 
   public function getSeatsStatus($hallId, $seanceId)

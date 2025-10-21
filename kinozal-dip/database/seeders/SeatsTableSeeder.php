@@ -83,23 +83,3 @@ class SeatsTableSeeder extends Seeder
     Seat::insert($allSeats);
   }
 }
-
-// старый вариант
-// foreach ($halls as $hall) {
-//   $rows = (int) $hall->rows;
-//   $seatsPerRow = (int) $hall->seats_per_row;
-
-
-//   foreach ($sessions as $session) {
-//     for ($row = 1; $row <= $rows; $row++) {
-//       for ($num = 1; $num <= $seatsPerRow; $num++) {
-//         Seat::create([
-//           'hall_id' => $hall->id,
-//           'row' => $row,
-//           'number' => $num,
-//           'type' => 'Обычное',
-//         ]);
-//       }
-//     }
-//   }
-// }

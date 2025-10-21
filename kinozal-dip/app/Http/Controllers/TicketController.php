@@ -41,8 +41,8 @@ class TicketController extends Controller
     $ticket = Ticket::where('uuid', $uuid)->firstOrFail();
     // П /П: Можно вернуть JSON или отображать Blade шаблон
     return response()->json([
-        'ticket' => $ticket,
-        'qr_code_url' => asset($ticket->qr_code_path),
+      'ticket' => $ticket,
+      'qr_code_url' => asset($ticket->qr_code_path),
     ]);
   }
 
@@ -107,27 +107,28 @@ class TicketController extends Controller
   }
 
   public function getQrCode()
-    {
-      try {
-        $seatsJson = request('seats'); // строка JSON
-        if ($seatsJson) {
-          $qrCode = new QrCode($seatsJson); 
-        } else {
-          $qrCode = new QrCode('Привет! Это qr-код! ура!'); 
-        } 
-        // $qrCode = new QrCode('Привет! Это qr-код! ура!'); // текст или ссылка 
-        // Получим изображение в base64
-        $writer = new PngWriter();
-        $result = $writer->write($qrCode);
-        $base64 = base64_encode($result->getString());
-
-        // Передадим в представление или API
-        return response()->json(['qr_code' => 'data:image/png;base64,' . $base64]);
-      } catch (\Exception $e) {
-        // Логируем ошибку
-        Log::error('QR code generation failed: ' . $e->getMessage());
-        return response()->json(['error' => 'Failed to generate QR code'], 500);
+  {
+    try {
+      $seatsJson = request('seats'); // строка JSON
+      if ($seatsJson) {
+        $qrCode = new QrCode($seatsJson);
+      } else {
+        $qrCode = new QrCode('Привет! Это qr-код! ура!');
       }
-    }
-}
 
+      // $qrCode = new QrCode('Привет! Это qr-код! ура!'); // текст или ссылка 
+
+      // Получим изображение в base64
+      $writer = new PngWriter();
+      $result = $writer->write($qrCode);
+      $base64 = base64_encode($result->getString());
+
+      // Передадим в представление или API
+      return response()->json(['qr_code' => 'data:image/png;base64,' . $base64]);
+    } catch (\Exception $e) {
+      // Логируем ошибку
+      Log::error('QR code generation failed: ' . $e->getMessage());
+      return response()->json(['error' => 'Failed to generate QR code'], 500);
+    }
+  }
+}

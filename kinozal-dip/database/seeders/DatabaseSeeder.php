@@ -24,17 +24,6 @@ class DatabaseSeeder extends Seeder
           ]);
         }
 
-        /*
-        User::updateOrCreate(
-          ['email' => 'test@example.com'], // условие поиска
-          [
-              'name' => 'Test User',
-              'password' => bcrypt('password'),
-              'email_verified_at' => now(),
-          ]
-        );
-        */
-
       $this->call(HallsTableSeeder::class);
       $this->call(MoviesTableSeeder::class);
       $this->call(KinoSessionsTableSeeder::class);

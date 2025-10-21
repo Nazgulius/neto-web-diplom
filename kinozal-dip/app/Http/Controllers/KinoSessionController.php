@@ -43,15 +43,6 @@ class KinoSessionController extends Controller
         'start_datetime' => $validated['start_datetime'],
       ]);
 
-      // Связываем места с конкретным сеансом . обработка с отправлением по одному запросу к БД
-      // $seats = Seat::where('hall_id', $validated['hall_id'])->get();
-      // foreach ($seats as $seat) {
-      //     Log::info('Создание места:', [
-      //       'seat' => $seat,
-      //     ]);
-      //     $seat->update(['session_id' => $kinoSession->id]);
-      // }
-
       $hall = Hall::find($validated['hall_id']);
       $hall_config = [
         'rows' => $hall->rows, // количество рядов
@@ -75,17 +66,7 @@ class KinoSessionController extends Controller
       }
       Seat::insert($seatsData); // массосое добавление сидений
 
-      return response()->json(['success' => true, 'kinoSession' => $kinoSession, 'message' => 'Сессия успешно создана'], status: 201);
-      // return response()->json([
-      //   'success' => true,
-      //     'data' => [
-      //       'id' => $kinoSession->id,
-      //       'movie_id' => $kinoSession->movie_id,
-      //       'hall_id' => $kinoSession->hall_id,
-      //       'start_datetime' => $kinoSession->start_datetime
-      //     ]
-      // ], 201);
-      
+      return response()->json(['success' => true, 'kinoSession' => $kinoSession, 'message' => 'Сессия успешно создана'], status: 201);      
     }
 
     /**
@@ -119,8 +100,5 @@ class KinoSessionController extends Controller
 
       // 204 No Content без тела
       return response()->json(null, 204);
-
-      // KinoSession::destroy($id);
-      // return response()->json(null, 204);
     }
 }

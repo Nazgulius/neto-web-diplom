@@ -15,20 +15,7 @@ return new class extends Migration
       $table->id();
       $table->string('key')->unique();
       $table->boolean('value')->default(true);
-      $table->timestamps();
-      // if (!Schema::hasColumn('sessions', 'id')) {
-      //   $table->id();
-      // }
-      // if (!Schema::hasColumn('sessions', 'key')) {
-      //   $table->string('key')->unique();
-      // }
-
-      // if (!Schema::hasColumn('sessions', 'value')) {
-      //   $table->boolean('value')->default(true);
-      // }
-      // $table->string('key')->unique();
-      // $table->boolean('value')->default(true);
-      // $table->boolean('is_open')->default(false); // старый вариант
+      $table->timestamps();      
     });
   }
 

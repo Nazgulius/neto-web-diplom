@@ -29,39 +29,29 @@ class SessionController extends Controller
     return response()->json(['success' => true, 'sales_globally_open' => false]);
   }
 
-  // Получить текущий статус
-  // public function status(Request $request)
-  // {
-  //   $setting = Session::where('key', 'sales_globally_open')->first();
-  //   $value = $setting ? (bool) $setting->value : true;
-  //   return response()->json(['sales_globally_open' => $value]);
-  // }
-
   public function status(Request $request)
   {
-      try {
-          // Получаем настройку
-          $setting = Session::where('key', 'sales_globally_open')
-              ->select('value')
-              ->first();
-              
-          // Получаем значение или устанавливаем значение по умолчанию
-          $salesGloballyOpen = $setting ? (bool)$setting->value : true;
+    try {
+      // Получаем настройку
+      $setting = Session::where('key', 'sales_globally_open')
+        ->select('value')
+        ->first();
 
-          return response()->json([
-              'status' => 'success',
-              'data' => [
-                  'sales_globally_open' => $salesGloballyOpen
-              ]
-          ], 200);
-          
-      } catch (\Exception $e) {
-          return response()->json([
-              'status' => 'error',
-              'message' => 'Ошибка при получении статуса продаж',
-              'error' => $e->getMessage()
-          ], 500);
-      }
+      // Получаем значение или устанавливаем значение по умолчанию
+      $salesGloballyOpen = $setting ? (bool)$setting->value : true;
+
+      return response()->json([
+        'status' => 'success',
+        'data' => [
+          'sales_globally_open' => $salesGloballyOpen
+        ]
+      ], 200);
+    } catch (\Exception $e) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'Ошибка при получении статуса продаж',
+        'error' => $e->getMessage()
+      ], 500);
+    }
   }
-
 }

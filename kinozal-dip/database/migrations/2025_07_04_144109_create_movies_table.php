@@ -15,7 +15,7 @@ return new class extends Migration
       $table->id();
       $table->string('title');
       $table->text('description')->nullable();
-      $table->integer('duration'); // минуты
+      $table->integer('duration'); // продолжительность в минутах
       $table->string('country'); 
       $table->string('image_url')->nullable();
       $table->timestamps();

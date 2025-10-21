@@ -13,6 +13,7 @@ class TicketsTableSeeder extends Seeder
      */
     public function run(): void
     {
+      // тестовый билет
       // Ticket::create([
       //   'session_id' => 1,
       //   'seat_id' => 1,
